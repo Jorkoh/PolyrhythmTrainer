@@ -1,0 +1,4 @@
+[submodule "app/libs/oboe"]
+	path = app/libs/oboe
+	url = https://github.com/google/oboe
+	branch = 1.3-stable
