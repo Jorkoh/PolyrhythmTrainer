@@ -23,32 +23,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        native_onStart(assets)
+        nativeOnStart(assets)
     }
 
     override fun onPause() {
         super.onPause()
-        native_onStop()
+        nativeOnStop()
     }
 
-    fun setDefaultStreamValues(context: Context) {
-        val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val sampleRateStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
-        val defaultSampleRate = sampleRateStr.toInt()
-        val framesPerBurstStr =
-            myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
-        val defaultFramesPerBurst = framesPerBurstStr.toInt()
-        native_setDefaultStreamValues(defaultSampleRate, defaultFramesPerBurst)
+    private fun setDefaultStreamValues(context: Context) {
+        (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
+            nativeSetDefaultStreamValues(
+                getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
+                getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
+            )
+        }
     }
 
-    /**
-     * Native methods that are implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    private external fun native_onStart(assetManager: AssetManager)
-    private external fun native_onStop()
-    private external fun native_setDefaultStreamValues(
-        defaultSampleRate: Int,
-        defaultFramesPerBurst: Int
-    )
+
+    private external fun nativeOnStart(assetManager: AssetManager)
+    private external fun nativeOnStop()
+    private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
 }

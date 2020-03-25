@@ -27,9 +27,9 @@ extern "C" {
 std::unique_ptr<Game> game;
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_native_1onStart(JNIEnv *env, jobject instance,
-                                                                     jobject jAssetManager) {
-
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStart(JNIEnv *env,
+                                                               jobject instance,
+                                                               jobject jAssetManager) {
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
     if (assetManager == nullptr) {
         LOGE("Could not obtain the AAssetManager");
@@ -41,53 +41,31 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_native_1onStart(JNIEnv *env, jobj
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_RendererWrapper_native_1onSurfaceCreated(JNIEnv *env,
-                                                                                jobject instance) {
-    game->onSurfaceCreated();
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_RendererWrapper_native_1onSurfaceChanged(JNIEnv *env,
-                                                                                jclass type,
-                                                                                jint width,
-                                                                                jint height) {
-    game->onSurfaceChanged(width, height);
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_RendererWrapper_native_1onDrawFrame(JNIEnv *env,
-                                                                           jclass type) {
+Java_com_jorkoh_polyrhythmtrainer_RendererWrapper_nativeOnDrawFrame(JNIEnv *env, jobject type) {
     game->tick();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_GameSurfaceView_native_1onTouchInput(JNIEnv *env,
-                                                                            jclass type,
-                                                                            jint event_type,
-                                                                            jlong time_since_boot_ms,
-                                                                            jint pixel_x,
-                                                                            jint pixel_y) {
-    game->tap(time_since_boot_ms);
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_GameSurfaceView_native_1surfaceDestroyed__(JNIEnv *env,
-                                                                                  jclass type) {
-    game->onSurfaceDestroyed();
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_native_1onStop(JNIEnv *env, jobject instance) {
-
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStop(JNIEnv *env, jobject instance) {
     game->stop();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_native_1setDefaultStreamValues(JNIEnv *env,
-                                                                                  jclass type,
-                                                                                  jint sampleRate,
-                                                                                  jint framesPerBurst) {
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIEnv *env,
+                                                                      jobject type,
+                                                                      jint sampleRate,
+                                                                      jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
     oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
 }
+
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_ui_TrainerFragment_onPadTouch(JNIEnv *env,
+                                                                jobject type,
+                                                                jint padPosition,
+                                                                jlong timeSinceBoot) {
+    game->tap(padPosition, timeSinceBoot);
+}
+
 } // extern "C"
