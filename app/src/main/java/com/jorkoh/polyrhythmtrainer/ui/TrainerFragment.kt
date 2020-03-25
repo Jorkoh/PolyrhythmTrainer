@@ -12,37 +12,6 @@ import kotlinx.android.synthetic.main.fragment_trainer.view.*
 
 class TrainerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_trainer, container, false).apply {
-            // TODO pads will be custom views
-            this.left_pad.setOnTouchListener { _, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        onPadTouch(0, event.eventTime)
-                        true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        performClick()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            this.right_pad.setOnTouchListener { _, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        onPadTouch(1, event.eventTime)
-                        true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        performClick()
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
+        return inflater.inflate(R.layout.fragment_trainer, container, false)
     }
-
-    private external fun onPadTouch(padPosition: Int, timeSinceBoot: Long)
 }

@@ -61,7 +61,7 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIE
 
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_ui_TrainerFragment_onPadTouch(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_ui_PadView_nativeOnPadTouch(JNIEnv *env,
                                                                 jobject type,
                                                                 jint padPosition,
                                                                 jlong timeSinceBoot) {

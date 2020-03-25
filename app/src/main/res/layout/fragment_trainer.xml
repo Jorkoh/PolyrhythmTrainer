@@ -27,12 +27,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="5dp"
-        android:background="?selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/right_pad"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:padPosition="0"
         app:padColor="@color/leftPadColor"
         app:padRippleColor="@color/leftPadRippleColor" />
 
@@ -45,6 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/left_pad"
         app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:padPosition="1"
         app:padColor="@color/rightPadColor"
         app:padRippleColor="@color/rightPadRippleColor" />
 
