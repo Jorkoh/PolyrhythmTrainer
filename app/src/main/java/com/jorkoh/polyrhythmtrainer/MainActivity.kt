@@ -9,6 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class MainActivity : AppCompatActivity() {
+
+    init {
+        System.loadLibrary("native-lib")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -30,7 +35,8 @@ class MainActivity : AppCompatActivity() {
         val myAudioMgr = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val sampleRateStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
         val defaultSampleRate = sampleRateStr.toInt()
-        val framesPerBurstStr = myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
+        val framesPerBurstStr =
+            myAudioMgr.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
         val defaultFramesPerBurst = framesPerBurstStr.toInt()
         native_setDefaultStreamValues(defaultSampleRate, defaultFramesPerBurst)
     }
@@ -45,11 +51,4 @@ class MainActivity : AppCompatActivity() {
         defaultSampleRate: Int,
         defaultFramesPerBurst: Int
     )
-
-    companion object {
-        // Used to load the 'native-lib' library on application startup.
-        init {
-            System.loadLibrary("native-lib")
-        }
-    }
 }
