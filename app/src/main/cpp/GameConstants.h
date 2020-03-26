@@ -17,18 +17,9 @@
 #ifndef SAMPLES_GAMECONSTANTS_H
 #define SAMPLES_GAMECONSTANTS_H
 
-#include "ui/OpenGLFunctions.h"
 
 constexpr int kBufferSizeInBursts = 2; // Use 2 bursts as the buffer size (double buffer)
 constexpr int kMaxQueueItems = 4; // Must be power of 2
-
-// Colors for game states and visual feedback for taps
-constexpr ScreenColor kPlayingColor = GREY;
-constexpr ScreenColor kLoadingColor = YELLOW;
-constexpr ScreenColor kLoadingFailedColor = RED;
-constexpr ScreenColor kTapSuccessColor = GREEN;
-constexpr ScreenColor kTapEarlyColor = ORANGE;
-constexpr ScreenColor kTapLateColor = PURPLE;
 
 // This defines the size of the tap window in milliseconds. For example, if defined at 100ms the
 // player will have 100ms before and after the centre of the tap window to tap on the screen and

@@ -20,9 +20,9 @@
 #include <stdint.h>
 
 constexpr int64_t kMillisecondsInSecond = 1000;
-constexpr int64_t kNanosecondsInMillisecond = 1000000;
 
 enum class TapResult {
+    Error,
     Early,
     Late,
     Success
@@ -33,8 +33,6 @@ int64_t nowUptimeMillis();
 constexpr int64_t convertFramesToMillis(const int64_t frames, const int sampleRate){
     return static_cast<int64_t>((static_cast<double>(frames)/ sampleRate) * kMillisecondsInSecond);
 }
-
-TapResult getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMillis);
 
 void renderEvent(TapResult r);
 

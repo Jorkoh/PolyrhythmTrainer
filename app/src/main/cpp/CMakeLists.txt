@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(third_party)
-
 include_directories(./)
 
 add_library(native-lib
@@ -15,9 +13,6 @@ add_library(native-lib
         audio/AAssetDataSource.cpp
         audio/Player.cpp
 
-        # UI engine
-        ui/OpenGLFunctions.cpp
-
         # utility functions
         utils/logging.h
         utils/UtilityFunctions.cpp
@@ -29,10 +24,10 @@ add_subdirectory(${OBOE_DIR} ./oboe)
 # Make the Oboe public headers available to the app
 include_directories(${OBOE_DIR}/include)
 
-target_sources( native-lib PRIVATE audio/NDKExtractor.cpp )
+target_sources(native-lib PRIVATE audio/NDKExtractor.cpp)
 
 # Specify the libraries which our native library is dependent on
-target_link_libraries(native-lib log android oboe mediandk GLESv2)
+target_link_libraries(native-lib log android oboe mediandk)
 
 # Enable optimization flags
 target_compile_options(native-lib PRIVATE -std=c++14 -Wall -Werror "$<$<CONFIG:RELEASE>:-Ofast>")

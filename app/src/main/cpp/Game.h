@@ -26,7 +26,6 @@
 
 #include "audio/Player.h"
 #include "audio/AAssetDataSource.h"
-#include "ui/OpenGLFunctions.h"
 #include "utils/LockFreeQueue.h"
 #include "utils/UtilityFunctions.h"
 #include "GameConstants.h"
@@ -48,9 +47,7 @@ public:
 
     void stop();
 
-    void tick();
-
-    void tap(int32_t padPosition, int64_t eventTimeAsUptime);
+    TapResult tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
     // Inherited from oboe::AudioStreamCallback
     DataCallbackResult onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
@@ -70,7 +67,6 @@ private:
     std::atomic<int64_t> mCurrentFrame{0};
     std::atomic<int64_t> mSongPositionMs{0};
     LockFreeQueue<int64_t, kMaxQueueItems> mClapWindows;
-    LockFreeQueue<TapResult, kMaxQueueItems> mUiEvents;
     std::atomic<int64_t> mLastUpdateTime{0};
     std::atomic<GameState> mGameState{GameState::Loading};
     std::future<void> mLoadingResult;

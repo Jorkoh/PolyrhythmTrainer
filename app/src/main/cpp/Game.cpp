@@ -59,54 +59,38 @@ void Game::stop() {
     }
 }
 
-void Game::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
+TapResult Game::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     if (padPosition != 0 && padPosition != 1) {
-        return;
+        LOGW("Invalid pad position, ignoring tap event");
+        return TapResult::Error;
     }
 
     if (mGameState != GameState::Playing) {
         LOGW("Game not in playing state, ignoring tap event");
+        return TapResult::Error;
+    }
+
+    // TODO this will have to be doubled because there are 2 types of "clap"
+    // TODO don't remove the thing that sends back UI events from the game, while the ripple
+    // TODO will come from the class itself the game will give feedback of correct/incorrect touch
+    // TODO that will display a color indicator on screen or something
+    if (padPosition == 0) {
+        leftPadSound->setPlaying(true);
     } else {
-        // TODO this will have to be doubled because there are 2 types of "clap"
+        rightPadSound->setPlaying(true);
+    }
 
-        // TODO don't remove the thing that sends back UI events from the game, while the ripple
-        // TODO will come from the class itself the game will give feedback of correct/incorrect touch
-        // TODO that will display a color indicator on screen or something
-        if (padPosition == 0) {
-            leftPadSound->setPlaying(true);
-        } else {
-            rightPadSound->setPlaying(true);
-        }
-        int64_t nextClapWindowTimeMs;
-        if (mClapWindows.pop(nextClapWindowTimeMs)) {
-            // Convert the tap time to a song position
-            int64_t tapTimeInSongMs = mSongPositionMs + (eventTimeAsUptime - mLastUpdateTime);
-            TapResult result = getTapResult(tapTimeInSongMs, nextClapWindowTimeMs);
-            mUiEvents.push(result);
-        }
+    int64_t nextClapWindowTimeMs;
+    if (mClapWindows.pop(nextClapWindowTimeMs)) {
+        // Convert the tap time to a song position
+        int64_t tapTimeInSongMs = mSongPositionMs + (eventTimeAsUptime - mLastUpdateTime);
+        return getTapResult(tapTimeInSongMs, nextClapWindowTimeMs);;
+    }else{
+        LOGW("No tap window to match, ignoring tap event");
+        return TapResult::Error;
     }
 }
 
-void Game::tick() {
-    switch (mGameState) {
-        case GameState::Playing:
-            TapResult r;
-            if (mUiEvents.pop(r)) {
-                renderEvent(r);
-            } else {
-                SetGLScreenColor(kPlayingColor);
-            }
-            break;
-
-        case GameState::Loading:
-            SetGLScreenColor(kLoadingColor);
-            break;
-
-        case GameState::FailedToLoad:
-            SetGLScreenColor(kLoadingFailedColor);
-            break;
-    }
-}
 
 DataCallbackResult Game::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
     // If our audio stream is expecting 16-bit samples we need to render our floats into a separate

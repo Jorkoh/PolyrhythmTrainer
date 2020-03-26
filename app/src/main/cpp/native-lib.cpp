@@ -41,11 +41,6 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStart(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_RendererWrapper_nativeOnDrawFrame(JNIEnv *env, jobject type) {
-    game->tick();
-}
-
-JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStop(JNIEnv *env, jobject instance) {
     game->stop();
 }
@@ -60,12 +55,12 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIE
 }
 
 
-JNIEXPORT void JNICALL
+JNIEXPORT jint JNICALL
 Java_com_jorkoh_polyrhythmtrainer_ui_PadView_nativeOnPadTouch(JNIEnv *env,
                                                                 jobject type,
                                                                 jint padPosition,
                                                                 jlong timeSinceBoot) {
-    game->tap(padPosition, timeSinceBoot);
+    return static_cast<jint>(game->tap(padPosition, timeSinceBoot));
 }
 
 } // extern "C"
