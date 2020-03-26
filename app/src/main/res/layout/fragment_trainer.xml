@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".ui.TrainerFragment">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
     <com.jorkoh.polyrhythmtrainer.GameSurfaceView
         android:id="@+id/gameSurfaceView"
         android:layout_width="0dp"
@@ -15,17 +22,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
-
     <com.jorkoh.polyrhythmtrainer.ui.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:elevation="6dp"
         android:layout_marginStart="6dp"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="3dp"
@@ -42,6 +43,7 @@
         android:id="@+id/right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:elevation="6dp"
         android:layout_marginStart="3dp"
         android:layout_marginTop="6dp"
         android:layout_marginEnd="6dp"

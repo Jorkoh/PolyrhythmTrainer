@@ -2,13 +2,11 @@ package com.jorkoh.polyrhythmtrainer.ui
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.getIntOrThrow
@@ -96,6 +94,7 @@ class PadView @JvmOverloads constructor(
 
         // Rounded corner radius size depends on the size of the pad
         cornerRadius = minOf(w / 8.0f, h / 8.0f)
+        outlineProvider = CustomOutline(w, h, cornerRadius)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -136,6 +135,17 @@ class PadView @JvmOverloads constructor(
             }
         }
         animator?.start()
+    }
+
+    inner class CustomOutline(
+        private val width: Int,
+        private val height: Int,
+        private val cornerRadius: Float
+    ) : ViewOutlineProvider() {
+
+        override fun getOutline(view: View, outline: Outline) {
+            outline.setRoundRect(0, 0, width, height, cornerRadius)
+        }
     }
 
     private external fun nativeOnPadTouch(padPosition: Int, timeSinceBoot: Long)
