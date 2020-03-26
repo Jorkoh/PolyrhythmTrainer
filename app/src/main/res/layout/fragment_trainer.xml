@@ -6,14 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".ui.TrainerFragment">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/change_theme_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_dark_theme"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconTint="?attr/colorOnBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.6" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.PadView
+    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -30,7 +46,7 @@
         app:padPosition="0"
         app:padRippleColor="@color/leftPadRippleColor" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.PadView
+    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"

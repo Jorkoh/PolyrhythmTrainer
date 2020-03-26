@@ -7,6 +7,13 @@
     tools:context=".ui.TrainerFragment">
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/top_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/left_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,7 +27,23 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.7" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.PadView
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/change_theme_button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_dark_theme"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconTint="?attr/colorOnBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -32,12 +55,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/left_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_guideline"
         app:padColor="@color/leftPadColor"
         app:padPosition="0"
         app:padRippleColor="@color/leftPadRippleColor" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.PadView
+    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -49,7 +72,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/right_guideline"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_guideline"
         app:padColor="@color/rightPadColor"
         app:padPosition="1"
         app:padRippleColor="@color/rightPadRippleColor" />

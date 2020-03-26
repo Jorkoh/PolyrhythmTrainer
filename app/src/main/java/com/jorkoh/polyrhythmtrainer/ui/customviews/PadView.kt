@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.ui
+package com.jorkoh.polyrhythmtrainer.ui.customviews
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -153,13 +153,13 @@ class PadView @JvmOverloads constructor(
         }
     }
 
-    enum class TapResult(val nativeValue : Int){
+    enum class TapResult(val nativeValue: Int) {
         Error(0),
         Early(1),
         Success(2),
         Late(3);
 
-        companion object{
+        companion object {
             fun fromNativeValue(nativeValue: Int) = values().first { it.nativeValue == nativeValue }
         }
     }
@@ -168,5 +168,5 @@ class PadView @JvmOverloads constructor(
         this.actionOnTapResult = action
     }
 
-    private external fun nativeOnPadTouch(padPosition: Int, timeSinceBoot: Long) : Int
+    private external fun nativeOnPadTouch(padPosition: Int, timeSinceBoot: Long): Int
 }
