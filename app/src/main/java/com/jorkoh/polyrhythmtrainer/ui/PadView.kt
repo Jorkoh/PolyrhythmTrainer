@@ -7,18 +7,17 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.getIntOrThrow
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.jorkoh.polyrhythmtrainer.R
 
 class PadView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
@@ -43,7 +42,7 @@ class PadView @JvmOverloads constructor(
 
     // Animation
     private var animator: ValueAnimator? = null
-    private var currentAnimationValue = 0
+    private var animationProgress = 0f
     private var animationEpicenterX = 0f
     private var animationEpicenterY = 0f
 
@@ -63,8 +62,8 @@ class PadView @JvmOverloads constructor(
 
     private fun setupAttributes(attrs: AttributeSet) {
         val typedArray = context.theme.obtainStyledAttributes(
-            attrs, R.styleable.PadView,
-            0, 0
+                attrs, R.styleable.PadView,
+                0, 0
         )
         padPosition = typedArray.getIntOrThrow(R.styleable.PadView_padPosition)
         padColor = typedArray.getColor(R.styleable.PadView_padColor, DEFAULT_PAD_COLOR)
@@ -78,10 +77,10 @@ class PadView @JvmOverloads constructor(
 
         canvas.drawRoundRect(drawRectF, cornerRadius, cornerRadius, padPaint)
 
-        if (currentAnimationValue != 0) {
-            animationPaint.alpha = (255 * (1 - currentAnimationValue / 100f)).toInt()
-            animationPaint.strokeWidth = 40f * (1 - currentAnimationValue / 100f)
-            canvas.drawCircle(animationEpicenterX, animationEpicenterY, 20f + currentAnimationValue * 4f, animationPaint)
+        if (animationProgress != 0f) {
+            animationPaint.alpha = (255 * (1 - animationProgress)).toInt()
+            animationPaint.strokeWidth = 50f * (1 - animationProgress)
+            canvas.drawCircle(animationEpicenterX, animationEpicenterY, 30f + animationProgress * 400f, animationPaint)
         }
     }
 
@@ -89,10 +88,10 @@ class PadView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
 
         drawRectF.set(
-            paddingLeft.toFloat(),
-            paddingTop.toFloat(),
-            (w - paddingRight).toFloat(),
-            (h - paddingBottom).toFloat()
+                paddingLeft.toFloat(),
+                paddingTop.toFloat(),
+                (w - paddingRight).toFloat(),
+                (h - paddingBottom).toFloat()
         )
 
         // Rounded corner radius size depends on the size of the pad
@@ -124,18 +123,15 @@ class PadView @JvmOverloads constructor(
 
         animationEpicenterX = x
         animationEpicenterY = y
-        animator = ValueAnimator.ofInt(0, 100).apply {
+        animator = ValueAnimator.ofInt(0, 1).apply {
             duration = 750
-            interpolator = FastOutSlowInInterpolator()
+            interpolator = DecelerateInterpolator()
             addUpdateListener { valueAnimator ->
-                val newAnimationValue = valueAnimator.animatedValue as Int
-                if (currentAnimationValue != newAnimationValue) {
-                    currentAnimationValue = newAnimationValue
-                    invalidate()
-                }
+                animationProgress = valueAnimator.animatedFraction
+                invalidate()
             }
             doOnEnd {
-                currentAnimationValue = -1
+                animationProgress = 0f
                 invalidate()
             }
         }
