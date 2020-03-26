@@ -35,8 +35,11 @@ constexpr ScreenColor kTapLateColor = PURPLE;
 // be successful
 constexpr int kWindowCenterOffsetMs = 100;
 
-// Filename for clap sound asset (in assets folder)
-constexpr char kClapFilename[] { "CLAP.mp3" };
+// Filename for left pad sound asset (in assets folder)
+constexpr char leftPadSoundFilename[] {"LEFT_PAD_SOUND.mp3" };
+
+// Filename for right sound asset (in assets folder)
+constexpr char rightPadSoundFilename[] {"RIGHT_PAD_SOUND.mp3" };
 
 // Filename for the backing track asset (in assets folder)
 constexpr char kBackingTrackFilename[] { "FUNKY_HOUSE.mp3" };

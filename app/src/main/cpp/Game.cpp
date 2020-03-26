@@ -72,11 +72,13 @@ void Game::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
         // TODO don't remove the thing that sends back UI events from the game, while the ripple
         // TODO will come from the class itself the game will give feedback of correct/incorrect touch
         // TODO that will display a color indicator on screen or something
-        mClap->setPlaying(true);
-
+        if (padPosition == 0) {
+            leftPadSound->setPlaying(true);
+        } else {
+            rightPadSound->setPlaying(true);
+        }
         int64_t nextClapWindowTimeMs;
         if (mClapWindows.pop(nextClapWindowTimeMs)) {
-
             // Convert the tap time to a song position
             int64_t tapTimeInSongMs = mSongPositionMs + (eventTimeAsUptime - mLastUpdateTime);
             TapResult result = getTapResult(tapTimeInSongMs, nextClapWindowTimeMs);
@@ -116,12 +118,10 @@ DataCallbackResult Game::onAudioReady(AudioStream *oboeStream, void *audioData, 
 
     for (int i = 0; i < numFrames; ++i) {
 
-        mSongPositionMs = convertFramesToMillis(
-                mCurrentFrame,
-                mAudioStream->getSampleRate());
+        mSongPositionMs = convertFramesToMillis(mCurrentFrame, mAudioStream->getSampleRate());
 
         if (mClapEvents.peek(nextClapEventMs) && mSongPositionMs >= nextClapEventMs) {
-            mClap->setPlaying(true);
+            leftPadSound->setPlaying(true);
             mClapEvents.pop(nextClapEventMs);
         }
         mMixer.renderAudio(outputBuffer + (oboeStream->getChannelCount() * i), 1);
@@ -204,19 +204,30 @@ bool Game::setupAudioSources() {
             .sampleRate = mAudioStream->getSampleRate()
     };
 
-    // Create a data source and player for the clap sound
-    std::shared_ptr<AAssetDataSource> mClapSource{
-            AAssetDataSource::newFromCompressedAsset(mAssetManager, kClapFilename, targetProperties)
+    // Create a data source and player for the left pad sound
+    std::shared_ptr<AAssetDataSource> leftPadSoundSource{
+            AAssetDataSource::newFromCompressedAsset(mAssetManager, leftPadSoundFilename, targetProperties)
     };
-    if (mClapSource == nullptr) {
-        LOGE("Could not load source data for clap sound");
+    if (leftPadSoundSource == nullptr) {
+        LOGE("Could not load source data for left pad sound");
         return false;
     }
-    mClap = std::make_unique<Player>(mClapSource);
+    leftPadSound = std::make_unique<Player>(leftPadSoundSource);
+
+    // Create a data source and player for the left pad sound
+    std::shared_ptr<AAssetDataSource> rightPadSoundSource{
+            AAssetDataSource::newFromCompressedAsset(mAssetManager, rightPadSoundFilename, targetProperties)
+    };
+    if (rightPadSoundSource == nullptr) {
+        LOGE("Could not load source data for right pad sound");
+        return false;
+    }
+    rightPadSound = std::make_unique<Player>(rightPadSoundSource);
 
     // Create a data source and player for our backing track
     std::shared_ptr<AAssetDataSource> backingTrackSource{
-            AAssetDataSource::newFromCompressedAsset(mAssetManager, kBackingTrackFilename, targetProperties)
+            AAssetDataSource::newFromCompressedAsset(mAssetManager, kBackingTrackFilename,
+                                                     targetProperties)
     };
     if (backingTrackSource == nullptr) {
         LOGE("Could not load source data for backing track");
@@ -227,7 +238,8 @@ bool Game::setupAudioSources() {
     mBackingTrack->setLooping(true);
 
     // Add both players to a mixer
-    mMixer.addTrack(mClap.get());
+    mMixer.addTrack(leftPadSound.get());
+    mMixer.addTrack(rightPadSound.get());
     mMixer.addTrack(mBackingTrack.get());
 
     return true;

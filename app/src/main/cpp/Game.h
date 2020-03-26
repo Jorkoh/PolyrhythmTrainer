@@ -60,7 +60,8 @@ public:
 private:
     AAssetManager &mAssetManager;
     AudioStream *mAudioStream{nullptr};
-    std::unique_ptr<Player> mClap;
+    std::unique_ptr<Player> leftPadSound;
+    std::unique_ptr<Player> rightPadSound;
     std::unique_ptr<Player> mBackingTrack;
     Mixer mMixer;
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
