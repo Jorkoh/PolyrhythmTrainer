@@ -15,9 +15,9 @@ import androidx.core.content.res.getIntOrThrow
 import com.jorkoh.polyrhythmtrainer.R
 
 class PadView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
@@ -62,8 +62,8 @@ class PadView @JvmOverloads constructor(
 
     private fun setupAttributes(attrs: AttributeSet) {
         val typedArray = context.theme.obtainStyledAttributes(
-                attrs, R.styleable.PadView,
-                0, 0
+            attrs, R.styleable.PadView,
+            0, 0
         )
         padPosition = typedArray.getIntOrThrow(R.styleable.PadView_padPosition)
         padColor = typedArray.getColor(R.styleable.PadView_padColor, DEFAULT_PAD_COLOR)
@@ -88,10 +88,10 @@ class PadView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
 
         drawRectF.set(
-                paddingLeft.toFloat(),
-                paddingTop.toFloat(),
-                (w - paddingRight).toFloat(),
-                (h - paddingBottom).toFloat()
+            paddingLeft.toFloat(),
+            paddingTop.toFloat(),
+            (w - paddingRight).toFloat(),
+            (h - paddingBottom).toFloat()
         )
 
         // Rounded corner radius size depends on the size of the pad
@@ -124,8 +124,8 @@ class PadView @JvmOverloads constructor(
         animationEpicenterX = x
         animationEpicenterY = y
         animator = ValueAnimator.ofInt(0, 1).apply {
-            duration = 750
-            interpolator = DecelerateInterpolator()
+            duration = 1000
+            interpolator = DecelerateInterpolator(1.75f)
             addUpdateListener { valueAnimator ->
                 animationProgress = valueAnimator.animatedFraction
                 invalidate()
