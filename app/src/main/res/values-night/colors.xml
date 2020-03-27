@@ -4,9 +4,9 @@
     <color name="secondary">#FFCC80</color>
     <color name="error">#Ef9A9A</color>
 
-    <color name="leftPadColor">#fdd835</color>
-    <color name="leftPadRippleColor">#fff176</color>
+    <color name="xRhythmColor">#fdd835</color>
+    <color name="xRhythmRippleColor">#fff176</color>
 
-    <color name="rightPadColor">#5c6bc0</color>
-    <color name="rightPadRippleColor">#7986cb</color>
+    <color name="yRhythmColor">#5c6bc0</color>
+    <color name="yRhythmRippleColor">#7986cb</color>
 </resources>

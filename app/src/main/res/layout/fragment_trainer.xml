@@ -50,10 +50,11 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/x_number_of_beats_increase_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/increase_button_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="?attr/colorOnBackground" />
 
         <TextView
             android:id="@+id/x_number_of_beats_text"
@@ -61,15 +62,17 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/polyrhythm_default_x_beats"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@color/xRhythmColor" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/x_number_of_beats_decrease_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/decrease_button_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="?attr/colorOnBackground" />
 
     </LinearLayout>
 
@@ -92,15 +95,16 @@
         app:layout_constraintBottom_toTopOf="@id/guideline_above_visualizer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/number_of_beats_picker_separator"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/y_number_of_beats_increase_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/increase_button_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="?attr/colorOnBackground" />
 
         <TextView
             android:id="@+id/y_number_of_beats_text"
@@ -108,15 +112,17 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/polyrhythm_default_y_beats"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="@color/yRhythmColor" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/y_number_of_beats_decrease_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/decrease_button_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="?attr/colorOnBackground" />
 
     </LinearLayout>
 
@@ -129,8 +135,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_above_visualizer"
-        app:xColor="@color/rightPadColor"
-        app:yColor="@color/leftPadColor" />
+        app:xRhythmColor="@color/xRhythmColor"
+        app:yRhythmColor="@color/yRhythmColor" />
 
     <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/left_pad"
@@ -145,9 +151,9 @@
         app:layout_constraintEnd_toStartOf="@+id/right_pad"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_above_pads"
-        app:padColor="@color/leftPadColor"
+        app:padColor="@color/xRhythmColor"
         app:padPosition="0"
-        app:padRippleColor="@color/leftPadRippleColor" />
+        app:padRippleColor="@color/xRhythmRippleColor" />
 
     <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/right_pad"
@@ -162,8 +168,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/left_pad"
         app:layout_constraintTop_toBottomOf="@id/guideline_above_pads"
-        app:padColor="@color/rightPadColor"
+        app:padColor="@color/yRhythmColor"
         app:padPosition="1"
-        app:padRippleColor="@color/rightPadRippleColor" />
+        app:padRippleColor="@color/yRhythmRippleColor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -72,8 +72,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             attrs, R.styleable.RhythmVisualizer,
             0, 0
         )
-        xColor = typedArray.getColor(R.styleable.RhythmVisualizer_xColor, DEFAULT_X_RHYTHM_COLOR)
-        yColor = typedArray.getColor(R.styleable.RhythmVisualizer_yColor, DEFAULT_Y_RHYTHM_COLOR)
+        xColor = typedArray.getColor(R.styleable.RhythmVisualizer_xRhythmColor, DEFAULT_X_RHYTHM_COLOR)
+        yColor = typedArray.getColor(R.styleable.RhythmVisualizer_yRhythmColor, DEFAULT_Y_RHYTHM_COLOR)
 
         typedArray.recycle()
     }
