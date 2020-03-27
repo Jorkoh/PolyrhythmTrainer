@@ -70,16 +70,13 @@ TapResult Game::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
         return TapResult::Error;
     }
 
-    // TODO this will have to be doubled because there are 2 types of "clap"
-    // TODO don't remove the thing that sends back UI events from the game, while the ripple
-    // TODO will come from the class itself the game will give feedback of correct/incorrect touch
-    // TODO that will display a color indicator on screen or something
     if (padPosition == 0) {
         leftPadSound->setPlaying(true);
     } else {
         rightPadSound->setPlaying(true);
     }
 
+    // TODO this will have to be doubled because there are 2 types of "clap"
     int64_t nextClapWindowTimeMs;
     if (mClapWindows.pop(nextClapWindowTimeMs)) {
         // Convert the tap time to a song position

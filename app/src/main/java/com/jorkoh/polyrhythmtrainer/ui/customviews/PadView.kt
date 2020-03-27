@@ -18,10 +18,11 @@ class PadView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    // TODO view size of stuff should depend on dp
     companion object {
         // TODO pad positions should be some kind of enum, not hardcoded values
         private const val DEFAULT_PAD_POSITION = -1
-        private const val DEFAULT_PAD_COLOR = Color.WHITE
+        private const val DEFAULT_PAD_COLOR = Color.BLACK
         private const val DEFAULT_PAD_RIPPLE_COLOR = Color.GRAY
     }
 
@@ -78,6 +79,7 @@ class PadView @JvmOverloads constructor(
 
         canvas.drawRoundRect(drawRectF, cornerRadius, cornerRadius, padPaint)
 
+        // If the animation is in progress draw the ripple
         if (animationProgress != 0f) {
             animationPaint.alpha = (255 * (1 - animationProgress)).toInt()
             animationPaint.strokeWidth = 50f * (1 - animationProgress)
@@ -88,15 +90,16 @@ class PadView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
+        // Size of the pad itself
         drawRectF.set(
             paddingLeft.toFloat(),
             paddingTop.toFloat(),
             (w - paddingRight).toFloat(),
             (h - paddingBottom).toFloat()
         )
-
         // Rounded corner radius size depends on the size of the pad
         cornerRadius = minOf(w / 8.0f, h / 8.0f)
+        // Shadow and elevation support
         outlineProvider = CustomOutline(w, h, cornerRadius)
     }
 

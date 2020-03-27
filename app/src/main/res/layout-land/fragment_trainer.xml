@@ -43,6 +43,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.jorkoh.polyrhythmtrainer.ui.customviews.RhythmVisualizer
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        app:bpm="80"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/right_guideline"
+        app:layout_constraintStart_toEndOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/top_guideline"
+        app:xColor="@color/rightPadColor"
+        app:xRhythm="3"
+        app:yColor="@color/leftPadColor"
+        app:yRhythm="4" />
+
     <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"

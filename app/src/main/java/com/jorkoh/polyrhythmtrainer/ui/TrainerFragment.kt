@@ -31,9 +31,9 @@ class TrainerFragment : Fragment() {
             }
 
             change_theme_button.icon = ContextCompat.getDrawable(requireContext(), when(getCurrentNightMode()){
-                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_dark_theme
-                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_light_theme
-                else -> R.drawable.ic_dark_theme
+                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
+                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
+                else -> R.drawable.ic_light_theme
             })
         }
     }
