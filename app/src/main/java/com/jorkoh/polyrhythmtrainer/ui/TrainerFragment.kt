@@ -35,9 +35,9 @@ class TrainerFragment : Fragment() {
                 Log.d("TESTING", "Received right pad tap result ${it.name}")
             }
 
-            change_theme_button.setOnClickListener {
+            change_theme_button.setOnClickListener(DebounceClickListener {
                 changeThemePreference()
-            }
+            })
 
             x_number_of_beats_increase_button.setOnClickListener {
                 trainerViewModel.changeNumberOfBeats(true, RhythmLine.X)
