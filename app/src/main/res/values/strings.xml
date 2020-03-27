@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">PolyrhythmTrainer</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">Polyrhythm Trainer</string>
+
+    <string name="polyrhythm_default_x_beats" translatable="false">3</string>
+    <string name="polyrhythm_default_y_beats" translatable="false">4</string>
+    <string name="polyrhythm_separator" translatable="false">:</string>
+    <string name="increase_button_text" translatable="false">+</string>
+    <string name="decrease_button_text" translatable="false">-</string>
 </resources>

@@ -7,9 +7,6 @@
     </declare-styleable>
 
     <declare-styleable name="RhythmVisualizer">
-        <attr name="bpm" format="integer" />
-        <attr name="xRhythm" format="integer" />
-        <attr name="yRhythm" format="integer" />
         <attr name="xColor" format="color" />
         <attr name="yColor" format="color" />
     </declare-styleable>
