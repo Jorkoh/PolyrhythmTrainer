@@ -52,6 +52,10 @@ class TrainerFragment : Fragment() {
                 trainerViewModel.changeNumberOfBeats(false, RhythmLine.Y)
             }
 
+            play_button.setOnClickListener {
+                polyrhythmVisualizer.startProgressAnimation()
+            }
+
             change_theme_button.icon = ContextCompat.getDrawable(
                 requireContext(), when (getCurrentNightMode()) {
                     Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme

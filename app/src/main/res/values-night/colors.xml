@@ -4,6 +4,8 @@
     <color name="secondary">#FFCC80</color>
     <color name="error">#Ef9A9A</color>
 
+    <color name="progressColor">#E53935</color>
+
     <color name="xRhythmColor">#fdd835</color>
     <color name="xRhythmRippleColor">#fff176</color>
 

@@ -13,9 +13,9 @@ import androidx.core.content.res.getIntOrThrow
 import com.jorkoh.polyrhythmtrainer.R
 
 class PadView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
@@ -33,15 +33,15 @@ class PadView @JvmOverloads constructor(
     private var padColor = DEFAULT_PAD_COLOR
     private var padRippleColor = DEFAULT_PAD_RIPPLE_COLOR
 
-    // Reused
+    // Drawing stuff
     private val padPaint = Paint()
     private val animationPaint = Paint()
     private val drawRectF = RectF()
-
-    // Calculated
+    // Calculated on size change
     private var cornerRadius = 20f
 
     // Animation
+    private var animationProgress = 0f
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = 800
         interpolator = DecelerateInterpolator(1.75f)
@@ -54,7 +54,6 @@ class PadView @JvmOverloads constructor(
             invalidate()
         }
     }
-    private var animationProgress = 0f
     private var animationEpicenterX = 0f
     private var animationEpicenterY = 0f
     private val animationStrokeWidthDecayFactor = resources.displayMetrics.density * 20
@@ -70,8 +69,8 @@ class PadView @JvmOverloads constructor(
 
     private fun setupAttributes(attrs: AttributeSet) {
         val typedArray = context.theme.obtainStyledAttributes(
-                attrs, R.styleable.PadView,
-                0, 0
+            attrs, R.styleable.PadView,
+            0, 0
         )
         padPosition = typedArray.getIntOrThrow(R.styleable.PadView_padPosition)
         padColor = typedArray.getColor(R.styleable.PadView_padColor, DEFAULT_PAD_COLOR)
@@ -93,13 +92,18 @@ class PadView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        // Draw the pad itself
         canvas.drawRoundRect(drawRectF, cornerRadius, cornerRadius, padPaint)
-
         // If the animation is in progress draw the ripple
         if (animationProgress != 0f) {
             animationPaint.alpha = (255 * (1 - animationProgress)).toInt()
             animationPaint.strokeWidth = animationStrokeWidthDecayFactor * (1 - animationProgress)
-            canvas.drawCircle(animationEpicenterX, animationEpicenterY, animationRadiusStart + animationProgress * animationRadiusGrowthFactor, animationPaint)
+            canvas.drawCircle(
+                animationEpicenterX,
+                animationEpicenterY,
+                animationRadiusStart + animationProgress * animationRadiusGrowthFactor,
+                animationPaint
+            )
         }
     }
 
@@ -108,10 +112,10 @@ class PadView @JvmOverloads constructor(
 
         // Size of the pad itself
         drawRectF.set(
-                paddingLeft.toFloat(),
-                paddingTop.toFloat(),
-                (w - paddingRight).toFloat(),
-                (h - paddingBottom).toFloat()
+            paddingLeft.toFloat(),
+            paddingTop.toFloat(),
+            (w - paddingRight).toFloat(),
+            (h - paddingBottom).toFloat()
         )
         // Rounded corner radius size depends on the size of the pad
         cornerRadius = minOf(w / 8.0f, h / 8.0f)
@@ -149,9 +153,9 @@ class PadView @JvmOverloads constructor(
     }
 
     inner class CustomOutline(
-            private val width: Int,
-            private val height: Int,
-            private val cornerRadius: Float
+        private val width: Int,
+        private val height: Int,
+        private val cornerRadius: Float
     ) : ViewOutlineProvider() {
 
         override fun getOutline(view: View, outline: Outline) {

@@ -36,6 +36,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Play"
+        app:layout_constraintEnd_toStartOf="@id/x_number_of_beats_picker_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guideline_above_visualizer"/>
+
     <LinearLayout
         android:id="@+id/x_number_of_beats_picker_layout"
         android:layout_width="wrap_content"
@@ -156,6 +166,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline_above_visualizer"
         app:neutralColor="?attr/colorOnBackground"
+        app:progressColor="@color/progressColor"
         app:xRhythmColor="@color/xRhythmColor"
         app:yRhythmColor="@color/yRhythmColor" />
 

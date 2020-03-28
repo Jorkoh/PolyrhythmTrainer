@@ -8,6 +8,7 @@
 
     <declare-styleable name="RhythmVisualizer">
         <attr name="neutralColor" format="color" />
+        <attr name="progressColor" format="color" />
         <attr name="xRhythmColor" format="color" />
         <attr name="yRhythmColor" format="color" />
     </declare-styleable>
