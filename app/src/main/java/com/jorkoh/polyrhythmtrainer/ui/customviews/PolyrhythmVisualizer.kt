@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import com.jorkoh.polyrhythmtrainer.R
@@ -16,11 +17,11 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
+        private const val DEFAULT_NEUTRAL_COLOR = Color.BLACK
         private const val DEFAULT_X_RHYTHM_COLOR = Color.BLACK
         private const val DEFAULT_Y_RHYTHM_COLOR = Color.BLACK
     }
 
-    // TODO view size of stuff should depend on dp
     var polyrhythmSettings = PolyrhythmSettings()
         set(value) {
             if (field.BPM != value.BPM) {
@@ -39,22 +40,29 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private var beatLengthMS = 60000 / polyrhythmSettings.BPM
 
     // Recalculated when changing BPM, causes redraw
-    private var xRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
+    private var xRhythmSubdivisions =
+        calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
         set(value) {
             field = value
             invalidate()
         }
-    private var yRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
+    private var yRhythmSubdivisions =
+        calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
         set(value) {
             field = value
             invalidate()
         }
 
     // Styled attributes
+    private var neutralColor = DEFAULT_NEUTRAL_COLOR
     private var xColor = DEFAULT_X_RHYTHM_COLOR
     private var yColor = DEFAULT_Y_RHYTHM_COLOR
 
-    // Reused
+
+    // Drawing stuff
+    private val horizontalInternalPadding = resources.displayMetrics.density * 10
+    private val rhythmLinesSeparation = resources.displayMetrics.density * 30
+    private val usableRectF = RectF()
     private val xPaint = Paint()
     private val yPaint = Paint()
     private val neutralPaint = Paint()
@@ -71,24 +79,25 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             attrs, R.styleable.RhythmVisualizer,
             0, 0
         )
+        neutralColor = typedArray.getColor(R.styleable.RhythmVisualizer_neutralColor, DEFAULT_NEUTRAL_COLOR)
         xColor = typedArray.getColor(R.styleable.RhythmVisualizer_xRhythmColor, DEFAULT_X_RHYTHM_COLOR)
         yColor = typedArray.getColor(R.styleable.RhythmVisualizer_yRhythmColor, DEFAULT_Y_RHYTHM_COLOR)
 
         typedArray.recycle()
     }
 
-    private fun setupPaints(){
+    private fun setupPaints() {
         xPaint.color = xColor
         xPaint.isAntiAlias = true
-        xPaint.strokeWidth = 30f
+        xPaint.strokeWidth = resources.displayMetrics.density * 8
 
         yPaint.color = yColor
         yPaint.isAntiAlias = true
-        yPaint.strokeWidth = 30f
+        yPaint.strokeWidth = resources.displayMetrics.density * 8
 
-        neutralPaint.color = Color.GRAY
+        neutralPaint.color = neutralColor
         neutralPaint.isAntiAlias = true
-        neutralPaint.strokeWidth = 15f
+        neutralPaint.strokeWidth = resources.displayMetrics.density * 5
     }
 
     private fun calculateRhythmLineSubdivisons(numberOfBeats: Int) =
@@ -99,35 +108,73 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         super.onDraw(canvas)
 
         // Draw neutral lines, horizontal and end
+        drawNeutralLines(canvas)
+        // Draw x lines on the top
+        drawXLines(canvas)
+        // Draw y lines on the bottom
+        drawYLines(canvas)
+    }
+
+    private fun drawNeutralLines(canvas: Canvas) {
+        // Start of beat
         canvas.drawLine(
-            0f,
-            height.toFloat() / 2,
-            width.toFloat(),
-            height.toFloat() / 2,
+            usableRectF.left,
+            usableRectF.centerY() - rhythmLinesSeparation / 2,
+            usableRectF.left,
+            usableRectF.centerY() + rhythmLinesSeparation / 2,
             neutralPaint
         )
-        canvas.drawLine(width.toFloat(), 0f, width.toFloat(), height.toFloat(), neutralPaint)
+        // Horizontal guide
+        canvas.drawLine(
+            usableRectF.left,
+            usableRectF.centerY(),
+            usableRectF.right,
+            usableRectF.centerY(),
+            neutralPaint
+        )
+        // End of beat
+        canvas.drawLine(
+            usableRectF.right,
+            usableRectF.top + (usableRectF.height() / 2 - rhythmLinesSeparation) / 2,
+            usableRectF.right,
+            usableRectF.bottom - (usableRectF.height() / 2 - rhythmLinesSeparation) / 2,
+            neutralPaint
+        )
+    }
 
-        // Draw x lines on the top
+    private fun drawXLines(canvas: Canvas) {
         for (subdivision in xRhythmSubdivisions) {
             canvas.drawLine(
-                width * subdivision,
-                height.toFloat() / 2,
-                width * subdivision,
-                0f,
+                usableRectF.left + usableRectF.width() * subdivision,
+                usableRectF.centerY() - rhythmLinesSeparation,
+                usableRectF.left + usableRectF.width() * subdivision,
+                usableRectF.top,
                 xPaint
             )
         }
+    }
 
-        // Draw y lines on the bottom
+    private fun drawYLines(canvas: Canvas) {
         for (subdivision in yRhythmSubdivisions) {
             canvas.drawLine(
-                width * subdivision,
-                height.toFloat() / 2,
-                width * subdivision,
-                height.toFloat(),
+                usableRectF.left + usableRectF.width() * subdivision,
+                usableRectF.centerY() + rhythmLinesSeparation,
+                usableRectF.left + usableRectF.width() * subdivision,
+                usableRectF.bottom,
                 yPaint
             )
         }
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        // Size of the pad itself
+        usableRectF.set(
+            paddingLeft + horizontalInternalPadding,
+            paddingTop.toFloat(),
+            w - (paddingRight + horizontalInternalPadding),
+            (h - paddingBottom).toFloat()
+        )
     }
 }

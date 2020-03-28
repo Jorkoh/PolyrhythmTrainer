@@ -18,7 +18,6 @@ class PadView @JvmOverloads constructor(
         defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    // TODO view size of stuff should depend on dp
     companion object {
         // TODO pad positions should be some kind of enum, not hardcoded values
         private const val DEFAULT_PAD_POSITION = -1
