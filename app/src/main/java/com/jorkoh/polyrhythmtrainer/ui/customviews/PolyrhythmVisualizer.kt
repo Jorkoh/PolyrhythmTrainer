@@ -64,7 +64,6 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             setupAttributes(attrs)
         }
         setupPaints()
-
     }
 
     private fun setupAttributes(attrs: AttributeSet) {
