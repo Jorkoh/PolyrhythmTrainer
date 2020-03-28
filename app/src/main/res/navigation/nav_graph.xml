@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/trainerFragment"
-        android:name="com.jorkoh.polyrhythmtrainer.ui.TrainerFragment"
+        android:name="com.jorkoh.polyrhythmtrainer.destinations.TrainerFragment"
         android:label="fragment_trainer"
         tools:layout="@layout/fragment_trainer" />
 </navigation>

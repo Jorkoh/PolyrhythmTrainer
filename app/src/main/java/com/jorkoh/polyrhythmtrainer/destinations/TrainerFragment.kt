@@ -1,7 +1,10 @@
-package com.jorkoh.polyrhythmtrainer.ui
+package com.jorkoh.polyrhythmtrainer.destinations
 
+import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.AssetManager
 import android.content.res.Configuration
+import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,7 +23,21 @@ import kotlinx.android.synthetic.main.fragment_trainer.view.*
 
 class TrainerFragment : Fragment() {
 
-    val trainerViewModel: TrainerViewModel by viewModels()
+    private val trainerViewModel: TrainerViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Set default stream values
+        (requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
+            nativeSetDefaultStreamValues(
+                getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
+                getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
+            )
+        }
+        // Load the native engine
+        nativeLoad(requireContext().assets)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,7 +70,7 @@ class TrainerFragment : Fragment() {
             }
 
             play_button.setOnClickListener {
-                polyrhythmVisualizer.startProgressAnimation()
+                polyrhythmVisualizer.play()
             }
 
             change_theme_button.icon = ContextCompat.getDrawable(
@@ -73,6 +90,7 @@ class TrainerFragment : Fragment() {
             x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
             y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
             polyrhythmVisualizer.polyrhythmSettings = newSettings.copy()
+            nativeChangeRhythmSettings(newSettings.xNumberOfBeats, newSettings.yNumberOfBeats, newSettings.BPM)
         })
     }
 
@@ -95,4 +113,15 @@ class TrainerFragment : Fragment() {
     private fun getCurrentNightMode(): Int {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        nativeUnload()
+    }
+
+    private external fun nativeLoad(assetManager: AssetManager)
+    private external fun nativeUnload()
+    private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
+    private external fun nativeChangeRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
 }

@@ -19,48 +19,67 @@
 #include <android/asset_manager_jni.h>
 
 #include "utils/logging.h"
-#include "Game.h"
+#include "Engine.h"
 
 
 extern "C" {
 
-std::unique_ptr<Game> game;
+std::unique_ptr<Engine> engine;
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStart(JNIEnv *env,
-                                                               jobject instance,
-                                                               jobject jAssetManager) {
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env,
+                                                          jobject instance,
+                                                          jobject jAssetManager) {
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
     if (assetManager == nullptr) {
         LOGE("Could not obtain the AAssetManager");
         return;
     }
 
-    game = std::make_unique<Game>(*assetManager);
-    game->start();
+    engine = std::make_unique<Engine>(*assetManager);
+    engine->requestLoad();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeOnStop(JNIEnv *env, jobject instance) {
-    game->stop();
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStop(JNIEnv *env, jobject instance) {
+    engine->stop();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIEnv *env,
-                                                                      jobject type,
-                                                                      jint sampleRate,
-                                                                      jint framesPerBurst) {
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStart(JNIEnv *env, jobject instance) {
+    engine->start();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeUnload(JNIEnv *env, jobject instance) {
+    engine->unload();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeChangeRhythmSettings(JNIEnv *env,
+                                                                                          jobject type,
+                                                                                          jint newXNumberOfBeats,
+                                                                                          jint newYNumberOfBeats,
+                                                                                          jint newBPM) {
+    engine->changeRhythmSettings(newXNumberOfBeats, newYNumberOfBeats, newBPM);
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env,
+                                                                            jobject type,
+                                                                            jint sampleRate,
+                                                                            jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
     oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
 }
 
 
 JNIEXPORT jint JNICALL
-Java_com_jorkoh_polyrhythmtrainer_ui_customviews_PadView_nativeOnPadTouch(JNIEnv *env,
-                                                                jobject type,
-                                                                jint padPosition,
-                                                                jlong timeSinceBoot) {
-    return static_cast<jint>(game->tap(padPosition, timeSinceBoot));
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PadView_nativeOnPadTouch(JNIEnv *env,
+                                                                                    jobject type,
+                                                                                    jint padPosition,
+                                                                                    jlong timeSinceBoot) {
+    return static_cast<jint>(engine->tap(padPosition, timeSinceBoot));
 }
 
 } // extern "C"

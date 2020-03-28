@@ -7,7 +7,7 @@ add_library(native-lib
 
         # main game files
         native-lib.cpp
-        Game.cpp
+        Engine.cpp
 
         # audio engine
         audio/AAssetDataSource.cpp

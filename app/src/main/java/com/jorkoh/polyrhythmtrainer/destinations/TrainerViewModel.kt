@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.ui
+package com.jorkoh.polyrhythmtrainer.destinations
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

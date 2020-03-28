@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.ui.customviews
+package com.jorkoh.polyrhythmtrainer.destinations.customviews
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -8,9 +8,10 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
 import com.jorkoh.polyrhythmtrainer.R
-import com.jorkoh.polyrhythmtrainer.ui.PolyrhythmSettings
+import com.jorkoh.polyrhythmtrainer.destinations.PolyrhythmSettings
 
 class PolyrhythmVisualizer @JvmOverloads constructor(
     context: Context,
@@ -29,16 +30,16 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         set(value) {
             if (field.BPM != value.BPM) {
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                animator.cancel()
+                stop()
             }
             if (field.xNumberOfBeats != value.xNumberOfBeats) {
                 xRhythmSubdivisions = calculateRhythmLineSubdivisons(value.xNumberOfBeats)
-                animator.cancel()
+                stop()
             }
             if (field.yNumberOfBeats != value.yNumberOfBeats) {
                 yRhythmSubdivisions = calculateRhythmLineSubdivisons(value.yNumberOfBeats)
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                animator.cancel()
+                stop()
             }
             field = value
         }
@@ -82,6 +83,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()
         addUpdateListener { valueAnimator ->
+            interpolator = LinearInterpolator()
             animationProgress = valueAnimator.animatedFraction
             invalidate()
         }
@@ -218,8 +220,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         )
     }
 
-    fun startProgressAnimation() {
-        animator.cancel()
+
+    fun play() {
+        stop()
+        nativeStart()
         animator.start()
     }
+
+    private fun stop() {
+        animator.cancel()
+        nativeStop()
+    }
+
+    private external fun nativeStart()
+    private external fun nativeStop()
 }

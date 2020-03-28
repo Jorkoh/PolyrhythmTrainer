@@ -39,13 +39,21 @@ enum class GameState {
     FailedToLoad
 };
 
-class Game : public AudioStreamCallback {
+class Engine : public AudioStreamCallback {
 public:
-    explicit Game(AAssetManager &);
+    explicit Engine(AAssetManager &);
+
+    void requestLoad();
+
+    void stop();
 
     void start();
 
-    void stop();
+    void scheduleEventsAndWindows();
+
+    void unload();
+
+    void changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
     TapResult tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
@@ -59,14 +67,18 @@ private:
     AudioStream *mAudioStream{nullptr};
     std::unique_ptr<Player> leftPadSound;
     std::unique_ptr<Player> rightPadSound;
-    std::unique_ptr<Player> mBackingTrack;
     Mixer mMixer;
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
 
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapEvents;
+    std::atomic<int64_t> rhythmLengthMS;
+    std::atomic<int32_t> xNumberOfBeats;
+    std::atomic<int32_t> yNumberOfBeats;
+    LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;
+    LockFreeQueue<int64_t, kMaxQueueItems> yRhythmEvents;
     std::atomic<int64_t> mCurrentFrame{0};
     std::atomic<int64_t> mSongPositionMs{0};
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapWindows;
+    LockFreeQueue<int64_t, kMaxQueueItems> xRhythmWindows;
+    LockFreeQueue<int64_t, kMaxQueueItems> yRhythmWindows;
     std::atomic<int64_t> mLastUpdateTime{0};
     std::atomic<GameState> mGameState{GameState::Loading};
     std::future<void> mLoadingResult;
@@ -78,8 +90,6 @@ private:
     bool openStream();
 
     bool setupAudioSources();
-
-    void scheduleSongEvents();
 };
 
 

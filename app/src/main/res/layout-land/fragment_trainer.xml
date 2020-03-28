@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.TrainerFragment">
+    tools:context=".destinations.TrainerFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/top_guideline"
@@ -170,7 +170,7 @@
 
     </LinearLayout>
 
-    <com.jorkoh.polyrhythmtrainer.ui.customviews.PolyrhythmVisualizer
+    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PolyrhythmVisualizer
         android:id="@+id/polyrhythmVisualizer"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -184,7 +184,7 @@
         app:xRhythmColor="@color/xRhythmColor"
         app:yRhythmColor="@color/yRhythmColor" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
+    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -201,7 +201,7 @@
         app:padPosition="0"
         app:padRippleColor="@color/xRhythmRippleColor" />
 
-    <com.jorkoh.polyrhythmtrainer.ui.customviews.PadView
+    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PadView
         android:id="@+id/right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"

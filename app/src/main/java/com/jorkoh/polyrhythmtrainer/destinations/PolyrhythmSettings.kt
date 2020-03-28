@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.ui
+package com.jorkoh.polyrhythmtrainer.destinations
 
 data class PolyrhythmSettings(
     var BPM: Int = 80,
