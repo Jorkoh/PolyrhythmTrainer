@@ -18,6 +18,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.R
+import com.jorkoh.polyrhythmtrainer.destinations.customviews.PolyrhythmVisualizer
 import kotlinx.android.synthetic.main.fragment_trainer.*
 import kotlinx.android.synthetic.main.fragment_trainer.view.*
 
@@ -69,8 +70,12 @@ class TrainerFragment : Fragment() {
                 trainerViewModel.changeNumberOfBeats(false, RhythmLine.Y)
             }
 
-            play_button.setOnClickListener {
-                polyrhythmVisualizer.play()
+            play_stop_button.setOnClickListener {
+                polyrhythm_visualizer.changeStatus()
+            }
+
+            polyrhythm_visualizer.doOnStatusChange { newStatus ->
+                setPlayPauseButtonIcon(newStatus)
             }
 
             change_theme_button.icon = ContextCompat.getDrawable(
@@ -89,12 +94,40 @@ class TrainerFragment : Fragment() {
         // TODO temp until level system is implemented
         current_level_text.text = getString(R.string.current_level, 1)
 
-        trainerViewModel.getPolyrhythmSettings().observe(viewLifecycleOwner, Observer { newSettings ->
-            x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
-            y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
-            polyrhythmVisualizer.polyrhythmSettings = newSettings.copy()
-            nativeChangeRhythmSettings(newSettings.xNumberOfBeats, newSettings.yNumberOfBeats, newSettings.BPM)
-        })
+        trainerViewModel.getPolyrhythmSettings()
+            .observe(viewLifecycleOwner, Observer { newSettings ->
+                x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
+                y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
+                polyrhythm_visualizer.polyrhythmSettings = newSettings.copy()
+                nativeChangeRhythmSettings(
+                    newSettings.xNumberOfBeats,
+                    newSettings.yNumberOfBeats,
+                    newSettings.BPM
+                )
+            })
+    }
+
+    private fun setPlayPauseButtonIcon(newStatus : PolyrhythmVisualizer.Status){
+        when (newStatus) {
+            PolyrhythmVisualizer.Status.PLAYING -> {
+                play_stop_button.icon = ContextCompat.getDrawable(
+                    requireContext(), R.drawable.ic_pause
+                )
+                play_stop_button.iconTint = ContextCompat.getColorStateList(
+                    requireContext(),
+                    R.color.pauseColor
+                )
+            }
+            PolyrhythmVisualizer.Status.PAUSED -> {
+                play_stop_button.icon = ContextCompat.getDrawable(
+                    requireContext(), R.drawable.ic_play
+                )
+                play_stop_button.iconTint = ContextCompat.getColorStateList(
+                    requireContext(),
+                    R.color.playColor
+                )
+            }
+        }
     }
 
     private fun changeThemePreference() {
@@ -126,5 +159,6 @@ class TrainerFragment : Fragment() {
     private external fun nativeLoad(assetManager: AssetManager)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
+
     private external fun nativeChangeRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
 }

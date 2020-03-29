@@ -21,10 +21,30 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_NEUTRAL_COLOR = Color.BLACK
-        private const val DEFAULT_PROGRESS_COLOR = Color.RED
+        private const val DEFAULT_PLAYING_COLOR = Color.RED
+        private const val DEFAULT_PAUSED_COLOR = Color.GREEN
         private const val DEFAULT_X_RHYTHM_COLOR = Color.BLACK
         private const val DEFAULT_Y_RHYTHM_COLOR = Color.BLACK
     }
+
+    // Status stuff
+    enum class Status {
+        PLAYING,
+        PAUSED
+    }
+
+    private var actionOnStatusChange: ((Status) -> Unit)? = null
+    private var currentStatus: Status = Status.PAUSED
+        set(value) {
+            if (field != value) {
+                field = value
+                when (value) {
+                    Status.PLAYING -> start()
+                    Status.PAUSED -> stop()
+                }
+                actionOnStatusChange?.invoke(value)
+            }
+        }
 
     var polyrhythmSettings = PolyrhythmSettings()
         set(value) {
@@ -45,19 +65,22 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // Recalculated when changing BPM or y number of beats
-    private var polyrhythmLengthMS = polyrhythmSettings.yNumberOfBeats * 60000 / polyrhythmSettings.BPM
+    private var polyrhythmLengthMS =
+        polyrhythmSettings.yNumberOfBeats * 60000 / polyrhythmSettings.BPM
         set(value) {
             field = value
             animator.duration = value.toLong()
         }
 
     // Recalculated when changing BPM, causes redraw
-    private var xRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
+    private var xRhythmSubdivisions =
+        calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
         set(value) {
             field = value
             invalidate()
         }
-    private var yRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
+    private var yRhythmSubdivisions =
+        calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
         set(value) {
             field = value
             invalidate()
@@ -65,7 +88,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Styled attributes
     private var neutralColor = DEFAULT_NEUTRAL_COLOR
-    private var progressColor = DEFAULT_PROGRESS_COLOR
+    private var playingColor = DEFAULT_PLAYING_COLOR
+    private var pausedColor = DEFAULT_PAUSED_COLOR
     private var xColor = DEFAULT_X_RHYTHM_COLOR
     private var yColor = DEFAULT_Y_RHYTHM_COLOR
 
@@ -76,7 +100,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private val xPaint = Paint()
     private val yPaint = Paint()
     private val neutralPaint = Paint()
-    private val progressPaint = Paint()
+    private val pausedPaint = Paint()
+    private val playingPaint = Paint()
 
     // Animation
     private var animationProgress = 0f
@@ -106,7 +131,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             0, 0
         )
         neutralColor = typedArray.getColor(R.styleable.RhythmVisualizer_neutralColor, DEFAULT_NEUTRAL_COLOR)
-        progressColor = typedArray.getColor(R.styleable.RhythmVisualizer_progressColor, DEFAULT_PROGRESS_COLOR)
+        playingColor = typedArray.getColor(R.styleable.RhythmVisualizer_playingColor, DEFAULT_PLAYING_COLOR)
+        pausedColor = typedArray.getColor(R.styleable.RhythmVisualizer_pausedColor, DEFAULT_PAUSED_COLOR)
         xColor = typedArray.getColor(R.styleable.RhythmVisualizer_xRhythmColor, DEFAULT_X_RHYTHM_COLOR)
         yColor = typedArray.getColor(R.styleable.RhythmVisualizer_yRhythmColor, DEFAULT_Y_RHYTHM_COLOR)
 
@@ -126,9 +152,13 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         neutralPaint.isAntiAlias = true
         neutralPaint.strokeWidth = resources.displayMetrics.density * 5
 
-        progressPaint.color = progressColor
-        progressPaint.isAntiAlias = true
-        progressPaint.strokeWidth = resources.displayMetrics.density * 5
+        playingPaint.color = playingColor
+        playingPaint.isAntiAlias = true
+        playingPaint.strokeWidth = resources.displayMetrics.density * 5
+
+        pausedPaint.color = pausedColor
+        pausedPaint.isAntiAlias = true
+        pausedPaint.strokeWidth = resources.displayMetrics.density * 5
     }
 
     private fun calculateRhythmLineSubdivisons(numberOfBeats: Int) =
@@ -204,7 +234,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             usableRectF.centerY() - rhythmLinesSeparation / 2,
             usableRectF.left + usableRectF.width() * animationProgress,
             usableRectF.centerY() + rhythmLinesSeparation / 2,
-            progressPaint
+            when (currentStatus) {
+                Status.PLAYING -> playingPaint
+                Status.PAUSED -> pausedPaint
+            }
         )
     }
 
@@ -221,8 +254,14 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
 
-    fun play() {
-        stop()
+    fun changeStatus() {
+        currentStatus = when (currentStatus) {
+            Status.PLAYING -> Status.PAUSED
+            Status.PAUSED -> Status.PLAYING
+        }
+    }
+
+    private fun start() {
         nativeStart()
         animator.start()
     }
@@ -230,6 +269,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private fun stop() {
         animator.cancel()
         nativeStop()
+    }
+
+    fun doOnStatusChange(action: (newStatus: Status) -> Unit) {
+        actionOnStatusChange = action
     }
 
     private external fun nativeStart()
