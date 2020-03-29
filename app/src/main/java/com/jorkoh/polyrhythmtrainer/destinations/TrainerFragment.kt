@@ -86,6 +86,9 @@ class TrainerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // TODO temp until level system is implemented
+        current_level_text.text = getString(R.string.current_level, 1)
+
         trainerViewModel.getPolyrhythmSettings().observe(viewLifecycleOwner, Observer { newSettings ->
             x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
             y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
