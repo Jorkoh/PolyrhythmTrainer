@@ -165,9 +165,10 @@ class PadView @JvmOverloads constructor(
 
     enum class TapResult(val nativeValue: Int) {
         Error(0),
-        Early(1),
-        Success(2),
-        Late(3);
+        Ignored(1),
+        Early(2),
+        Late(3),
+        Success(4);
 
         companion object {
             fun fromNativeValue(nativeValue: Int) = values().first { it.nativeValue == nativeValue }

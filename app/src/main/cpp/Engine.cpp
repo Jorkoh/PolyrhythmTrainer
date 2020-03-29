@@ -22,31 +22,35 @@
 
 Engine::Engine(AAssetManager &assetManager) : mAssetManager(assetManager) {}
 
-void Engine::load() {
-    if (!openStream()) {
-        mGameState = GameState::FailedToLoad;
-        return;
-    }
-
-    if (!setupAudioSources()) {
-        mGameState = GameState::FailedToLoad;
-        return;
-    }
-}
-
 void Engine::requestLoad() {
+    engineState = EngineState::Loading;
     // async returns a future, we must store this future to avoid blocking. It's not sufficient
     // to store this in a local variable as its destructor will block until Game::load completes.
     mLoadingResult = std::async(&Engine::load, this);
 }
 
-void Engine::stop() {
-    if (mAudioStream != nullptr) {
-        mAudioStream->requestStop();
+void Engine::load() {
+    if (!openStream()) {
+        engineState = EngineState::FailedToLoad;
+        return;
     }
+
+    if (!setupAudioSources()) {
+        engineState = EngineState::FailedToLoad;
+        return;
+    }
+
+    Result result = mAudioStream->requestStart();
+    if (result != Result::OK) {
+        LOGE("Failed to start stream. Error: %s", convertToText(result));
+        engineState = EngineState::FailedToLoad;
+        return;
+    }
+
+    engineState = EngineState::Inactive;
 }
 
-void Engine::unload(){
+void Engine::unload() {
     if (mAudioStream != nullptr) {
         mAudioStream->close();
         delete mAudioStream;
@@ -54,50 +58,52 @@ void Engine::unload(){
     }
 }
 
-void Engine::start() {
-    scheduleEventsAndWindows();
+void Engine::startRhythm() {
+    resetRhythmPositionEventsAndWindows();
+    scheduleNewEventsAndWindows();
 
-    Result result = mAudioStream->requestStart();
-    if (result != Result::OK) {
-        LOGE("Failed to start stream. Error: %s", convertToText(result));
-        mGameState = GameState::FailedToLoad;
-        return;
-    }
+    engineState = EngineState::PlayingRhythm;
 
-    mGameState = GameState::Playing;
+    // TODO the state has to change from PlayingRhythm to MeasuringRhythm eventually,
+    //  it would probably be a good idea to change before the listening bar start (after
+    //  the last beat of the example?) to catch early birds
 }
 
-void Engine::scheduleEventsAndWindows(){
-    // TODO do this but properly
-    // Clear queues
+
+void Engine::stopRhythm() {
+    engineState = EngineState::Inactive;
+}
+
+void Engine::resetRhythmPositionEventsAndWindows() {
+    // TODO clear this queues properly
     int64_t holder;
-    while(xRhythmEvents.peek(holder)){
+    while (xRhythmEvents.peek(holder)) {
         xRhythmEvents.pop(holder);
     }
-    while(xRhythmWindows.peek(holder)){
+    while (xRhythmWindows.peek(holder)) {
         xRhythmWindows.pop(holder);
     }
-    while(yRhythmEvents.peek(holder)){
+    while (yRhythmEvents.peek(holder)) {
         yRhythmEvents.pop(holder);
     }
-    while(yRhythmWindows.peek(holder)){
+    while (yRhythmWindows.peek(holder)) {
         yRhythmWindows.pop(holder);
     }
-    mCurrentFrame = 0;
-    mSongPositionMs = 0;
-    mLastUpdateTime = 0;
+    currentFrame = 0;
+    rhythmPositionMs = 0;
+    lastUpdateTime = 0;
+    remainingBeats = xNumberOfBeats + yNumberOfBeats;
+}
 
-    // Setup new ones
+void Engine::scheduleNewEventsAndWindows() {
     for (int index = 0; index < xNumberOfBeats; index++) {
         int64_t xRhythmEvent = rhythmLengthMS * index / xNumberOfBeats;
         xRhythmEvents.push(xRhythmEvent);
-        // TODO temp solution until we figure out how the game will actually work
         xRhythmWindows.push(xRhythmEvent + rhythmLengthMS);
     }
     for (int index = 0; index < yNumberOfBeats; index++) {
         int64_t yRhythmEvent = rhythmLengthMS * index / yNumberOfBeats;
         yRhythmEvents.push(yRhythmEvent);
-        // TODO temp solution until we figure out how the game will actually work
         yRhythmWindows.push(yRhythmEvent + rhythmLengthMS);
     }
 }
@@ -114,32 +120,37 @@ TapResult Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
         return TapResult::Error;
     }
 
-    if (mGameState != GameState::Playing) {
-        LOGW("Game not in playing state, ignoring tap event");
+    if (engineState == EngineState::Loading || engineState == EngineState::FailedToLoad) {
+        LOGW("Engine not started, ignoring tap event");
         return TapResult::Error;
     }
 
+    // Enable the sound for the pad
     if (padPosition == 0) {
         leftPadSound->setPlaying(true);
     } else {
         rightPadSound->setPlaying(true);
     }
 
-
+    // If we are not measuring the rhythm ignore the tap
+    if (engineState != EngineState::MeasuringRhythm) {
+        return TapResult::Ignored;
+    }
+    // Otherwise try to match it with the window
     int64_t nextRhythmWindowTimeMs;
     if (padPosition == 0) {
         if (yRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
-            int64_t tapTimeInSongMs = mSongPositionMs + (eventTimeAsUptime - mLastUpdateTime);
+            int64_t tapTimeInSongMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
             return getTapResult(tapTimeInSongMs, nextRhythmWindowTimeMs);;
         } else {
             LOGW("No tap window to match, ignoring tap event");
             return TapResult::Error;
         }
-    }else{
+    } else {
         if (xRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
-            int64_t tapTimeInSongMs = mSongPositionMs + (eventTimeAsUptime - mLastUpdateTime);
+            int64_t tapTimeInSongMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
             return getTapResult(tapTimeInSongMs, nextRhythmWindowTimeMs);;
         } else {
             LOGW("No tap window to match, ignoring tap event");
@@ -148,31 +159,41 @@ TapResult Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     }
 }
 
-
 DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
     // If our audio stream is expecting 16-bit samples we need to render our floats into a separate
     // buffer then convert them into 16-bit ints
     bool is16Bit = (oboeStream->getFormat() == AudioFormat::I16);
     float *outputBuffer = (is16Bit) ? mConversionBuffer.get() : static_cast<float *>(audioData);
 
-    int64_t nextClapEventMs;
-
     for (int i = 0; i < numFrames; ++i) {
-        mSongPositionMs = convertFramesToMillis(mCurrentFrame, mAudioStream->getSampleRate());
+        rhythmPositionMs = convertFramesToMillis(currentFrame, mAudioStream->getSampleRate());
 
-        // Try to get the next rhythm event, if it's time or already past it play the sound
-        if (xRhythmEvents.peek(nextClapEventMs) && mSongPositionMs >= nextClapEventMs) {
-            // Right hand plays the x rhythm line
-            rightPadSound->setPlaying(true);
-            xRhythmEvents.pop(nextClapEventMs);
+        // If the engine is actively playing the rhythm play the sounds as the events are reached
+        if (engineState == EngineState::PlayingRhythm) {
+            // This declaration is compiled out of the loop anyway, it's here for clarity
+            int64_t nextClapEventMs;
+            // Try to get the next rhythm event, if it's time or already past it play the sound
+            if (xRhythmEvents.peek(nextClapEventMs) && rhythmPositionMs >= nextClapEventMs) {
+                // Right hand plays the x rhythm line
+                rightPadSound->setPlaying(true);
+                xRhythmEvents.pop(nextClapEventMs);
+                remainingBeats--;
+            }
+            if (yRhythmEvents.peek(nextClapEventMs) && rhythmPositionMs >= nextClapEventMs) {
+                // Left hand plays the y rhythm line
+                leftPadSound->setPlaying(true);
+                yRhythmEvents.pop(nextClapEventMs);
+                remainingBeats--;
+            }
+
+            // All the beats have been played, time to measure the user performance
+            if (remainingBeats <= 0) {
+                engineState = EngineState::MeasuringRhythm;
+            }
         }
-        if (yRhythmEvents.peek(nextClapEventMs) && mSongPositionMs >= nextClapEventMs) {
-            // Left hand plays the y rhythm line
-            leftPadSound->setPlaying(true);
-            yRhythmEvents.pop(nextClapEventMs);
-        }
+
         mMixer.renderAudio(outputBuffer + (oboeStream->getChannelCount() * i), 1);
-        mCurrentFrame++;
+        currentFrame++;
     }
 
     if (is16Bit) {
@@ -183,7 +204,7 @@ DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData
         );
     }
 
-    mLastUpdateTime = nowUptimeMillis();
+    lastUpdateTime = nowUptimeMillis();
 
     return DataCallbackResult::Continue;
 }
@@ -200,10 +221,7 @@ void Engine::onErrorAfterClose(AudioStream *oboeStream, Result error) {
  * @return TapResult can be Early, Late or Success
  */
 TapResult Engine::getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMillis) {
-    LOGD("Tap time %"
-                 PRId64
-                 ", tap window time: %"
-                 PRId64, tapTimeInMillis, tapWindowInMillis);
+    LOGD("Tap time %" PRId64 ", tap window time: %" PRId64, tapTimeInMillis, tapWindowInMillis);
     if (tapTimeInMillis <= tapWindowInMillis + kWindowCenterOffsetMs) {
         if (tapTimeInMillis >= tapWindowInMillis - kWindowCenterOffsetMs) {
             return TapResult::Success;

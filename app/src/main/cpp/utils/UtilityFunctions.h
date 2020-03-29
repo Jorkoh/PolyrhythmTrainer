@@ -22,9 +22,15 @@
 constexpr int64_t kMillisecondsInSecond = 1000;
 
 enum class TapResult {
+    // There was something wrong with the engine
     Error,
+    // Engine is not in measuring state
+    Ignored,
+    // Tapped before the window
     Early,
+    // Tapped after the window
     Late,
+    // Tapped inside the window
     Success
 };
 

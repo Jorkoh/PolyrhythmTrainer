@@ -33,10 +33,17 @@
 using namespace oboe;
 
 
-enum class GameState {
+enum class EngineState {
+    // Between requesting load and load complete
     Loading,
-    Playing,
-    FailedToLoad
+    // Load complete unsuccessfully
+    FailedToLoad,
+    // Load complete successfully, pad sounds enabled, events and windows not active
+    Inactive,
+    // Playing polyrhythm, pad sounds (?)enabled(?), events active and windows inactive
+    PlayingRhythm,
+    // Correcting user input of polyrhythm, pad sounds enabled, events inactive and windows active
+    MeasuringRhythm
 };
 
 class Engine : public AudioStreamCallback {
@@ -45,11 +52,13 @@ public:
 
     void requestLoad();
 
-    void stop();
+    void startRhythm();
 
-    void start();
+    void stopRhythm();
 
-    void scheduleEventsAndWindows();
+    void resetRhythmPositionEventsAndWindows();
+
+    void scheduleNewEventsAndWindows();
 
     void unload();
 
@@ -65,23 +74,32 @@ public:
 private:
     AAssetManager &mAssetManager;
     AudioStream *mAudioStream{nullptr};
+    std::future<void> mLoadingResult;
     std::unique_ptr<Player> leftPadSound;
     std::unique_ptr<Player> rightPadSound;
     Mixer mMixer;
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
+    std::atomic<EngineState> engineState{EngineState::Loading};
 
-    std::atomic<int64_t> rhythmLengthMS;
-    std::atomic<int32_t> xNumberOfBeats;
-    std::atomic<int32_t> yNumberOfBeats;
+    std::atomic<int64_t> rhythmLengthMS { 3000};
+    std::atomic<int32_t> xNumberOfBeats{3};
+    std::atomic<int32_t> yNumberOfBeats{4};
+    std::atomic<int32_t> remainingBeats{7};
+
+    // The rhythm playing events for the example phase (PlayingRhythm)
     LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;
     LockFreeQueue<int64_t, kMaxQueueItems> yRhythmEvents;
-    std::atomic<int64_t> mCurrentFrame{0};
-    std::atomic<int64_t> mSongPositionMs{0};
+
+    // The rhythm windows for the user playing phase (MeasuringRhythm)
     LockFreeQueue<int64_t, kMaxQueueItems> xRhythmWindows;
     LockFreeQueue<int64_t, kMaxQueueItems> yRhythmWindows;
-    std::atomic<int64_t> mLastUpdateTime{0};
-    std::atomic<GameState> mGameState{GameState::Loading};
-    std::future<void> mLoadingResult;
+
+    // Progress since the start of the rhythm, used to match events and windows
+    std::atomic<int64_t> rhythmPositionMs{0};
+    // Used to calculate rhythmPositionMs on onAudioReady
+    std::atomic<int64_t> currentFrame{0};
+    // Used to sync rhythmPositionMS with eventTimeAsUptime of the taps
+    std::atomic<int64_t> lastUpdateTime{0};
 
     void load();
 

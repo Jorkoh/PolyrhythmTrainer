@@ -27,9 +27,9 @@ extern "C" {
 std::unique_ptr<Engine> engine;
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env,
-                                                          jobject instance,
-                                                          jobject jAssetManager) {
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeCreate(JNIEnv *env,
+                                                                            jobject instance,
+                                                                            jobject jAssetManager) {
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
     if (assetManager == nullptr) {
         LOGE("Could not obtain the AAssetManager");
@@ -37,17 +37,24 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv
     }
 
     engine = std::make_unique<Engine>(*assetManager);
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env,
+                                                                          jobject instance) {
     engine->requestLoad();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStop(JNIEnv *env, jobject instance) {
-    engine->stop();
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
+                                                                                            jobject instance) {
+    engine->startRhythm();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStart(JNIEnv *env, jobject instance) {
-    engine->start();
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
+                                                                                           jobject instance) {
+    engine->stopRhythm();
 }
 
 JNIEXPORT void JNICALL
@@ -66,9 +73,9 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeChangeRhyth
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env,
-                                                                            jobject type,
-                                                                            jint sampleRate,
-                                                                            jint framesPerBurst) {
+                                                                                            jobject type,
+                                                                                            jint sampleRate,
+                                                                                            jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
     oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
 }

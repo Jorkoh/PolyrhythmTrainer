@@ -36,8 +36,22 @@ class TrainerFragment : Fragment() {
                 getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
             )
         }
+        // Create the native engine
+        nativeCreate(requireContext().assets)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         // Load the native engine
-        nativeLoad(requireContext().assets)
+        nativeLoad()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // Unload the native engine
+        nativeUnload()
     }
 
     override fun onCreateView(
@@ -150,13 +164,8 @@ class TrainerFragment : Fragment() {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        nativeUnload()
-    }
-
-    private external fun nativeLoad(assetManager: AssetManager)
+    private external fun nativeCreate(assetManager: AssetManager)
+    private external fun nativeLoad()
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
 

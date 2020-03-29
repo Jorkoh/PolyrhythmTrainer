@@ -262,19 +262,22 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
     private fun start() {
-        nativeStart()
+        nativeStartRhythm()
         animator.start()
     }
 
     private fun stop() {
         animator.cancel()
-        nativeStop()
+        nativeStopRhythm()
     }
 
     fun doOnStatusChange(action: (newStatus: Status) -> Unit) {
         actionOnStatusChange = action
     }
 
-    private external fun nativeStart()
-    private external fun nativeStop()
+    // TODO This start and stop work just fine, the problem is that it has to
+    // be between start and stop for the pads to sound this means that we will
+    // have to start and stop from resume and just calculate relative to int64 start of rhythm?
+    private external fun nativeStartRhythm()
+    private external fun nativeStopRhythm()
 }
