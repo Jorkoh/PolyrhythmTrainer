@@ -25,6 +25,8 @@
 extern "C" {
 
 std::unique_ptr<Engine> engine;
+jobject engineListener;
+jmethodID onTapResultMethod;
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeCreate(JNIEnv *env,
@@ -40,20 +42,23 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeCreate(JNIE
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env,
-                                                                          jobject instance) {
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env, jobject instance) {
     engine->requestLoad();
 }
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
-                                                                                            jobject instance) {
+                                                                                                  jobject instance) {
+    // Register stuff for callbacks
+    engineListener = env->NewGlobalRef(instance);
+    jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/customviews/PolyrhythmVisualizer");
+    onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(ID)V");
     engine->startRhythm();
 }
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
-                                                                                           jobject instance) {
+                                                                                                 jobject instance) {
     engine->stopRhythm();
 }
 
@@ -72,8 +77,7 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeChangeRhyth
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env,
-                                                                                            jobject type,
+Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
                                                                                             jint sampleRate,
                                                                                             jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
@@ -81,12 +85,16 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultS
 }
 
 
-JNIEXPORT jint JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PadView_nativeOnPadTouch(JNIEnv *env,
-                                                                                    jobject type,
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PadView_nativeOnPadTouch(JNIEnv *env, jobject type,
                                                                                     jint padPosition,
                                                                                     jlong timeSinceBoot) {
-    return static_cast<jint>(engine->tap(padPosition, timeSinceBoot));
+    TapResultWithTiming tapResultWihTiming = engine->tap(padPosition, timeSinceBoot);
+    if(engineListener != nullptr){
+    env->CallVoidMethod(engineListener, onTapResultMethod,
+                        static_cast<jint>(tapResultWihTiming.tapResult),
+                        static_cast<jdouble>(tapResultWihTiming.timing));
+    }
 }
 
 } // extern "C"

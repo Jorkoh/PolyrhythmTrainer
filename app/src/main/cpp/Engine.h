@@ -64,7 +64,7 @@ public:
 
     void changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
-    TapResult tap(int32_t padPosition, int64_t eventTimeAsUptime);
+    TapResultWithTiming tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
     // Inherited from oboe::AudioStreamCallback
     DataCallbackResult onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
@@ -81,7 +81,7 @@ private:
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
     std::atomic<EngineState> engineState{EngineState::Loading};
 
-    std::atomic<int64_t> rhythmLengthMS { 3000};
+    std::atomic<int64_t> rhythmLengthMs {3000};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
     std::atomic<int32_t> remainingBeats{7};

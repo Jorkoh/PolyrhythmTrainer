@@ -23,3 +23,8 @@ int64_t nowUptimeMillis() {
     using namespace std::chrono;
     return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 }
+
+TapResultWithTiming::TapResultWithTiming(TapResult tapResult, double timing) {
+    this->tapResult = tapResult;
+    this->timing = timing;
+}

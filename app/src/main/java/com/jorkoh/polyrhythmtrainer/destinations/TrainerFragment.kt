@@ -60,13 +60,6 @@ class TrainerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_trainer, container, false).apply {
-            left_pad.doOnTapResult {
-                Log.d("TESTING", "Received left pad tap result ${it.name}")
-            }
-            right_pad.doOnTapResult {
-                Log.d("TESTING", "Received right pad tap result ${it.name}")
-            }
-
             change_theme_button.setOnClickListener(DebounceClickListener {
                 changeThemePreference()
             })
@@ -89,6 +82,7 @@ class TrainerFragment : Fragment() {
             }
 
             polyrhythm_visualizer.doOnStatusChange { newStatus ->
+                // TODO fix this being called too early when playing and rotating twice
                 setPlayPauseButtonIcon(newStatus)
             }
 

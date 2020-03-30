@@ -25,9 +25,6 @@ class PadView @JvmOverloads constructor(
         private const val DEFAULT_PAD_RIPPLE_COLOR = Color.GRAY
     }
 
-    // Function invoked on touch
-    private var actionOnTapResult: ((TapResult) -> Unit)? = null
-
     // Styled attributes
     private var padPosition = DEFAULT_PAD_POSITION
     private var padColor = DEFAULT_PAD_COLOR
@@ -128,7 +125,6 @@ class PadView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 // Signal the native game process
                 val tapResult = nativeOnPadTouch(padPosition, event.eventTime)
-                actionOnTapResult?.invoke(TapResult.fromNativeValue(tapResult))
 
                 // Run animation for the custom view
                 startTouchAnimation(event.x, event.y)
@@ -163,21 +159,5 @@ class PadView @JvmOverloads constructor(
         }
     }
 
-    enum class TapResult(val nativeValue: Int) {
-        Error(0),
-        Ignored(1),
-        Early(2),
-        Late(3),
-        Success(4);
-
-        companion object {
-            fun fromNativeValue(nativeValue: Int) = values().first { it.nativeValue == nativeValue }
-        }
-    }
-
-    fun doOnTapResult(action: (result: TapResult) -> Unit) {
-        this.actionOnTapResult = action
-    }
-
-    private external fun nativeOnPadTouch(padPosition: Int, timeSinceBoot: Long): Int
+    private external fun nativeOnPadTouch(padPosition: Int, timeSinceBoot: Long)
 }

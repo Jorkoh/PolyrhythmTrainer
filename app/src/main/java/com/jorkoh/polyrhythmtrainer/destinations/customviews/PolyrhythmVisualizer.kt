@@ -7,17 +7,22 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.PolyrhythmSettings
+import com.jorkoh.polyrhythmtrainer.destinations.customviews.EngineListener.TapResult
+
+typealias TapResultWithTiming = Pair<TapResult, Double>
 
 class PolyrhythmVisualizer @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr), EngineListener {
 
     companion object {
         private const val DEFAULT_NEUTRAL_COLOR = Color.BLACK
@@ -46,6 +51,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             }
         }
 
+    // Function invoked on tap result
+    private var actionOnTapResult: ((TapResult) -> Unit)? = null
+
     var polyrhythmSettings = PolyrhythmSettings()
         set(value) {
             if (field.BPM != value.BPM) {
@@ -65,22 +73,27 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // Recalculated when changing BPM or y number of beats
-    private var polyrhythmLengthMS =
-        polyrhythmSettings.yNumberOfBeats * 60000 / polyrhythmSettings.BPM
+    private var polyrhythmLengthMS = polyrhythmSettings.yNumberOfBeats * 60000 / polyrhythmSettings.BPM
         set(value) {
             field = value
             animator.duration = value.toLong()
         }
 
     // Recalculated when changing BPM, causes redraw
-    private var xRhythmSubdivisions =
-        calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
+    private var xRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
         set(value) {
             field = value
             invalidate()
         }
-    private var yRhythmSubdivisions =
-        calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
+    private var yRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    // The tap timings of the current attempt as fractions of the total rhythm line
+    // TODO this also needs info about what rhythm line it belongs to
+    private var playerInputTimings = mutableListOf<TapResultWithTiming>()
         set(value) {
             field = value
             invalidate()
@@ -105,15 +118,23 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Animation
     private var animationProgress = 0f
+    private var playerPhase = false
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()
         addUpdateListener { valueAnimator ->
             interpolator = LinearInterpolator()
+            repeatCount = 1
             animationProgress = valueAnimator.animatedFraction
             invalidate()
         }
+        doOnRepeat {
+            playerPhase = true
+        }
         doOnEnd {
             animationProgress = 0f
+            // TODO calling pause here sends signal to native to stop but the signal should come from native
+            //  since it's the source of truth in timing matters and we need to wait the window for last event
+            currentStatus = Status.PAUSED
             invalidate()
         }
     }
@@ -169,10 +190,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
         // Draw neutral lines, horizontal and end
         drawNeutralLines(canvas)
-        // Draw x lines on the top
-        drawXLines(canvas)
-        // Draw y lines on the bottom
-        drawYLines(canvas)
+
+        // If the user input is not currently being evaluated draw the rhythm
+        // TODO this will change depending on difficulty (?)
+        if (!playerPhase) {
+            // Draw x lines on the top
+            drawXLines(canvas)
+            // Draw y lines on the bottom
+            drawYLines(canvas)
+        } else {
+            drawPlayerInputTimingLines(canvas)
+        }
+
         // Draw the progress line
         drawAnimationProgress(canvas)
     }
@@ -228,6 +257,23 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
     }
 
+    private fun drawPlayerInputTimingLines(canvas: Canvas) {
+        for (resultWithTiming in playerInputTimings) {
+            // TODO use proper paints
+            canvas.drawLine(
+                (usableRectF.left + usableRectF.width() * resultWithTiming.second).toFloat(),
+                usableRectF.centerY() + rhythmLinesSeparation / 4,
+                (usableRectF.left + usableRectF.width() * resultWithTiming.second).toFloat(),
+                usableRectF.centerY() + 3 * rhythmLinesSeparation / 4,
+                when (resultWithTiming.first) {
+                    TapResult.Early -> playingPaint
+                    TapResult.Late -> playingPaint
+                    else -> pausedPaint
+                }
+            )
+        }
+    }
+
     private fun drawAnimationProgress(canvas: Canvas) {
         canvas.drawLine(
             usableRectF.left + usableRectF.width() * animationProgress,
@@ -263,16 +309,37 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     private fun start() {
         nativeStartRhythm()
+        playerInputTimings.clear()
         animator.start()
     }
 
     private fun stop() {
         animator.cancel()
+        playerPhase = false
         nativeStopRhythm()
     }
 
     fun doOnStatusChange(action: (newStatus: Status) -> Unit) {
         actionOnStatusChange = action
+    }
+
+    // Setting tap listener
+    fun doOnTapResult(action: (result: TapResult) -> Unit) {
+        this.actionOnTapResult = action
+    }
+
+    override fun onTapResult(tapResultNative: Int, tapTiming: Double) {
+        val tapResult = TapResult.fromNativeValue(tapResultNative)
+        // Call the listener if added
+        actionOnTapResult?.invoke(tapResult)
+        // Save the timing to be painted
+        if (tapResult in TapResult.Early..TapResult.Success) {
+            playerInputTimings.add(TapResultWithTiming(tapResult, tapTiming))
+        }
+    }
+
+    override fun onMeasureFinish() {
+        Log.d("TESTING", "onMeasureFinish")
     }
 
     // TODO This start and stop work just fine, the problem is that it has to

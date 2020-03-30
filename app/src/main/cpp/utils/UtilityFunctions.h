@@ -34,6 +34,13 @@ enum class TapResult {
     Success
 };
 
+struct TapResultWithTiming{
+    TapResultWithTiming(TapResult tapResult, double timing);
+
+    TapResult tapResult;
+    double timing;
+};
+
 int64_t nowUptimeMillis();
 
 constexpr int64_t convertFramesToMillis(const int64_t frames, const int sampleRate){
