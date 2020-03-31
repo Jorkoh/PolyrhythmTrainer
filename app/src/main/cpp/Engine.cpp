@@ -114,15 +114,15 @@ void Engine::changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberO
     yNumberOfBeats = newYNumberOfBeats;
 }
 
-TapResultWithTiming Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
+TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     if (padPosition != 0 && padPosition != 1) {
         LOGW("Invalid pad position, ignoring tap event");
-        return TapResultWithTiming(TapResult::Error, 0);
+        return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
     }
 
     if (engineState == EngineState::Loading || engineState == EngineState::FailedToLoad) {
         LOGW("Engine not started, ignoring tap event");
-        return TapResultWithTiming(TapResult::Error, 0);
+        return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
     }
 
     // Enable the sound for the pad
@@ -134,7 +134,7 @@ TapResultWithTiming Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) 
 
     // If we are not measuring the rhythm ignore the tap
     if (engineState != EngineState::MeasuringRhythm) {
-        return TapResultWithTiming(TapResult::Ignored, 0);
+        return TapResultWithTimingAndPosition(TapResult::Ignored, 0, padPosition);
     }
     // Otherwise try to match it with the window
     int64_t nextRhythmWindowTimeMs;
@@ -142,21 +142,23 @@ TapResultWithTiming Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) 
         if (yRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return TapResultWithTiming(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                                       (tapTimeInRhythmMs-rhythmLengthMs) / (double)rhythmLengthMs);
+            return TapResultWithTimingAndPosition(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
+                                                  (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
+                                                  padPosition);
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return TapResultWithTiming(TapResult::Error, 0);
+            return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
         }
     } else {
         if (xRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return TapResultWithTiming(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                                       (tapTimeInRhythmMs-rhythmLengthMs) / (double)rhythmLengthMs);
+            return TapResultWithTimingAndPosition(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
+                                                  (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
+                                                  padPosition);
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return TapResultWithTiming(TapResult::Error, 0);
+            return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
         }
     }
 }

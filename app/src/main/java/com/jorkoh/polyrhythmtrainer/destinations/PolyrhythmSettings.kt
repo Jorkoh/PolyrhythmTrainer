@@ -1,13 +1,21 @@
 package com.jorkoh.polyrhythmtrainer.destinations
 
+import com.jorkoh.polyrhythmtrainer.destinations.customviews.EngineListener
+
 data class PolyrhythmSettings(
     var BPM: Int = 80,
     var xNumberOfBeats: Int = 3,
     var yNumberOfBeats: Int = 4
 )
 
-enum class RhythmLine {
-    X, Y
+enum class RhythmLine(val nativeValue: Int) {
+    X(0),
+    Y(1);
+
+    companion object {
+        fun fromNativeValue(nativeValue: Int) =
+            values().first { it.nativeValue == nativeValue }
+    }
 }
 
 const val MAX_BPM = 200

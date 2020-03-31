@@ -24,7 +24,8 @@ int64_t nowUptimeMillis() {
     return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
-TapResultWithTiming::TapResultWithTiming(TapResult tapResult, double timing) {
+TapResultWithTimingAndPosition::TapResultWithTimingAndPosition(TapResult tapResult, double timing, int position) {
     this->tapResult = tapResult;
     this->timing = timing;
+    this->position = position;
 }

@@ -14,9 +14,10 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.PolyrhythmSettings
+import com.jorkoh.polyrhythmtrainer.destinations.RhythmLine
 import com.jorkoh.polyrhythmtrainer.destinations.customviews.EngineListener.TapResult
 
-typealias TapResultWithTiming = Pair<TapResult, Double>
+typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>
 
 class PolyrhythmVisualizer @JvmOverloads constructor(
     context: Context,
@@ -93,7 +94,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // The tap timings of the current attempt as fractions of the total rhythm line
     // TODO this also needs info about what rhythm line it belongs to
-    private var playerInputTimings = mutableListOf<TapResultWithTiming>()
+    private var playerInputTimings = mutableListOf<TapResultWithTimingAndLine>()
         set(value) {
             field = value
             invalidate()
@@ -258,14 +259,22 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
     private fun drawPlayerInputTimingLines(canvas: Canvas) {
-        for (resultWithTiming in playerInputTimings) {
+        for (resultWithTimingAndLine in playerInputTimings) {
             // TODO use proper paints
             canvas.drawLine(
-                (usableRectF.left + usableRectF.width() * resultWithTiming.second).toFloat(),
-                usableRectF.centerY() + rhythmLinesSeparation / 4,
-                (usableRectF.left + usableRectF.width() * resultWithTiming.second).toFloat(),
-                usableRectF.centerY() + 3 * rhythmLinesSeparation / 4,
-                when (resultWithTiming.first) {
+                (usableRectF.left + usableRectF.width() * resultWithTimingAndLine.second).toFloat(),
+                if (resultWithTimingAndLine.third == RhythmLine.X) {
+                    usableRectF.centerY() - rhythmLinesSeparation / 4
+                } else {
+                    usableRectF.centerY() + rhythmLinesSeparation / 4
+                },
+                (usableRectF.left + usableRectF.width() * resultWithTimingAndLine.second).toFloat(),
+                if (resultWithTimingAndLine.third == RhythmLine.X) {
+                    usableRectF.centerY() - 3 * rhythmLinesSeparation / 4
+                } else {
+                    usableRectF.centerY() + 3 * rhythmLinesSeparation / 4
+                },
+                when (resultWithTimingAndLine.first) {
                     TapResult.Early -> playingPaint
                     TapResult.Late -> playingPaint
                     else -> pausedPaint
@@ -328,13 +337,14 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         this.actionOnTapResult = action
     }
 
-    override fun onTapResult(tapResultNative: Int, tapTiming: Double) {
+    override fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int) {
         val tapResult = TapResult.fromNativeValue(tapResultNative)
+        val rhythmLine = RhythmLine.fromNativeValue(rhythmLineNative)
         // Call the listener if added
         actionOnTapResult?.invoke(tapResult)
         // Save the timing to be painted
         if (tapResult in TapResult.Early..TapResult.Success) {
-            playerInputTimings.add(TapResultWithTiming(tapResult, tapTiming))
+            playerInputTimings.add(TapResultWithTimingAndLine(tapResult, tapTiming, rhythmLine))
         }
     }
 

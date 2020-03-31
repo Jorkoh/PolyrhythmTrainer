@@ -64,7 +64,7 @@ public:
 
     void changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
-    TapResultWithTiming tap(int32_t padPosition, int64_t eventTimeAsUptime);
+    TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
     // Inherited from oboe::AudioStreamCallback
     DataCallbackResult onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;

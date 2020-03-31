@@ -1,8 +1,10 @@
 package com.jorkoh.polyrhythmtrainer.destinations.customviews
 
+import com.jorkoh.polyrhythmtrainer.destinations.RhythmLine
+
 interface EngineListener {
     // tapTiming is a fraction of the total rhythm length
-    fun onTapResult(tapResultNative: Int, tapTiming: Double)
+    fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int)
     fun onMeasureFinish()
 
     enum class TapResult(val nativeValue: Int) {
