@@ -12,7 +12,9 @@ class TrainerViewModel : ViewModel() {
 
     fun changeBPM(newBPM: Int) {
         if (newBPM.isValidBPM()) {
-            polyrhythmSettings.value?.BPM = newBPM
+            polyrhythmSettings.mutate {
+                value?.BPM = newBPM
+            }
         }
     }
 

@@ -7,4 +7,5 @@
     <string name="increase_button_text" translatable="false">+</string>
     <string name="decrease_button_text" translatable="false">-</string>
     <string name="current_level" translatable="true">Level %1$d</string>
+    <string name="bpm" translatable="true">%1$s BPM</string>
 </resources>

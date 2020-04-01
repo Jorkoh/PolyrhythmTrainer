@@ -27,8 +27,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_NEUTRAL_COLOR = Color.BLACK
-        private const val DEFAULT_PLAYING_COLOR = Color.RED
-        private const val DEFAULT_PAUSED_COLOR = Color.GREEN
+        private const val DEFAULT_SUCCESS_COLOR = Color.GREEN
+        private const val DEFAULT_ERROR_COLOR = Color.RED
+        private const val DEFAULT_PROGRESS_COLOR = Color.RED
         private const val DEFAULT_X_RHYTHM_COLOR = Color.BLACK
         private const val DEFAULT_Y_RHYTHM_COLOR = Color.BLACK
     }
@@ -36,17 +37,19 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Status stuff
     enum class Status {
         PLAYING,
-        PAUSED
+        BEFORE_PLAY,
+        AFTER_PLAY
     }
 
     private var actionOnStatusChange: ((Status) -> Unit)? = null
-    private var currentStatus: Status = Status.PAUSED
+    private var currentStatus: Status = Status.BEFORE_PLAY
         set(value) {
             if (field != value) {
                 field = value
+                // TODO UPDATE THIS
                 when (value) {
                     Status.PLAYING -> start()
-                    Status.PAUSED -> stop()
+                    Status.BEFORE_PLAY -> stop()
                 }
                 actionOnStatusChange?.invoke(value)
             }
@@ -93,7 +96,6 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // The tap timings of the current attempt as fractions of the total rhythm line
-    // TODO this also needs info about what rhythm line it belongs to
     private var playerInputTimings = mutableListOf<TapResultWithTimingAndLine>()
         set(value) {
             field = value
@@ -102,8 +104,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Styled attributes
     private var neutralColor = DEFAULT_NEUTRAL_COLOR
-    private var playingColor = DEFAULT_PLAYING_COLOR
-    private var pausedColor = DEFAULT_PAUSED_COLOR
+    private var successColor = DEFAULT_SUCCESS_COLOR
+    private var errorColor = DEFAULT_ERROR_COLOR
+    private var progressColor = DEFAULT_PROGRESS_COLOR
     private var xColor = DEFAULT_X_RHYTHM_COLOR
     private var yColor = DEFAULT_Y_RHYTHM_COLOR
 
@@ -114,8 +117,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private val xPaint = Paint()
     private val yPaint = Paint()
     private val neutralPaint = Paint()
-    private val pausedPaint = Paint()
-    private val playingPaint = Paint()
+    private val successPaint = Paint()
+    private val errorPaint = Paint()
+    private val progressPaint = Paint()
 
     // Animation
     private var animationProgress = 0f
@@ -135,7 +139,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             animationProgress = 0f
             // TODO calling pause here sends signal to native to stop but the signal should come from native
             //  since it's the source of truth in timing matters and we need to wait the window for last event
-            currentStatus = Status.PAUSED
+            currentStatus = Status.BEFORE_PLAY
             invalidate()
         }
     }
@@ -153,8 +157,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             0, 0
         )
         neutralColor = typedArray.getColor(R.styleable.RhythmVisualizer_neutralColor, DEFAULT_NEUTRAL_COLOR)
-        playingColor = typedArray.getColor(R.styleable.RhythmVisualizer_playingColor, DEFAULT_PLAYING_COLOR)
-        pausedColor = typedArray.getColor(R.styleable.RhythmVisualizer_pausedColor, DEFAULT_PAUSED_COLOR)
+        successColor = typedArray.getColor(R.styleable.RhythmVisualizer_successColor, DEFAULT_SUCCESS_COLOR)
+        errorColor = typedArray.getColor(R.styleable.RhythmVisualizer_errorColor, DEFAULT_ERROR_COLOR)
+        progressColor = typedArray.getColor(R.styleable.RhythmVisualizer_progressColor, DEFAULT_PROGRESS_COLOR)
         xColor = typedArray.getColor(R.styleable.RhythmVisualizer_xRhythmColor, DEFAULT_X_RHYTHM_COLOR)
         yColor = typedArray.getColor(R.styleable.RhythmVisualizer_yRhythmColor, DEFAULT_Y_RHYTHM_COLOR)
 
@@ -174,13 +179,17 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         neutralPaint.isAntiAlias = true
         neutralPaint.strokeWidth = resources.displayMetrics.density * 5
 
-        playingPaint.color = playingColor
-        playingPaint.isAntiAlias = true
-        playingPaint.strokeWidth = resources.displayMetrics.density * 5
+        successPaint.color = successColor
+        successPaint.isAntiAlias = true
+        successPaint.strokeWidth = resources.displayMetrics.density * 5
 
-        pausedPaint.color = pausedColor
-        pausedPaint.isAntiAlias = true
-        pausedPaint.strokeWidth = resources.displayMetrics.density * 5
+        errorPaint.color = errorColor
+        errorPaint.isAntiAlias = true
+        errorPaint.strokeWidth = resources.displayMetrics.density * 5
+
+        progressPaint.color = progressColor
+        progressPaint.isAntiAlias = true
+        progressPaint.strokeWidth = resources.displayMetrics.density * 5
     }
 
     private fun calculateRhythmLineSubdivisons(numberOfBeats: Int) =
@@ -275,9 +284,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
                     usableRectF.centerY() + 3 * rhythmLinesSeparation / 4
                 },
                 when (resultWithTimingAndLine.first) {
-                    TapResult.Early -> playingPaint
-                    TapResult.Late -> playingPaint
-                    else -> pausedPaint
+                    TapResult.Early -> successPaint
+                    TapResult.Late -> successPaint
+                    else -> errorPaint
                 }
             )
         }
@@ -289,10 +298,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             usableRectF.centerY() - rhythmLinesSeparation / 2,
             usableRectF.left + usableRectF.width() * animationProgress,
             usableRectF.centerY() + rhythmLinesSeparation / 2,
-            when (currentStatus) {
-                Status.PLAYING -> playingPaint
-                Status.PAUSED -> pausedPaint
-            }
+            errorPaint
         )
     }
 
@@ -309,10 +315,11 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
 
-    fun changeStatus() {
+    fun advanceToNextState() {
         currentStatus = when (currentStatus) {
-            Status.PLAYING -> Status.PAUSED
-            Status.PAUSED -> Status.PLAYING
+            Status.BEFORE_PLAY -> Status.PLAYING
+            Status.PLAYING -> Status.BEFORE_PLAY
+            Status.AFTER_PLAY -> Status.BEFORE_PLAY
         }
     }
 

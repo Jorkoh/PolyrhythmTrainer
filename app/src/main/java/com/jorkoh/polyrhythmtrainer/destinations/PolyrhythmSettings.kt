@@ -9,8 +9,8 @@ data class PolyrhythmSettings(
 )
 
 enum class RhythmLine(val nativeValue: Int) {
-    X(0),
-    Y(1);
+    X(1),
+    Y(0);
 
     companion object {
         fun fromNativeValue(nativeValue: Int) =
@@ -18,7 +18,7 @@ enum class RhythmLine(val nativeValue: Int) {
     }
 }
 
-const val MAX_BPM = 200
+const val MAX_BPM = 300
 const val MIN_BPM = 30
 fun Int.isValidBPM() = this in MIN_BPM..MAX_BPM
 

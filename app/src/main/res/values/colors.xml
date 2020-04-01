@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#eceff1</color>
-    <color name="secondary">#37464f</color>
+    <color name="primary">#1b1b1b</color>
+    <color name="primaryDark">#f5f5f5</color>
+    <color name="secondary">#1b1b1b</color>
+    <color name="background">#f5f5f5</color>
     <color name="error">#E53935</color>
 
-    <color name="playColor">#43a047</color>
-    <color name="pauseColor">#E53935</color>
+    <color name="successColor">#43a047</color>
+    <color name="errorColor">#E53935</color>
+    <color name="progressColor">#E53935</color>
 
     <color name="xRhythmColor">#fdd835</color>
     <color name="xRhythmRippleColor">#ffb300</color>

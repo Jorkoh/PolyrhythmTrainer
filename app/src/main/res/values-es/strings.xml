@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Polyrhythm Trainer</string>
     <string name="current_level">Nivel %1$d</string>
+    <string name="bpm">%1$s BPM</string>
 </resources>

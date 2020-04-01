@@ -6,10 +6,10 @@ import android.content.res.AssetManager
 import android.content.res.Configuration
 import android.media.AudioManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -32,8 +32,8 @@ class TrainerFragment : Fragment() {
         // Set default stream values
         (requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
             nativeSetDefaultStreamValues(
-                getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
-                getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
+                    getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
+                    getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
             )
         }
         // Create the native engine
@@ -55,9 +55,9 @@ class TrainerFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_trainer, container, false).apply {
             change_theme_button.setOnClickListener(DebounceClickListener {
@@ -76,9 +76,17 @@ class TrainerFragment : Fragment() {
             y_number_of_beats_decrease_button.setOnClickListener {
                 trainerViewModel.changeNumberOfBeats(false, RhythmLine.Y)
             }
+            bpm_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    trainerViewModel.changeBPM(progress + MIN_BPM)
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
 
             play_stop_button.setOnClickListener {
-                polyrhythm_visualizer.changeStatus()
+                polyrhythm_visualizer.advanceToNextState()
             }
 
             polyrhythm_visualizer.doOnStatusChange { newStatus ->
@@ -87,11 +95,11 @@ class TrainerFragment : Fragment() {
             }
 
             change_theme_button.icon = ContextCompat.getDrawable(
-                requireContext(), when (getCurrentNightMode()) {
-                    Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
-                    Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
-                    else -> R.drawable.ic_light_theme
-                }
+                    requireContext(), when (getCurrentNightMode()) {
+                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
+                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
+                else -> R.drawable.ic_light_theme
+            }
             )
         }
     }
@@ -103,36 +111,29 @@ class TrainerFragment : Fragment() {
         current_level_text.text = getString(R.string.current_level, 1)
 
         trainerViewModel.getPolyrhythmSettings()
-            .observe(viewLifecycleOwner, Observer { newSettings ->
-                x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
-                y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
-                polyrhythm_visualizer.polyrhythmSettings = newSettings.copy()
-                nativeChangeRhythmSettings(
-                    newSettings.xNumberOfBeats,
-                    newSettings.yNumberOfBeats,
-                    newSettings.BPM
-                )
-            })
+                .observe(viewLifecycleOwner, Observer { newSettings ->
+                    x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
+                    y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
+                    bpm_tap_button.text = getString(R.string.bpm, newSettings.BPM.toString().padStart(3, ' '))
+                    polyrhythm_visualizer.polyrhythmSettings = newSettings.copy()
+                    nativeChangeRhythmSettings(
+                            newSettings.xNumberOfBeats,
+                            newSettings.yNumberOfBeats,
+                            newSettings.BPM
+                    )
+                })
     }
 
-    private fun setPlayPauseButtonIcon(newStatus : PolyrhythmVisualizer.Status){
+    private fun setPlayPauseButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         when (newStatus) {
             PolyrhythmVisualizer.Status.PLAYING -> {
                 play_stop_button.icon = ContextCompat.getDrawable(
-                    requireContext(), R.drawable.ic_pause
-                )
-                play_stop_button.iconTint = ContextCompat.getColorStateList(
-                    requireContext(),
-                    R.color.pauseColor
+                        requireContext(), R.drawable.ic_pause
                 )
             }
-            PolyrhythmVisualizer.Status.PAUSED -> {
+            PolyrhythmVisualizer.Status.BEFORE_PLAY -> {
                 play_stop_button.icon = ContextCompat.getDrawable(
-                    requireContext(), R.drawable.ic_play
-                )
-                play_stop_button.iconTint = ContextCompat.getColorStateList(
-                    requireContext(),
-                    R.color.playColor
+                        requireContext(), R.drawable.ic_play
                 )
             }
         }
@@ -140,7 +141,7 @@ class TrainerFragment : Fragment() {
 
     private fun changeThemePreference() {
         val sharedPreferences: SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
 
         val newThemePreference = when (getCurrentNightMode()) {
             Configuration.UI_MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
