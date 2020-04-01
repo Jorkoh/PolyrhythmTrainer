@@ -6,15 +6,18 @@ import androidx.lifecycle.ViewModel
 
 class TrainerViewModel : ViewModel() {
     private val polyrhythmSettings =
-        MutableLiveData(PolyrhythmSettings())
+            MutableLiveData(PolyrhythmSettings())
 
     fun getPolyrhythmSettings(): LiveData<PolyrhythmSettings> = polyrhythmSettings
 
-    fun changeBPM(newBPM: Int) {
-        if (newBPM.isValidBPM()) {
+    fun changeBPM(newBPM: Int): Boolean {
+        return if (newBPM.isValidBPM()) {
             polyrhythmSettings.mutate {
                 value?.BPM = newBPM
             }
+            true
+        } else {
+            false
         }
     }
 
