@@ -284,8 +284,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
                     usableRectF.centerY() + 3 * rhythmLinesSeparation / 4
                 },
                 when (resultWithTimingAndLine.first) {
-                    TapResult.Early -> successPaint
-                    TapResult.Late -> successPaint
+                    TapResult.Success -> successPaint
                     else -> errorPaint
                 }
             )
@@ -298,7 +297,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             usableRectF.centerY() - rhythmLinesSeparation / 2,
             usableRectF.left + usableRectF.width() * animationProgress,
             usableRectF.centerY() + rhythmLinesSeparation / 2,
-            errorPaint
+            progressPaint
         )
     }
 
