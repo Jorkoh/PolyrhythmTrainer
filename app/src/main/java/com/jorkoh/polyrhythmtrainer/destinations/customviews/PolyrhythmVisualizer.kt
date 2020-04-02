@@ -358,9 +358,6 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         Log.d("TESTING", "onMeasureFinish")
     }
 
-    // TODO This start and stop work just fine, the problem is that it has to
-    // be between start and stop for the pads to sound this means that we will
-    // have to start and stop from resume and just calculate relative to int64 start of rhythm?
     private external fun nativeStartRhythm()
     private external fun nativeStopRhythm()
 }

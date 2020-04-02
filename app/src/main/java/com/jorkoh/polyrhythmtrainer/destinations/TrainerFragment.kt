@@ -16,6 +16,7 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.customviews.PolyrhythmVisualizer
@@ -43,15 +44,16 @@ class TrainerFragment : Fragment() {
                     getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
             )
         }
-        // Create the native engine
-        nativeCreate(requireContext().assets)
     }
 
     override fun onResume() {
         super.onResume()
 
-        // Load the native engine
-        nativeLoad()
+        // Load the native engine and set the values
+        nativeLoad(requireContext().assets)
+        trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
+            nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
+        }
     }
 
     override fun onStop() {
@@ -122,7 +124,10 @@ class TrainerFragment : Fragment() {
             y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
             bpm_tap_button.text = getString(R.string.bpm, newSettings.BPM.toString().padStart(3, ' '))
             polyrhythm_visualizer.polyrhythmSettings = newSettings.copy()
-            nativeChangeRhythmSettings(newSettings.xNumberOfBeats, newSettings.yNumberOfBeats, newSettings.BPM)
+
+            lifecycleScope.launchWhenResumed {
+                nativeSetRhythmSettings(newSettings.xNumberOfBeats, newSettings.yNumberOfBeats, newSettings.BPM)
+            }
         })
     }
 
@@ -184,10 +189,9 @@ class TrainerFragment : Fragment() {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
 
-    private external fun nativeCreate(assetManager: AssetManager)
-    private external fun nativeLoad()
+    private external fun nativeLoad(assetManager: AssetManager)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
 
-    private external fun nativeChangeRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
+    private external fun nativeSetRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
 }

@@ -104,7 +104,7 @@ void Engine::scheduleNewEventsAndWindows() {
     }
 }
 
-void Engine::changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM) {
+void Engine::setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM) {
     rhythmLengthMs = newYNumberOfBeats * 60000 / newBPM;
     // TODO the window relative size will depend on current level
     windowCenterOffsetMs = rhythmLengthMs * 0.04;

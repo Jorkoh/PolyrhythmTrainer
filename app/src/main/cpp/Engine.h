@@ -32,7 +32,6 @@
 
 using namespace oboe;
 
-
 enum class EngineState {
     // Between requesting load and load complete
     Loading,
@@ -62,7 +61,7 @@ public:
 
     void unload();
 
-    void changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
+    void setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
     TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
@@ -81,8 +80,8 @@ private:
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
     std::atomic<EngineState> engineState{EngineState::Loading};
 
-    std::atomic<int64_t> rhythmLengthMs {3000};
-    std::atomic<int32_t> windowCenterOffsetMs {120};
+    std::atomic<int64_t> rhythmLengthMs{3000};
+    std::atomic<int32_t> windowCenterOffsetMs{120};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
     std::atomic<int32_t> remainingBeats{7};
