@@ -34,8 +34,6 @@ class PadView @JvmOverloads constructor(
     private val padPaint = Paint()
     private val animationPaint = Paint()
     private val drawRectF = RectF()
-    // Calculated on size change
-    private var cornerRadius = 20f
 
     // Animation
     private var animationProgress = 0f
@@ -62,6 +60,7 @@ class PadView @JvmOverloads constructor(
             setupAttributes(attrs)
         }
         setupPaints()
+        clipToOutline = true
     }
 
     private fun setupAttributes(attrs: AttributeSet) {
@@ -71,7 +70,8 @@ class PadView @JvmOverloads constructor(
         )
         padPosition = typedArray.getIntOrThrow(R.styleable.PadView_padPosition)
         padColor = typedArray.getColor(R.styleable.PadView_padColor, DEFAULT_PAD_COLOR)
-        padRippleColor = typedArray.getColor(R.styleable.PadView_padRippleColor, DEFAULT_PAD_RIPPLE_COLOR)
+        padRippleColor =
+            typedArray.getColor(R.styleable.PadView_padRippleColor, DEFAULT_PAD_RIPPLE_COLOR)
 
         typedArray.recycle()
     }
@@ -90,7 +90,7 @@ class PadView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         // Draw the pad itself
-        canvas.drawRoundRect(drawRectF, cornerRadius, cornerRadius, padPaint)
+        canvas.drawRect(drawRectF, padPaint)
         // If the animation is in progress draw the ripple
         if (animationProgress != 0f) {
             animationPaint.alpha = (255 * (1 - animationProgress)).toInt()
@@ -115,8 +115,8 @@ class PadView @JvmOverloads constructor(
             (h - paddingBottom).toFloat()
         )
         // Rounded corner radius size depends on the size of the pad
-        cornerRadius = minOf(w / 8.0f, h / 8.0f)
-        // Shadow and elevation support
+        val cornerRadius = minOf(w / 8.0f, h / 8.0f)
+        // Clip corners and add elevation shadows
         outlineProvider = CustomOutline(w, h, cornerRadius)
     }
 
@@ -124,8 +124,7 @@ class PadView @JvmOverloads constructor(
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 // Signal the native game process
-                val tapResult = nativeOnPadTouch(padPosition, event.eventTime)
-
+                nativeOnPadTouch(padPosition, event.eventTime)
                 // Run animation for the custom view
                 startTouchAnimation(event.x, event.y)
                 // Accessibility reasons
