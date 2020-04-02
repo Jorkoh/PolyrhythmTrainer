@@ -82,6 +82,7 @@ private:
     std::atomic<EngineState> engineState{EngineState::Loading};
 
     std::atomic<int64_t> rhythmLengthMs {3000};
+    std::atomic<int32_t> windowCenterOffsetMs {120};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
     std::atomic<int32_t> remainingBeats{7};

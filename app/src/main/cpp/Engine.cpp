@@ -63,10 +63,6 @@ void Engine::startRhythm() {
     scheduleNewEventsAndWindows();
 
     engineState = EngineState::PlayingRhythm;
-
-    // TODO the state has to change from PlayingRhythm to MeasuringRhythm eventually,
-    //  it would probably be a good idea to change before the listening bar start (after
-    //  the last beat of the example?) to catch early birds
 }
 
 
@@ -110,6 +106,8 @@ void Engine::scheduleNewEventsAndWindows() {
 
 void Engine::changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM) {
     rhythmLengthMs = newYNumberOfBeats * 60000 / newBPM;
+    // TODO the window relative size will depend on current level
+    windowCenterOffsetMs = rhythmLengthMs * 0.04;
     xNumberOfBeats = newXNumberOfBeats;
     yNumberOfBeats = newYNumberOfBeats;
 }
@@ -117,12 +115,12 @@ void Engine::changeRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberO
 TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     if (padPosition != 0 && padPosition != 1) {
         LOGW("Invalid pad position, ignoring tap event");
-        return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
+        return {TapResult::Error, 0, padPosition};
     }
 
     if (engineState == EngineState::Loading || engineState == EngineState::FailedToLoad) {
         LOGW("Engine not started, ignoring tap event");
-        return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
+        return {TapResult::Error, 0, padPosition};
     }
 
     // Enable the sound for the pad
@@ -134,7 +132,7 @@ TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTim
 
     // If we are not measuring the rhythm ignore the tap
     if (engineState != EngineState::MeasuringRhythm) {
-        return TapResultWithTimingAndPosition(TapResult::Ignored, 0, padPosition);
+        return {TapResult::Ignored, 0, padPosition};
     }
     // Otherwise try to match it with the window
     int64_t nextRhythmWindowTimeMs;
@@ -142,23 +140,23 @@ TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTim
         if (yRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return TapResultWithTimingAndPosition(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                                                  (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
-                                                  padPosition);
+            return {getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
+                    (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
+                    padPosition};
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
+            return {TapResult::Error, 0, padPosition};
         }
     } else {
         if (xRhythmWindows.pop(nextRhythmWindowTimeMs)) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return TapResultWithTimingAndPosition(getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                                                  (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
-                                                  padPosition);
+            return {getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
+                    (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
+                    padPosition};
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return TapResultWithTimingAndPosition(TapResult::Error, 0, padPosition);
+            return {TapResult::Error, 0, padPosition};
         }
     }
 }
@@ -229,8 +227,8 @@ TapResult Engine::getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMilli
                  PRId64
                  ", tap window time: %"
                  PRId64, tapTimeInMillis, tapWindowInMillis);
-    if (tapTimeInMillis <= tapWindowInMillis + kWindowCenterOffsetMs) {
-        if (tapTimeInMillis >= tapWindowInMillis - kWindowCenterOffsetMs) {
+    if (tapTimeInMillis <= tapWindowInMillis + windowCenterOffsetMs) {
+        if (tapTimeInMillis >= tapWindowInMillis - windowCenterOffsetMs) {
             return TapResult::Success;
         } else {
             return TapResult::Early;

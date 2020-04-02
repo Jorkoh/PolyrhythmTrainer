@@ -21,11 +21,6 @@
 constexpr int kBufferSizeInBursts = 2; // Use 2 bursts as the buffer size (double buffer)
 constexpr int kMaxQueueItems = 16; // Must be power of 2
 
-// This defines the size of the tap window in milliseconds. For example, if defined at 100ms the
-// player will have 100ms before and after the centre of the tap window to tap on the screen and
-// be successful
-constexpr int kWindowCenterOffsetMs = 100;
-
 // Filename for left pad sound asset (in assets folder)
 constexpr char leftPadSoundFilename[] {"LEFT_PAD_SOUND.mp3" };
 
