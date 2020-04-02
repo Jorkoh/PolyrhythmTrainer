@@ -56,8 +56,8 @@ class TrainerFragment : Fragment() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
 
         // Unload the native engine
         nativeUnload()
