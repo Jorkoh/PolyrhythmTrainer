@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
@@ -60,20 +59,26 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     var polyrhythmSettings = PolyrhythmSettings()
         set(value) {
+            var playerNeedsReset = false
             if (field.BPM != value.BPM) {
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                currentStatus = Status.BEFORE_PLAY
+                playerNeedsReset = true
             }
             if (field.xNumberOfBeats != value.xNumberOfBeats) {
                 xRhythmSubdivisions = calculateRhythmLineSubdivisons(value.xNumberOfBeats)
-                currentStatus = Status.BEFORE_PLAY
+                playerNeedsReset = true
             }
             if (field.yNumberOfBeats != value.yNumberOfBeats) {
                 yRhythmSubdivisions = calculateRhythmLineSubdivisons(value.yNumberOfBeats)
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                currentStatus = Status.BEFORE_PLAY
+                playerNeedsReset = true
             }
             field = value
+
+            if(playerNeedsReset){
+                currentStatus = Status.AFTER_PLAY
+                currentStatus = Status.BEFORE_PLAY
+            }
         }
 
     // Recalculated when changing BPM or y number of beats
@@ -326,18 +331,21 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
 
     fun advanceToNextState() {
-        currentStatus = when (currentStatus) {
-            Status.BEFORE_PLAY -> Status.PLAYING
-            Status.PLAYING -> Status.BEFORE_PLAY
+         when (currentStatus) {
+            Status.BEFORE_PLAY -> currentStatus = Status.PLAYING
+            Status.PLAYING -> {
+                currentStatus = Status.AFTER_PLAY
+                currentStatus = Status.BEFORE_PLAY
+            }
             Status.AFTER_PLAY -> {
-                resetPlayer()
-                Status.PLAYING
+                currentStatus = Status.BEFORE_PLAY
+                currentStatus = Status.PLAYING
             }
         }
     }
 
     fun stop() {
-        stopRhythm()
+        currentStatus = Status.AFTER_PLAY
         currentStatus = Status.BEFORE_PLAY
     }
 
@@ -354,6 +362,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         nativeStopRhythm()
     }
 
+    // Not directly used, called from status change
     private fun resetPlayer(){
         playerPhase = false
         animationProgress = 0f
