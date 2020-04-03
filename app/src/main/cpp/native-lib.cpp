@@ -30,20 +30,27 @@ jmethodID onTapResultMethod;
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env, jobject instance,
-                                                                          jobject jAssetManager) {
+                                                                          jobject jAssetManager,
+                                                                          jobject jVisualizer) {
+    // Create the engine
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
     if (assetManager == nullptr) {
         LOGE("Could not obtain the AAssetManager");
         return;
     }
-
     engine = std::make_unique<Engine>(*assetManager);
+    // Load the engine
     engine->requestLoad();
+    // Register stuff for callbacks
+    engineListener = env->NewGlobalRef(jVisualizer);
+    jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/customviews/PolyrhythmVisualizer");
+    onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(IDI)V");
 }
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeUnload(JNIEnv *env, jobject instance) {
     engine->unload();
+    env->DeleteGlobalRef(engineListener);
 }
 
 JNIEXPORT void JNICALL
@@ -57,10 +64,6 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultS
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
                                                                                                   jobject instance) {
-    // Register stuff for callbacks
-    engineListener = env->NewGlobalRef(instance);
-    jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/customviews/PolyrhythmVisualizer");
-    onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(IDI)V");
     engine->startRhythm();
 }
 

@@ -46,10 +46,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         set(value) {
             if (field != value) {
                 field = value
-                // TODO UPDATE THIS
                 when (value) {
-                    Status.PLAYING -> start()
-                    Status.BEFORE_PLAY -> stop()
+                    Status.BEFORE_PLAY -> resetPlayer()
+                    Status.PLAYING -> startRhythm()
+                    Status.AFTER_PLAY -> stopRhythm()
                 }
                 actionOnStatusChange?.invoke(value)
             }
@@ -62,16 +62,16 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         set(value) {
             if (field.BPM != value.BPM) {
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                stop()
+                currentStatus = Status.BEFORE_PLAY
             }
             if (field.xNumberOfBeats != value.xNumberOfBeats) {
                 xRhythmSubdivisions = calculateRhythmLineSubdivisons(value.xNumberOfBeats)
-                stop()
+                currentStatus = Status.BEFORE_PLAY
             }
             if (field.yNumberOfBeats != value.yNumberOfBeats) {
                 yRhythmSubdivisions = calculateRhythmLineSubdivisons(value.yNumberOfBeats)
                 polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                stop()
+                currentStatus = Status.BEFORE_PLAY
             }
             field = value
         }
@@ -112,8 +112,11 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Drawing stuff
     private val horizontalInternalPadding = resources.displayMetrics.density * 10
-    private val rhythmLinesSeparation = resources.displayMetrics.density * 30
-    private val usableRectF = RectF()
+    private val rhythmLinesSeparationFromCenter = resources.displayMetrics.density * 30
+    private val tapResultSeparationFromCenterStart = rhythmLinesSeparationFromCenter / 4
+    private val tapResultSeparationFromCenterEnd = tapResultSeparationFromCenterStart * 3
+    private val rhythmRectangle = RectF()
+    private val rhythmWithErrorWindowsRectangle = RectF()
     private val xPaint = Paint()
     private val yPaint = Paint()
     private val neutralPaint = Paint()
@@ -139,7 +142,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             animationProgress = 0f
             // TODO calling pause here sends signal to native to stop but the signal should come from native
             //  since it's the source of truth in timing matters and we need to wait the window for last event
-            currentStatus = Status.BEFORE_PLAY
+            currentStatus = Status.AFTER_PLAY
             invalidate()
         }
     }
@@ -201,8 +204,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         // Draw neutral lines, horizontal and end
         drawNeutralLines(canvas)
 
-        // If the user input is not currently being evaluated draw the rhythm
         // TODO this will change depending on difficulty (?)
+        // If the user input is not currently being evaluated draw the rhythm
         if (!playerPhase) {
             // Draw x lines on the top
             drawXLines(canvas)
@@ -213,32 +216,34 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
         // Draw the progress line
-        drawAnimationProgress(canvas)
+        if (currentStatus != Status.AFTER_PLAY) {
+            drawAnimationProgress(canvas)
+        }
     }
 
     private fun drawNeutralLines(canvas: Canvas) {
         // Start of beat
         canvas.drawLine(
-            usableRectF.left,
-            usableRectF.centerY() - rhythmLinesSeparation / 2,
-            usableRectF.left,
-            usableRectF.centerY() + rhythmLinesSeparation / 2,
+            rhythmRectangle.left,
+            rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter / 2,
+            rhythmRectangle.left,
+            rhythmRectangle.centerY() + rhythmLinesSeparationFromCenter / 2,
             neutralPaint
         )
         // Horizontal guide
         canvas.drawLine(
-            usableRectF.left,
-            usableRectF.centerY(),
-            usableRectF.right,
-            usableRectF.centerY(),
+            rhythmWithErrorWindowsRectangle.left,
+            rhythmWithErrorWindowsRectangle.centerY(),
+            rhythmWithErrorWindowsRectangle.right,
+            rhythmWithErrorWindowsRectangle.centerY(),
             neutralPaint
         )
         // End of beat
         canvas.drawLine(
-            usableRectF.right,
-            usableRectF.top + (usableRectF.height() / 2 - rhythmLinesSeparation) / 2,
-            usableRectF.right,
-            usableRectF.bottom - (usableRectF.height() / 2 - rhythmLinesSeparation) / 2,
+            rhythmRectangle.right,
+            rhythmRectangle.top + (rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter) / 2,
+            rhythmRectangle.right,
+            rhythmRectangle.bottom - (rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter) / 2,
             neutralPaint
         )
     }
@@ -246,10 +251,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private fun drawXLines(canvas: Canvas) {
         for (subdivision in xRhythmSubdivisions) {
             canvas.drawLine(
-                usableRectF.left + usableRectF.width() * subdivision,
-                usableRectF.centerY() - rhythmLinesSeparation,
-                usableRectF.left + usableRectF.width() * subdivision,
-                usableRectF.top,
+                rhythmRectangle.left + rhythmRectangle.width() * subdivision,
+                rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter,
+                rhythmRectangle.left + rhythmRectangle.width() * subdivision,
+                rhythmRectangle.top,
                 xPaint
             )
         }
@@ -258,10 +263,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private fun drawYLines(canvas: Canvas) {
         for (subdivision in yRhythmSubdivisions) {
             canvas.drawLine(
-                usableRectF.left + usableRectF.width() * subdivision,
-                usableRectF.centerY() + rhythmLinesSeparation,
-                usableRectF.left + usableRectF.width() * subdivision,
-                usableRectF.bottom,
+                rhythmRectangle.left + rhythmRectangle.width() * subdivision,
+                rhythmRectangle.centerY() + rhythmLinesSeparationFromCenter,
+                rhythmRectangle.left + rhythmRectangle.width() * subdivision,
+                rhythmRectangle.bottom,
                 yPaint
             )
         }
@@ -269,19 +274,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     private fun drawPlayerInputTimingLines(canvas: Canvas) {
         for (resultWithTimingAndLine in playerInputTimings) {
-            // TODO use proper paints
             canvas.drawLine(
-                (usableRectF.left + usableRectF.width() * resultWithTimingAndLine.second).toFloat(),
+                (rhythmRectangle.left + rhythmRectangle.width() * resultWithTimingAndLine.second).toFloat(),
                 if (resultWithTimingAndLine.third == RhythmLine.X) {
-                    usableRectF.centerY() - rhythmLinesSeparation / 4
+                    rhythmRectangle.centerY() - tapResultSeparationFromCenterStart
                 } else {
-                    usableRectF.centerY() + rhythmLinesSeparation / 4
+                    rhythmRectangle.centerY() + tapResultSeparationFromCenterStart
                 },
-                (usableRectF.left + usableRectF.width() * resultWithTimingAndLine.second).toFloat(),
+                (rhythmRectangle.left + rhythmRectangle.width() * resultWithTimingAndLine.second).toFloat(),
                 if (resultWithTimingAndLine.third == RhythmLine.X) {
-                    usableRectF.centerY() - 3 * rhythmLinesSeparation / 4
+                    rhythmRectangle.centerY() - tapResultSeparationFromCenterEnd
                 } else {
-                    usableRectF.centerY() + 3 * rhythmLinesSeparation / 4
+                    rhythmRectangle.centerY() + tapResultSeparationFromCenterEnd
                 },
                 when (resultWithTimingAndLine.first) {
                     TapResult.Success -> successPaint
@@ -293,10 +297,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     private fun drawAnimationProgress(canvas: Canvas) {
         canvas.drawLine(
-            usableRectF.left + usableRectF.width() * animationProgress,
-            usableRectF.centerY() - rhythmLinesSeparation / 2,
-            usableRectF.left + usableRectF.width() * animationProgress,
-            usableRectF.centerY() + rhythmLinesSeparation / 2,
+            rhythmRectangle.left + rhythmRectangle.width() * animationProgress,
+            rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter / 2,
+            rhythmRectangle.left + rhythmRectangle.width() * animationProgress,
+            rhythmRectangle.centerY() + rhythmLinesSeparationFromCenter / 2,
             progressPaint
         )
     }
@@ -304,11 +308,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        // Size of the pad itself
-        usableRectF.set(
+        rhythmWithErrorWindowsRectangle.set(
             paddingLeft + horizontalInternalPadding,
             paddingTop.toFloat(),
             w - (paddingRight + horizontalInternalPadding),
+            (h - paddingBottom).toFloat()
+        )
+
+        val errorWindowSize = 0.04f * w
+        rhythmRectangle.set(
+            paddingLeft + horizontalInternalPadding + errorWindowSize,
+            paddingTop.toFloat(),
+            w - (paddingRight + horizontalInternalPadding + errorWindowSize),
             (h - paddingBottom).toFloat()
         )
     }
@@ -318,20 +329,35 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         currentStatus = when (currentStatus) {
             Status.BEFORE_PLAY -> Status.PLAYING
             Status.PLAYING -> Status.BEFORE_PLAY
-            Status.AFTER_PLAY -> Status.BEFORE_PLAY
+            Status.AFTER_PLAY -> {
+                resetPlayer()
+                Status.PLAYING
+            }
         }
     }
 
-    private fun start() {
+    fun stop() {
+        stopRhythm()
+        currentStatus = Status.BEFORE_PLAY
+    }
+
+    // Not directly used, called from status change
+    private fun startRhythm() {
         nativeStartRhythm()
         playerInputTimings.clear()
         animator.start()
     }
 
-    private fun stop() {
+    // Not directly used, called from status change
+    private fun stopRhythm() {
         animator.cancel()
-        playerPhase = false
         nativeStopRhythm()
+    }
+
+    private fun resetPlayer(){
+        playerPhase = false
+        animationProgress = 0f
+        invalidate()
     }
 
     fun doOnStatusChange(action: (newStatus: Status) -> Unit) {
@@ -352,10 +378,6 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         if (tapResult in TapResult.Early..TapResult.Success) {
             playerInputTimings.add(TapResultWithTimingAndLine(tapResult, tapTiming, rhythmLine))
         }
-    }
-
-    override fun onMeasureFinish() {
-        Log.d("TESTING", "onMeasureFinish")
     }
 
     private external fun nativeStartRhythm()

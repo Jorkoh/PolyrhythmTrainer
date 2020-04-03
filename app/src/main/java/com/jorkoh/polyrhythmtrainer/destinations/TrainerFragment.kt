@@ -50,7 +50,7 @@ class TrainerFragment : Fragment() {
         super.onResume()
 
         // Load the native engine and set the values
-        nativeLoad(requireContext().assets)
+        nativeLoad(requireContext().assets, polyrhythm_visualizer)
         trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
             nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
         }
@@ -59,6 +59,7 @@ class TrainerFragment : Fragment() {
     override fun onPause() {
         super.onPause()
 
+        polyrhythm_visualizer.stop()
         // Unload the native engine
         nativeUnload()
     }
@@ -133,8 +134,8 @@ class TrainerFragment : Fragment() {
 
     private fun setPlayPauseButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         play_stop_button.icon = ContextCompat.getDrawable(requireContext(), when (newStatus) {
-            PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_pause
-            PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_play
+            PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
+            PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
             PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
         })
     }
@@ -189,7 +190,7 @@ class TrainerFragment : Fragment() {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
 
-    private external fun nativeLoad(assetManager: AssetManager)
+    private external fun nativeLoad(assetManager: AssetManager, visualizer: PolyrhythmVisualizer)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
 

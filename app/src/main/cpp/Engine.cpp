@@ -88,7 +88,6 @@ void Engine::resetRhythmPositionEventsAndWindows() {
     currentFrame = 0;
     rhythmPositionMs = 0;
     lastUpdateTime = 0;
-    remainingBeats = xNumberOfBeats + yNumberOfBeats;
 }
 
 void Engine::scheduleNewEventsAndWindows() {
@@ -179,17 +178,15 @@ DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData
                 // Right hand plays the x rhythm line
                 rightPadSound->setPlaying(true);
                 xRhythmEvents.pop(nextClapEventMs);
-                remainingBeats--;
             }
             if (yRhythmEvents.peek(nextClapEventMs) && rhythmPositionMs >= nextClapEventMs) {
                 // Left hand plays the y rhythm line
                 leftPadSound->setPlaying(true);
                 yRhythmEvents.pop(nextClapEventMs);
-                remainingBeats--;
             }
 
             // All the beats have been played, time to measure the user performance
-            if (remainingBeats <= 0) {
+            if (xRhythmEvents.size() == 0 && yRhythmEvents.size() == 0) {
                 engineState = EngineState::MeasuringRhythm;
             }
         }

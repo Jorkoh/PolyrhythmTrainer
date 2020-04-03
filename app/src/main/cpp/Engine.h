@@ -84,7 +84,6 @@ private:
     std::atomic<int32_t> windowCenterOffsetMs{120};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
-    std::atomic<int32_t> remainingBeats{7};
 
     // The rhythm playing events for the example phase (PlayingRhythm)
     LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;

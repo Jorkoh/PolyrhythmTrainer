@@ -254,7 +254,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
             android:max="270"
-            android:progress="80"
+            android:progress="50"
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
