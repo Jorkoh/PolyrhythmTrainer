@@ -1,6 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.destinations.customviews
-
-import com.jorkoh.polyrhythmtrainer.destinations.RhythmLine
+package com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews
 
 interface EngineListener {
     // tapTiming is a fraction of the total rhythm length

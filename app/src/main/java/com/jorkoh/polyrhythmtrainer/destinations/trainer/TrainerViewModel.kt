@@ -1,8 +1,9 @@
-package com.jorkoh.polyrhythmtrainer.destinations
+package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.jorkoh.polyrhythmtrainer.destinations.mutate
 
 class TrainerViewModel : ViewModel() {
     private val polyrhythmSettings =

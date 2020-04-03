@@ -29,7 +29,7 @@ jobject engineListener;
 jmethodID onTapResultMethod;
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv *env, jobject instance,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeLoad(JNIEnv *env, jobject instance,
                                                                           jobject jAssetManager,
                                                                           jobject jVisualizer) {
     // Create the engine
@@ -43,18 +43,18 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeLoad(JNIEnv
     engine->requestLoad();
     // Register stuff for callbacks
     engineListener = env->NewGlobalRef(jVisualizer);
-    jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/customviews/PolyrhythmVisualizer");
+    jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/trainer/customviews/PolyrhythmVisualizer");
     onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(IDI)V");
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeUnload(JNIEnv *env, jobject instance) {
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeUnload(JNIEnv *env, jobject instance) {
     engine->unload();
     env->DeleteGlobalRef(engineListener);
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
                                                                                             jint sampleRate,
                                                                                             jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
@@ -62,19 +62,19 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetDefaultS
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
                                                                                                   jobject instance) {
     engine->startRhythm();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
                                                                                                  jobject instance) {
     engine->stopRhythm();
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetRhythmSettings(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetRhythmSettings(JNIEnv *env,
                                                                                        jobject type,
                                                                                        jint newXNumberOfBeats,
                                                                                        jint newYNumberOfBeats,
@@ -83,7 +83,7 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_TrainerFragment_nativeSetRhythmSe
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_customviews_PadView_nativeOnPadTouch(JNIEnv *env, jobject type,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PadView_nativeOnPadTouch(JNIEnv *env, jobject type,
                                                                                     jint padPosition,
                                                                                     jlong timeSinceBoot) {
     TapResultWithTimingAndPosition tapResultWithTimingAndPosition = engine->tap(padPosition, timeSinceBoot);

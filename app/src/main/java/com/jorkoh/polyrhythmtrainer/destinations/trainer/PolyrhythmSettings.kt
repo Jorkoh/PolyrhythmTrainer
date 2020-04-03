@@ -1,6 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.destinations
-
-import com.jorkoh.polyrhythmtrainer.destinations.customviews.EngineListener
+package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
 data class PolyrhythmSettings(
     var BPM: Int = 80,

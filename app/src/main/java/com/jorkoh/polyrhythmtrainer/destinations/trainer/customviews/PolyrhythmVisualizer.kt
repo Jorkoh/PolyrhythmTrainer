@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.destinations.customviews
+package com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -12,9 +12,9 @@ import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
-import com.jorkoh.polyrhythmtrainer.destinations.PolyrhythmSettings
-import com.jorkoh.polyrhythmtrainer.destinations.RhythmLine
-import com.jorkoh.polyrhythmtrainer.destinations.customviews.EngineListener.TapResult
+import com.jorkoh.polyrhythmtrainer.destinations.trainer.PolyrhythmSettings
+import com.jorkoh.polyrhythmtrainer.destinations.trainer.RhythmLine
+import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.EngineListener.TapResult
 
 typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>
 

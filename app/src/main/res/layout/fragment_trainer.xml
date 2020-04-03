@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".destinations.TrainerFragment">
+    tools:context=".destinations.trainer.TrainerFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_above_visualizer"
@@ -37,7 +37,7 @@
         app:iconTint="?attr/colorOnBackground"/>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/trohpies_button"
+        android:id="@+id/trophies_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -275,7 +275,7 @@
 
     </LinearLayout>
 
-    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PolyrhythmVisualizer
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
         android:id="@+id/polyrhythm_visualizer"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -291,7 +291,7 @@
         app:xRhythmColor="@color/xRhythmColor"
         app:yRhythmColor="@color/yRhythmColor" />
 
-    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PadView
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
         android:id="@+id/left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -308,7 +308,7 @@
         app:padPosition="0"
         app:padRippleColor="@color/yRhythmRippleColor" />
 
-    <com.jorkoh.polyrhythmtrainer.destinations.customviews.PadView
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
         android:id="@+id/right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"

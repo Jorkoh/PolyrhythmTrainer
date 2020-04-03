@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.destinations
+package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -17,9 +17,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.R
-import com.jorkoh.polyrhythmtrainer.destinations.customviews.PolyrhythmVisualizer
+import com.jorkoh.polyrhythmtrainer.destinations.DebounceClickListener
+import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
 import kotlinx.android.synthetic.main.fragment_trainer.*
 
 @ExperimentalStdlibApi
@@ -71,10 +73,17 @@ class TrainerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Change them button
+        // Change theme button
         change_theme_button.setOnClickListener(DebounceClickListener {
             changeThemePreference()
         })
+        sounds_button.setOnClickListener {
+            findNavController().navigate(R.id.action_trainerFragment_to_soundsFragment)
+        }
+        trophies_button.setOnClickListener {
+            findNavController().navigate(R.id.action_trainerFragment_to_trophiesFragment)
+        }
+
         // Change beats per rhythm line buttons
         x_number_of_beats_increase_button.setOnClickListener {
             trainerViewModel.changeNumberOfBeats(true, RhythmLine.X)
@@ -115,7 +124,7 @@ class TrainerFragment : Fragment() {
 
         polyrhythm_visualizer.doOnStatusChange { newStatus ->
             // TODO fix this being called too early when playing and rotating twice
-            setPlayPauseButtonIcon(newStatus)
+            setPlayPauseReplayButtonIcon(newStatus)
         }
         // TODO temp until level system is implemented
         current_level_text.text = getString(R.string.current_level, 1)
@@ -132,7 +141,7 @@ class TrainerFragment : Fragment() {
         })
     }
 
-    private fun setPlayPauseButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
+    private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         play_stop_button.icon = ContextCompat.getDrawable(requireContext(), when (newStatus) {
             PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
             PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause

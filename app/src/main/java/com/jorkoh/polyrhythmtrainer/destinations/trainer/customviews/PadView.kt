@@ -1,4 +1,4 @@
-package com.jorkoh.polyrhythmtrainer.destinations.customviews
+package com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews
 
 import android.animation.ValueAnimator
 import android.content.Context
