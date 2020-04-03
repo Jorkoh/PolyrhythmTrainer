@@ -46,7 +46,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             if (field != value) {
                 field = value
                 when (value) {
-                    Status.BEFORE_PLAY -> resetPlayer()
+                    Status.BEFORE_PLAY -> resetAnimation()
                     Status.PLAYING -> startRhythm()
                     Status.AFTER_PLAY -> stopRhythm()
                 }
@@ -75,7 +75,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             }
             field = value
 
-            if(playerNeedsReset){
+            if (playerNeedsReset) {
                 currentStatus = Status.AFTER_PLAY
                 currentStatus = Status.BEFORE_PLAY
             }
@@ -209,14 +209,16 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         // Draw neutral lines, horizontal and end
         drawNeutralLines(canvas)
 
-        // TODO this will change depending on difficulty (?)
         // If the user input is not currently being evaluated draw the rhythm
         if (!playerPhase) {
             // Draw x lines on the top
             drawXLines(canvas)
             // Draw y lines on the bottom
             drawYLines(canvas)
-        } else {
+        }
+
+        // If the user is actively playing or is reviewing his play draw his tap results
+        if (playerPhase || currentStatus == Status.AFTER_PLAY) {
             drawPlayerInputTimingLines(canvas)
         }
 
@@ -331,7 +333,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
 
     fun advanceToNextState() {
-         when (currentStatus) {
+        when (currentStatus) {
             Status.BEFORE_PLAY -> currentStatus = Status.PLAYING
             Status.PLAYING -> {
                 currentStatus = Status.AFTER_PLAY
@@ -352,20 +354,20 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Not directly used, called from status change
     private fun startRhythm() {
         nativeStartRhythm()
-        playerInputTimings.clear()
         animator.start()
     }
 
     // Not directly used, called from status change
     private fun stopRhythm() {
         animator.cancel()
+        playerPhase = false
         nativeStopRhythm()
     }
 
     // Not directly used, called from status change
-    private fun resetPlayer(){
-        playerPhase = false
+    private fun resetAnimation() {
         animationProgress = 0f
+        playerInputTimings.clear()
         invalidate()
     }
 
