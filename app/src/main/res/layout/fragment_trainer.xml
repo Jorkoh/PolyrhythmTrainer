@@ -7,21 +7,21 @@
     tools:context=".destinations.trainer.TrainerFragment">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_above_visualizer"
+        android:id="@+id/trainer_guideline_above_visualizer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.42" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_above_pads"
+        android:id="@+id/trainer_guideline_above_pads"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.72" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/premium_button"
+        android:id="@+id/trainer_premium_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -32,12 +32,12 @@
         app:icon="@drawable/ic_premium"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
+        app:iconTint="?attr/colorOnBackground"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:iconTint="?attr/colorOnBackground"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/trophies_button"
+        android:id="@+id/trainer_trophies_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -48,12 +48,12 @@
         app:icon="@drawable/ic_trophy"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:layout_constraintStart_toEndOf="@id/premium_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:iconTint="?attr/colorOnBackground"/>
+        app:iconTint="?attr/colorOnBackground"
+        app:layout_constraintStart_toEndOf="@id/trainer_premium_button"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/sounds_button"
+        android:id="@+id/trainer_sounds_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -64,12 +64,12 @@
         app:icon="@drawable/ic_sound"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:layout_constraintEnd_toStartOf="@id/change_theme_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:iconTint="?attr/colorOnBackground"/>
+        app:iconTint="?attr/colorOnBackground"
+        app:layout_constraintEnd_toStartOf="@id/trainer_change_theme_button"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/change_theme_button"
+        android:id="@+id/trainer_change_theme_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
@@ -85,38 +85,38 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/current_level_text"
+        android:id="@+id/trainer_current_level_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
         android:text="@string/current_level"
         android:textSize="28sp"
-        android:layout_marginStart="24dp"
+        app:layout_constraintBottom_toBottomOf="@id/trainer_number_of_beats_picker_layout"
+        app:layout_constraintEnd_toStartOf="@id/trainer_number_of_beats_picker_layout"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintBottom_toBottomOf="@id/number_of_beats_picker_layout"
-        app:layout_constraintEnd_toStartOf="@id/number_of_beats_picker_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/number_of_beats_picker_layout" />
+        app:layout_constraintTop_toTopOf="@id/trainer_number_of_beats_picker_layout" />
 
     <LinearLayout
-        android:id="@+id/number_of_beats_picker_layout"
+        android:id="@+id/trainer_number_of_beats_picker_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/bpm_layout"
-        app:layout_constraintEnd_toStartOf="@id/play_stop_button"
-        app:layout_constraintStart_toEndOf="@id/current_level_text"
+        app:layout_constraintBottom_toTopOf="@id/trainer_bpm_layout"
+        app:layout_constraintEnd_toStartOf="@id/trainer_play_stop_button"
+        app:layout_constraintStart_toEndOf="@id/trainer_current_level_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed">
 
         <LinearLayout
-            android:id="@+id/x_number_of_beats_picker_layout"
+            android:id="@+id/trainer_x_number_of_beats_picker_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/x_number_of_beats_increase_button"
+                android:id="@+id/trainer_x_number_of_beats_increase_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <TextView
-                android:id="@+id/x_number_of_beats_text"
+                android:id="@+id/trainer_x_number_of_beats_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -140,7 +140,7 @@
                 android:textColor="@color/xRhythmColor" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/x_number_of_beats_decrease_button"
+                android:id="@+id/trainer_x_number_of_beats_decrease_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -157,25 +157,25 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/number_of_beats_picker_separator"
+            android:id="@+id/trainer_number_of_beats_picker_separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/polyrhythm_separator"
             android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-            app:layout_constraintBottom_toTopOf="@id/guideline_above_visualizer"
-            app:layout_constraintEnd_toStartOf="@id/y_number_of_beats_picker_layout"
-            app:layout_constraintStart_toEndOf="@id/x_number_of_beats_picker_layout"
+            app:layout_constraintBottom_toTopOf="@id/trainer_guideline_above_visualizer"
+            app:layout_constraintEnd_toStartOf="@id/trainer_y_number_of_beats_picker_layout"
+            app:layout_constraintStart_toEndOf="@id/trainer_x_number_of_beats_picker_layout"
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:id="@+id/y_number_of_beats_picker_layout"
+            android:id="@+id/trainer_y_number_of_beats_picker_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/y_number_of_beats_increase_button"
+                android:id="@+id/trainer_y_number_of_beats_increase_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -190,7 +190,7 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <TextView
-                android:id="@+id/y_number_of_beats_text"
+                android:id="@+id/trainer_y_number_of_beats_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -199,7 +199,7 @@
                 android:textColor="@color/yRhythmColor" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/y_number_of_beats_decrease_button"
+                android:id="@+id/trainer_y_number_of_beats_decrease_button"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -219,7 +219,7 @@
 
     <!-- TODO MAKE PLAY BUTTON MORE VISIBLE-->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/play_stop_button"
+        android:id="@+id/trainer_play_stop_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -231,68 +231,68 @@
         app:icon="@drawable/ic_play"
         app:iconPadding="0dp"
         app:iconSize="50dp"
-        app:layout_constraintBottom_toBottomOf="@id/number_of_beats_picker_layout"
+        app:layout_constraintBottom_toBottomOf="@id/trainer_number_of_beats_picker_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/number_of_beats_picker_layout"
-        app:layout_constraintTop_toTopOf="@id/number_of_beats_picker_layout" />
+        app:layout_constraintStart_toEndOf="@id/trainer_number_of_beats_picker_layout"
+        app:layout_constraintTop_toTopOf="@id/trainer_number_of_beats_picker_layout" />
 
     <LinearLayout
-        android:id="@+id/bpm_layout"
+        android:id="@+id/trainer_bpm_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/guideline_above_visualizer"
+        app:layout_constraintBottom_toTopOf="@id/trainer_guideline_above_visualizer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/number_of_beats_picker_layout">
+        app:layout_constraintTop_toBottomOf="@id/trainer_number_of_beats_picker_layout">
 
         <SeekBar
-            android:id="@+id/bpm_bar"
+            android:id="@+id/trainer_bpm_bar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
+            android:layout_weight="1"
             android:max="270"
-            android:progress="50"
-            android:layout_weight="1" />
+            android:progress="50" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/bpm_tap_button"
+            android:id="@+id/trainer_bpm_tap_button"
             style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="24dp"
-            app:iconGravity="end"
-            app:icon="@drawable/ic_tap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/yRhythmColor"
             android:text="@string/bpm"
-            app:iconSize="36dp"
+            android:textColor="@color/yRhythmColor"
             android:textSize="18sp"
+            app:icon="@drawable/ic_tap"
+            app:iconGravity="end"
+            app:iconSize="36dp"
             app:iconTint="?attr/colorOnBackground" />
 
     </LinearLayout>
 
     <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-        android:id="@+id/polyrhythm_visualizer"
+        android:id="@+id/trainer_polyrhythm_visualizer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="24dp"
-        app:layout_constraintBottom_toTopOf="@id/guideline_above_pads"
+        app:errorColor="@color/errorColor"
+        app:layout_constraintBottom_toTopOf="@id/trainer_guideline_above_pads"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_above_visualizer"
+        app:layout_constraintTop_toBottomOf="@id/trainer_guideline_above_visualizer"
         app:neutralColor="?attr/colorOnBackground"
-        app:successColor="@color/successColor"
-        app:errorColor="@color/errorColor"
         app:progressColor="@color/progressColor"
+        app:successColor="@color/successColor"
         app:xRhythmColor="@color/xRhythmColor"
         app:yRhythmColor="@color/yRhythmColor" />
 
     <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
-        android:id="@+id/left_pad"
+        android:id="@+id/trainer_left_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="6dp"
@@ -301,15 +301,15 @@
         android:layout_marginBottom="6dp"
         android:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/right_pad"
+        app:layout_constraintEnd_toStartOf="@+id/trainer_right_pad"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_above_pads"
+        app:layout_constraintTop_toBottomOf="@id/trainer_guideline_above_pads"
         app:padColor="@color/yRhythmColor"
         app:padPosition="0"
         app:padRippleColor="@color/yRhythmRippleColor" />
 
     <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
-        android:id="@+id/right_pad"
+        android:id="@+id/trainer_right_pad"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="3dp"
@@ -319,8 +319,8 @@
         android:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/left_pad"
-        app:layout_constraintTop_toBottomOf="@id/guideline_above_pads"
+        app:layout_constraintStart_toEndOf="@+id/trainer_left_pad"
+        app:layout_constraintTop_toBottomOf="@id/trainer_guideline_above_pads"
         app:padColor="@color/xRhythmColor"
         app:padPosition="1"
         app:padRippleColor="@color/xRhythmRippleColor" />

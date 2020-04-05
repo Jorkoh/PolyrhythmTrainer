@@ -4,13 +4,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/sounds_guideline_below_pads"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="sounds fragment"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.28" />
+
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
+        android:id="@+id/sounds_left_pad"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="6dp"
+        android:elevation="6dp"
+        app:layout_constraintBottom_toTopOf="@id/sounds_guideline_below_pads"
+        app:layout_constraintEnd_toStartOf="@+id/sounds_right_pad"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:padColor="@color/yRhythmColor"
+        app:padPosition="0"
+        app:padRippleColor="@color/yRhythmRippleColor" />
+
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
+        android:id="@+id/sounds_right_pad"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:elevation="6dp"
+        app:layout_constraintBottom_toTopOf="@id/sounds_guideline_below_pads"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/sounds_left_pad"
+        app:layout_constraintTop_toTopOf="parent"
+        app:padColor="@color/xRhythmColor"
+        app:padPosition="1"
+        app:padRippleColor="@color/xRhythmRippleColor" />
 </androidx.constraintlayout.widget.ConstraintLayout>
