@@ -13,6 +13,6 @@ class TrophiesFragment : Fragment() {
     private val trophiesViewModel: TrophiesViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_trophies, container, false)
+        return inflater.inflate(R.layout.trophies_fragment, container, false)
     }
 }

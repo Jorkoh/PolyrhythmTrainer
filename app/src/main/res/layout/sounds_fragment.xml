@@ -44,4 +44,17 @@
         app:padColor="@color/xRhythmColor"
         app:padPosition="1"
         app:padRippleColor="@color/xRhythmRippleColor" />
+
+    <!-- Not using android:transitionGroup="true" messes up TrainerFragment exitTransition -->
+    <!-- It's not a visible difference in real time-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:transitionGroup="true"
+        android:layout_marginTop="6dp"
+        android:id="@+id/sounds_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sounds_guideline_below_pads" />
 </androidx.constraintlayout.widget.ConstraintLayout>

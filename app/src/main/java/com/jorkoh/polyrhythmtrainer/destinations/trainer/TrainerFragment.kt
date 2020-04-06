@@ -27,8 +27,7 @@ import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.*
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-import kotlinx.android.synthetic.main.fragment_trainer.*
-import kotlinx.coroutines.delay
+import kotlinx.android.synthetic.main.trainer_fragment.*
 
 @ExperimentalStdlibApi
 class TrainerFragment : Fragment() {
@@ -56,7 +55,7 @@ class TrainerFragment : Fragment() {
             )
         }
 
-        // This is the transition to be used for non-shared elements when we are opening the sounds screen
+        // Non-shared elements when we are navigating to the sounds screen
         exitTransition = transitionTogether {
             this += Slide(Gravity.TOP).apply {
                 duration = 275
@@ -65,7 +64,7 @@ class TrainerFragment : Fragment() {
             }
         }
 
-        // This is the transition to be used for non-shared elements when we are return back from the sounds screen
+        // Non-shared elements when we are coming back from the sounds screen
         reenterTransition = Slide(Gravity.TOP).apply {
             startDelay = 48
             duration = 216
@@ -97,7 +96,7 @@ class TrainerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_trainer, container, false)
+        return inflater.inflate(R.layout.trainer_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

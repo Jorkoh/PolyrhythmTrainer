@@ -19,7 +19,6 @@ class PadView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
-        // TODO pad positions should be some kind of enum, not hardcoded values
         private const val DEFAULT_PAD_POSITION = -1
         private const val DEFAULT_PAD_COLOR = Color.BLACK
         private const val DEFAULT_PAD_RIPPLE_COLOR = Color.GRAY

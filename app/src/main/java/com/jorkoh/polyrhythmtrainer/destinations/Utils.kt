@@ -8,6 +8,12 @@ import android.view.View
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.MutableLiveData
 
+// TODO move this somewhere reasonable
+enum class PadPosition{
+    Left,
+    Right
+}
+
 fun <T> MutableLiveData<T>.mutate(actions: MutableLiveData<T>.() -> Unit) {
     actions(this)
     this.value = this.value

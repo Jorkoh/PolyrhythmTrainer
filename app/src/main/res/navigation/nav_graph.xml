@@ -9,7 +9,7 @@
         android:id="@+id/trainerFragment"
         android:name="com.jorkoh.polyrhythmtrainer.destinations.trainer.TrainerFragment"
         android:label="fragment_trainer"
-        tools:layout="@layout/fragment_trainer">
+        tools:layout="@layout/trainer_fragment">
         <action
             android:id="@+id/action_trainerFragment_to_trophiesFragment"
             app:destination="@id/trophiesFragment" />
