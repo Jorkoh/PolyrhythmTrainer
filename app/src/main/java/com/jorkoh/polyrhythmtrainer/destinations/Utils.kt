@@ -9,7 +9,7 @@ import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.MutableLiveData
 
 // TODO move this somewhere reasonable
-enum class PadPosition{
+enum class PadPosition {
     Left,
     Right
 }

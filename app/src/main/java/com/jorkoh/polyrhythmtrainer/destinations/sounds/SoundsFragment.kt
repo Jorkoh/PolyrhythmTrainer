@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
+import androidx.core.view.doOnNextLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -17,6 +18,7 @@ import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
 import kotlinx.android.synthetic.main.sounds_fragment.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.util.concurrent.TimeUnit
 
 class SoundsFragment : Fragment() {
 
@@ -73,14 +75,12 @@ class SoundsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        postponeEnterTransition(400L, TimeUnit.MILLISECONDS)
         return inflater.inflate(R.layout.sounds_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // TODO when the recycler view is ready start the transition because it's
-        //  lagging the first time
 
         sounds_recycler.apply {
             setHasFixedSize(true)
@@ -91,6 +91,9 @@ class SoundsFragment : Fragment() {
 
         soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { newSounds ->
             soundsAdapter.setNewSounds(newSounds)
+            sounds_recycler.doOnNextLayout {
+                startPostponedEnterTransition()
+            }
         })
 
         ViewCompat.setTransitionName(sounds_left_pad, TRANSITION_NAME_LEFT_PAD)
