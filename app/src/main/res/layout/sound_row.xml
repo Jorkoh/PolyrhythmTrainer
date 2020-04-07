@@ -12,10 +12,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp">
+        android:layout_marginHorizontal="12dp">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/sound_row_enable_for_left_pad_switch"
+            android:theme="@style/LeftPadSwitchTheme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -24,16 +25,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="6dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:gravity="center"
-            android:layout_weight="1"
             tools:text="Sound 1" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/sound_row_enable_for_right_pad_switch"
+            android:theme="@style/RightPadSwitchTheme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

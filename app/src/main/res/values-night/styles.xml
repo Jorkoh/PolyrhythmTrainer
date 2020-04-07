@@ -11,4 +11,12 @@
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
 
+    <style name="LeftPadSwitchTheme" parent="AppTheme">
+        <item name="colorSecondary">@color/yRhythmColor</item>
+    </style>
+
+    <style name="RightPadSwitchTheme" parent="AppTheme">
+        <item name="colorSecondary">@color/xRhythmColor</item>
+    </style>
+
 </resources>

@@ -2,15 +2,14 @@ package com.jorkoh.polyrhythmtrainer.destinations.sounds
 
 import android.os.Bundle
 import android.transition.*
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
@@ -80,10 +79,14 @@ class SoundsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // TODO when the recycler view is ready start the transition because it's
+        //  lagging the first time
+
         sounds_recycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = soundsAdapter
+            (itemAnimator as? DefaultItemAnimator)?.supportsChangeAnimations = false
         }
 
         soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { newSounds ->

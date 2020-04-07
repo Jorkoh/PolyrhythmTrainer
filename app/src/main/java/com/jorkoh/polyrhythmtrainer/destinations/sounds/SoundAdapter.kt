@@ -1,12 +1,13 @@
 package com.jorkoh.polyrhythmtrainer.destinations.sounds
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Checkable
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.switchmaterial.SwitchMaterial
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.PadPosition
 import kotlinx.android.extensions.LayoutContainer
@@ -19,29 +20,33 @@ class SoundAdapter(
     inner class SoundViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),
         LayoutContainer {
 
+        @SuppressLint("ClickableViewAccessibility")
         fun bind(sound: Sound, switchChanged: (Int, PadPosition) -> Unit) {
             sound_row_name_text.text = sound.displayName
+
             sound_row_enable_for_left_pad_switch.isChecked = sound.assignedToLeft
             sound_row_enable_for_right_pad_switch.isChecked = sound.assignedToRight
 
-            sound_row_enable_for_left_pad_switch.setOnTouchListener { v, e ->
-                if (e.action == MotionEvent.ACTION_DOWN && !(v as SwitchMaterial).isChecked) {
+            sound_row_enable_for_left_pad_switch.setOnTouchListener { view, event ->
+                if (event.action == MotionEvent.ACTION_DOWN && !(view as Checkable).isChecked) {
                     // Ignore the touch if it's already checked
                     switchChanged(sound.soundId, PadPosition.Left)
-                    v.performClick()
                 }
                 true
             }
 
-            sound_row_enable_for_right_pad_switch.setOnTouchListener { v, _ ->
-                if (!(v as SwitchMaterial).isChecked) {
+            sound_row_enable_for_right_pad_switch.setOnTouchListener { view, event ->
+                if (event.action == MotionEvent.ACTION_DOWN && !(view as Checkable).isChecked) {
                     // Ignore the touch if it's already checked
                     switchChanged(sound.soundId, PadPosition.Right)
-                    v.performClick()
                 }
                 true
             }
         }
+    }
+
+    init {
+        setHasStableIds(true)
     }
 
     private var sounds: List<Sound> = listOf()
@@ -57,6 +62,10 @@ class SoundAdapter(
         val sound = sounds[position]
 
         holder.bind(sound, switchChanged)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return sounds[position].soundId.toLong()
     }
 
     fun setNewSounds(newSounds: List<Sound>) {
