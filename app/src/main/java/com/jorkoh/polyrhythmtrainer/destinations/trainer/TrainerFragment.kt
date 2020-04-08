@@ -1,10 +1,7 @@
 package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
-import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.AssetManager
 import android.content.res.Configuration
-import android.media.AudioManager
 import android.os.Bundle
 import android.transition.Slide
 import android.view.Gravity
@@ -24,9 +21,12 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.R
-import com.jorkoh.polyrhythmtrainer.destinations.*
+import com.jorkoh.polyrhythmtrainer.destinations.DebounceClickListener
+import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
+import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
+import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
 import kotlinx.android.synthetic.main.trainer_fragment.*
 
 @ExperimentalStdlibApi
@@ -46,14 +46,6 @@ class TrainerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Set default stream values
-        (requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
-            nativeSetDefaultStreamValues(
-                getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
-                getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
-            )
-        }
 
         // Non-shared elements when we are navigating to the sounds screen
         exitTransition = transitionTogether {
@@ -76,8 +68,6 @@ class TrainerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        // Load the native engine and set the values
-        nativeLoad(requireContext().assets, trainer_polyrhythm_visualizer)
         trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
             nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
         }
@@ -87,8 +77,6 @@ class TrainerFragment : Fragment() {
         super.onPause()
 
         trainer_polyrhythm_visualizer.stop()
-        // Unload the native engine
-        nativeUnload()
     }
 
     override fun onCreateView(
@@ -245,13 +233,6 @@ class TrainerFragment : Fragment() {
     private fun getCurrentNightMode(): Int {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
-
-    private external fun nativeLoad(assetManager: AssetManager, visualizer: PolyrhythmVisualizer)
-    private external fun nativeUnload()
-    private external fun nativeSetDefaultStreamValues(
-        defaultSampleRate: Int,
-        defaultFramesPerBurst: Int
-    )
 
     private external fun nativeSetRhythmSettings(
         newXNumberOfBeats: Int,

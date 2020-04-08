@@ -29,7 +29,7 @@ jobject engineListener;
 jmethodID onTapResultMethod;
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeLoad(JNIEnv *env, jobject instance,
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject instance,
                                                                           jobject jAssetManager,
                                                                           jobject jVisualizer) {
     // Create the engine
@@ -48,13 +48,13 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeLoa
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeUnload(JNIEnv *env, jobject instance) {
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeUnload(JNIEnv *env, jobject instance) {
     engine->unload();
     env->DeleteGlobalRef(engineListener);
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
                                                                                             jint sampleRate,
                                                                                             jint framesPerBurst) {
     oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
