@@ -36,7 +36,7 @@ void Engine::load() {
         return;
     }
 
-    if (!setupAudioSources()) {
+    if (!setupPadAudioSource(0) || !setupPadAudioSource(1)) {
         engineState = EngineState::FailedToLoad;
         return;
     }
@@ -112,15 +112,25 @@ void Engine::setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBe
     yNumberOfBeats = newYNumberOfBeats;
 }
 
-void Engine::setSoundAssets(const char *newLeftPadSoundFilename, const char *newRightPadSoundFilename) {
+void Engine::setSoundAssets(const char *newPadSoundFilename, int32_t padPosition, bool withAudioFeedback) {
     mAudioStream->stop(0);
 
-    leftPadSoundFilename = newLeftPadSoundFilename;
-    rightPadSoundFilename = newRightPadSoundFilename;
-    mMixer.clearTracks();
-    setupAudioSources();
+    if (padPosition == 0) {
+        leftPadSoundFilename = newPadSoundFilename;
+        setupPadAudioSource(padPosition);
+    } else if (padPosition == 1) {
+        rightPadSoundFilename = newPadSoundFilename;
+        setupPadAudioSource(padPosition);
+    }
 
     mAudioStream->start(0);
+
+    if (withAudioFeedback && padPosition == 0) {
+        leftPadSound->setPlaying(true);
+    }
+    if (withAudioFeedback && padPosition == 1) {
+        rightPadSound->setPlaying(true);
+    }
 }
 
 TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
@@ -278,36 +288,36 @@ bool Engine::openStream() {
     return true;
 }
 
-bool Engine::setupAudioSources() {
+bool Engine::setupPadAudioSource(int32_t padPosition) {
     // Set the properties of our audio source(s) to match that of our audio stream
     AudioProperties targetProperties{
             .channelCount = mAudioStream->getChannelCount(),
             .sampleRate = mAudioStream->getSampleRate()
     };
 
-    // Create a data source and player for the left pad sound
-    std::shared_ptr<AAssetDataSource> leftPadSoundSource{
-            AAssetDataSource::newFromCompressedAsset(mAssetManager, leftPadSoundFilename, targetProperties)
-    };
-    if (leftPadSoundSource == nullptr) {
-        LOGE("Could not load source data for left pad sound");
-        return false;
+    if (padPosition == 0) {
+        // Create a data source and player for the left pad sound
+        std::shared_ptr<AAssetDataSource> leftPadSoundSource{
+                AAssetDataSource::newFromCompressedAsset(mAssetManager, leftPadSoundFilename, targetProperties)
+        };
+        if (leftPadSoundSource == nullptr) {
+            LOGE("Could not load source data for left pad sound");
+            return false;
+        }
+        leftPadSound = std::make_unique<Player>(leftPadSoundSource);
+        mMixer.addTrack(leftPadSound.get(), padPosition);
+    } else if (padPosition == 1) {
+        // Create a data source and player for the left pad sound
+        std::shared_ptr<AAssetDataSource> rightPadSoundSource{
+                AAssetDataSource::newFromCompressedAsset(mAssetManager, rightPadSoundFilename, targetProperties)
+        };
+        if (rightPadSoundSource == nullptr) {
+            LOGE("Could not load source data for right pad sound");
+            return false;
+        }
+        rightPadSound = std::make_unique<Player>(rightPadSoundSource);
+        mMixer.addTrack(rightPadSound.get(), padPosition);
     }
-    leftPadSound = std::make_unique<Player>(leftPadSoundSource);
-
-    // Create a data source and player for the left pad sound
-    std::shared_ptr<AAssetDataSource> rightPadSoundSource{
-            AAssetDataSource::newFromCompressedAsset(mAssetManager, rightPadSoundFilename, targetProperties)
-    };
-    if (rightPadSoundSource == nullptr) {
-        LOGE("Could not load source data for right pad sound");
-        return false;
-    }
-    rightPadSound = std::make_unique<Player>(rightPadSoundSource);
-
-    // Add all the players to a mixer
-    mMixer.addTrack(leftPadSound.get());
-    mMixer.addTrack(rightPadSound.get());
 
     return true;
 }

@@ -95,16 +95,15 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSet
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetSoundAssets(JNIEnv *env,
-                                                                                          jobject type,
-                                                                                          jstring newLeftPadSound,
-                                                                                          jstring newRightPadSound) {
-    const char *nativeNewLeftPadSound = env->GetStringUTFChars(newLeftPadSound, nullptr);
-    const char *nativeNewRightPadSound = env->GetStringUTFChars(newRightPadSound, nullptr);
+                                                                    jobject type,
+                                                                    jstring newPadSound,
+                                                                    jint padPosition,
+                                                                    jboolean withAudioFeedback) {
+    const char *nativeNewPadSound = env->GetStringUTFChars(newPadSound, nullptr);
 
-    engine->setSoundAssets(nativeNewLeftPadSound, nativeNewRightPadSound);
+    engine->setSoundAssets(nativeNewPadSound, (int32_t)padPosition, (bool)withAudioFeedback);
 
-    env->ReleaseStringUTFChars(newLeftPadSound, nativeNewLeftPadSound);
-    env->ReleaseStringUTFChars(newRightPadSound, nativeNewRightPadSound);
+    env->ReleaseStringUTFChars(newPadSound, nativeNewPadSound);
 }
 
 JNIEXPORT void JNICALL

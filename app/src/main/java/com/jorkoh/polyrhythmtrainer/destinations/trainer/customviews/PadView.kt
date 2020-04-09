@@ -146,6 +146,10 @@ class PadView @JvmOverloads constructor(
         animator.start()
     }
 
+    fun ripple() {
+        startTouchAnimation(width / 2f, height / 2f)
+    }
+
     inner class CustomOutline(
         private val width: Int,
         private val height: Int,

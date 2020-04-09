@@ -6,12 +6,15 @@ import android.transition.Transition
 import android.transition.TransitionSet
 import android.view.View
 import androidx.core.view.animation.PathInterpolatorCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 
 // TODO move this somewhere reasonable
-enum class PadPosition {
-    Left,
-    Right
+enum class PadPosition(val nativeValue: Int) {
+    Left(0),
+    Right(1)
 }
 
 fun <T> MutableLiveData<T>.mutate(actions: MutableLiveData<T>.() -> Unit) {

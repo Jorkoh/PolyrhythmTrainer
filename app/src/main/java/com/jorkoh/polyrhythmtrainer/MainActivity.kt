@@ -8,6 +8,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.jorkoh.polyrhythmtrainer.destinations.PadPosition
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
@@ -31,14 +32,42 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        mainActivityViewModel.sounds.observe(this, Observer { sounds ->
+        mainActivityViewModel.leftPadSound.observe(this, Observer { sound ->
             lifecycleScope.launchWhenResumed {
                 nativeSetSoundAssets(
-                    sounds.first { it.assignedToLeft }.resourceName,
-                    sounds.first { it.assignedToRight }.resourceName
+                    sound.resourceName,
+                    PadPosition.Left.nativeValue,
+                    shouldMakeSound(PadPosition.Left)
                 )
             }
         })
+        mainActivityViewModel.rightPadSound.observe(this, Observer { sound ->
+            lifecycleScope.launchWhenResumed {
+                nativeSetSoundAssets(
+                    sound.resourceName,
+                    PadPosition.Right.nativeValue,
+                    shouldMakeSound(PadPosition.Right)
+                )
+            }
+        })
+    }
+
+    private var leftPadSoundSet = false
+    private var rightPadSoundSet = false
+
+    private fun shouldMakeSound(padPosition: PadPosition): Boolean {
+        var result = false
+        when (padPosition) {
+            PadPosition.Left -> {
+                result = leftPadSoundSet
+                leftPadSoundSet = true
+            }
+            PadPosition.Right -> {
+                result = rightPadSoundSet
+                rightPadSoundSet = true
+            }
+        }
+        return result
     }
 
     override fun onStart() {
@@ -46,11 +75,11 @@ class MainActivity : AppCompatActivity() {
 
         // Load the native engine
         nativeLoad(assets)
-        mainActivityViewModel.sounds.value?.let { sounds ->
-            nativeSetSoundAssets(
-                sounds.first { it.assignedToLeft }.resourceName,
-                sounds.first { it.assignedToRight }.resourceName
-            )
+        mainActivityViewModel.leftPadSound.value?.let { sound ->
+            nativeSetSoundAssets(sound.resourceName, PadPosition.Left.nativeValue, false)
+        }
+        mainActivityViewModel.rightPadSound.value?.let { sound ->
+            nativeSetSoundAssets(sound.resourceName, PadPosition.Right.nativeValue, false)
         }
     }
 
@@ -64,5 +93,5 @@ class MainActivity : AppCompatActivity() {
     private external fun nativeLoad(assetManager: AssetManager)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
-    private external fun nativeSetSoundAssets(newLeftPadSound: String, newRightPadSound: String)
+    private external fun nativeSetSoundAssets(newLeftPadSound: String, padPosition: Int, withAudioFeedback: Boolean)
 }

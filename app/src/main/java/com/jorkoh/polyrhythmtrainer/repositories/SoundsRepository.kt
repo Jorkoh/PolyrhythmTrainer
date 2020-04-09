@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 
 interface SoundsRepository {
     fun getSounds(): Flow<List<Sound>>
+    fun getPadSound(position: PadPosition): Flow<Sound>
     fun changePadSoundId(newId: Int, position: PadPosition)
 }
 
@@ -54,6 +55,24 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
                     }
                     // Emit a copy of the sounds
                     emit(ArrayList(sounds.map { it.copy() }))
+                }
+        }
+
+    // TODO this is a bit sketchy, I'm not using the sound from the mutable list since
+    //  its not clear if the assignedTo will be properly changed
+    override fun getPadSound(position: PadPosition): Flow<Sound> =
+        when (position) {
+            PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID, LEFT_PAD_DEFAULT_SOUND).asFlow()
+                .transform { soundId ->
+                    defaultSounds.first { it.soundId == soundId }.apply {
+                        emit(Sound(soundId, displayName, resourceName, assignedToLeft = true, assignedToRight = false))
+                    }
+                }
+            PadPosition.Right -> preferences.getInt(RIGHT_PAD_SOUND_ID, RIGHT_PAD_DEFAULT_SOUND).asFlow()
+                .transform { soundId ->
+                    defaultSounds.first { it.soundId == soundId }.apply {
+                        emit(Sound(soundId, displayName, resourceName, assignedToLeft = false, assignedToRight = true))
+                    }
                 }
         }
 

@@ -65,7 +65,7 @@ public:
 
     void setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
-    void setSoundAssets(const char* newLeftPadSoundFilename, const char* newRightPadSoundFilename);
+    void setSoundAssets(const char* newPadSoundFilename,int32_t padPosition, bool withAudioFeedback);
 
     TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
@@ -113,7 +113,7 @@ private:
 
     bool openStream();
 
-    bool setupAudioSources();
+    bool setupPadAudioSource(int32_t padPosition);
 };
 
 

@@ -20,7 +20,7 @@
 #include <array>
 #include "IRenderableAudio.h"
 
-constexpr int32_t kBufferSize = 192*10;  // Temporary buffer is used for mixing
+constexpr int32_t kBufferSize = 192 * 10;  // Temporary buffer is used for mixing
 constexpr uint8_t kMaxTracks = 100;
 
 /**
@@ -37,29 +37,31 @@ public:
         // Zero out the incoming container array
         memset(audioData, 0, sizeof(float) * numFrames * mChannelCount);
 
-        for (int i = 0; i < mNextFreeTrackIndex; ++i) {
-            mTracks[i]->renderAudio(mixingBuffer, numFrames);
+        leftPadTrack->renderAudio(mixingBuffer, numFrames);
+        for (int j = 0; j < numFrames * mChannelCount; ++j) {
+            audioData[j] += mixingBuffer[j];
+        }
 
-            for (int j = 0; j < numFrames * mChannelCount; ++j) {
-                audioData[j] += mixingBuffer[j];
-            }
+        rightPadTrack->renderAudio(mixingBuffer, numFrames);
+        for (int j = 0; j < numFrames * mChannelCount; ++j) {
+            audioData[j] += mixingBuffer[j];
         }
     }
 
-    void addTrack(IRenderableAudio *renderer){
-        mTracks[mNextFreeTrackIndex++] = renderer;
+    void addTrack(IRenderableAudio *renderer, int32_t padPosition) {
+        if (padPosition == 0) {
+            leftPadTrack = renderer;
+        } else if (padPosition == 1) {
+            rightPadTrack = renderer;
+        }
     }
 
-    void clearTracks(){
-        mNextFreeTrackIndex = 0;
-    }
-
-    void setChannelCount(int32_t channelCount){ mChannelCount = channelCount; }
+    void setChannelCount(int32_t channelCount) { mChannelCount = channelCount; }
 
 private:
     float mixingBuffer[kBufferSize];
-    std::array<IRenderableAudio*, kMaxTracks> mTracks;
-    uint8_t mNextFreeTrackIndex = 0;
+    IRenderableAudio *leftPadTrack;
+    IRenderableAudio *rightPadTrack;
     int32_t mChannelCount = 1; // Default to mono
 };
 
