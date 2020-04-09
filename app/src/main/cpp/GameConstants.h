@@ -21,12 +21,6 @@
 constexpr int kBufferSizeInBursts = 2; // Use 2 bursts as the buffer size (double buffer)
 constexpr int kMaxQueueItems = 16; // Must be power of 2
 
-// Filename for left pad sound asset (in assets folder)
-constexpr char leftPadSoundFilename[] {"LEFT_PAD_SOUND.mp3" };
-
-// Filename for right sound asset (in assets folder)
-constexpr char rightPadSoundFilename[] {"RIGHT_PAD_SOUND.mp3" };
-
 struct AudioProperties {
     int32_t channelCount;
     int32_t sampleRate;

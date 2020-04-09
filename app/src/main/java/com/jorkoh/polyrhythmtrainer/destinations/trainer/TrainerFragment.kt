@@ -68,6 +68,7 @@ class TrainerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        nativeRegisterVisualizer(trainer_polyrhythm_visualizer)
         trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
             nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
         }
@@ -76,6 +77,7 @@ class TrainerFragment : Fragment() {
     override fun onPause() {
         super.onPause()
 
+        nativeUnregisterVisualizer()
         trainer_polyrhythm_visualizer.stop()
     }
 
@@ -234,9 +236,7 @@ class TrainerFragment : Fragment() {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
     }
 
-    private external fun nativeSetRhythmSettings(
-        newXNumberOfBeats: Int,
-        newYNumberOfBeats: Int,
-        newBPM: Int
-    )
+    private external fun nativeRegisterVisualizer(visualizer: PolyrhythmVisualizer)
+    private external fun nativeUnregisterVisualizer()
+    private external fun nativeSetRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
 }

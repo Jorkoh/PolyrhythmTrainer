@@ -63,6 +63,8 @@ public:
 
     void setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
 
+    void setSoundAssets(const char* newLeftPadSoundFilename, const char* newRightPadSoundFilename);
+
     TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
     // Inherited from oboe::AudioStreamCallback
@@ -79,6 +81,11 @@ private:
     Mixer mMixer;
     std::unique_ptr<float[]> mConversionBuffer{nullptr}; // For float->int16 conversion
     std::atomic<EngineState> engineState{EngineState::Loading};
+
+    // Left pad sound asset (in assets folder)
+    const char* leftPadSoundFilename{"tom1.wav"};
+    // Right pad sound asset (in assets folder)
+    const char* rightPadSoundFilename{"shaker1.wav"};
 
     std::atomic<int64_t> rhythmLengthMs{3000};
     std::atomic<int32_t> windowCenterOffsetMs{120};

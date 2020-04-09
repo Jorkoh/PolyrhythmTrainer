@@ -6,8 +6,6 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-import kotlinx.android.synthetic.main.trainer_fragment.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         // Load the native engine
-        nativeLoad(assets, trainer_polyrhythm_visualizer)
+        nativeLoad(assets)
     }
 
     override fun onPause() {
@@ -43,9 +41,7 @@ class MainActivity : AppCompatActivity() {
         nativeUnload()
     }
 
-
-
-    private external fun nativeLoad(assetManager: AssetManager, visualizer: PolyrhythmVisualizer)
+    private external fun nativeLoad(assetManager: AssetManager)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
 }

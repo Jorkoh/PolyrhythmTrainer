@@ -6,8 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.jorkoh.polyrhythmtrainer.destinations.mutate
 
 class TrainerViewModel : ViewModel() {
-    private val polyrhythmSettings =
-            MutableLiveData(PolyrhythmSettings())
+    private val polyrhythmSettings = MutableLiveData(PolyrhythmSettings())
 
     fun getPolyrhythmSettings(): LiveData<PolyrhythmSettings> = polyrhythmSettings
 

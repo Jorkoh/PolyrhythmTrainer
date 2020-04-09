@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.doOnNextLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jorkoh.polyrhythmtrainer.R
@@ -90,13 +91,24 @@ class SoundsFragment : Fragment() {
         }
 
         soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { newSounds ->
+            // UI stuff
             soundsAdapter.setNewSounds(newSounds)
             sounds_recycler.doOnNextLayout {
                 startPostponedEnterTransition()
+            }
+
+            // Native engine stuff
+            lifecycleScope.launchWhenResumed {
+                nativeSetSoundAssets(
+                    newSounds.first { it.assignedToLeft }.resourceName,
+                    newSounds.first { it.assignedToRight }.resourceName
+                )
             }
         })
 
         ViewCompat.setTransitionName(sounds_left_pad, TRANSITION_NAME_LEFT_PAD)
         ViewCompat.setTransitionName(sounds_right_pad, TRANSITION_NAME_RIGHT_PAD)
     }
+
+    private external fun nativeSetSoundAssets(newLeftPadSound: String, newRightPadSound: String)
 }

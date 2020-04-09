@@ -30,8 +30,7 @@ jmethodID onTapResultMethod;
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject instance,
-                                                                          jobject jAssetManager,
-                                                                          jobject jVisualizer) {
+                                                          jobject jAssetManager) {
     // Create the engine
     AAssetManager *assetManager = AAssetManager_fromJava(env, jAssetManager);
     if (assetManager == nullptr) {
@@ -41,6 +40,37 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject i
     engine = std::make_unique<Engine>(*assetManager);
     // Load the engine
     engine->requestLoad();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeUnload(JNIEnv *env, jobject instance) {
+    engine->unload();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
+                                                                            jint sampleRate,
+                                                                            jint framesPerBurst) {
+    oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
+    oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
+                                                                                                          jobject instance) {
+    engine->startRhythm();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
+                                                                                                         jobject instance) {
+    engine->stopRhythm();
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeRegisterVisualizer(JNIEnv *env,
+                                                                                                jobject type,
+                                                                                                jobject jVisualizer) {
     // Register stuff for callbacks
     engineListener = env->NewGlobalRef(jVisualizer);
     jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/trainer/customviews/PolyrhythmVisualizer");
@@ -48,44 +78,39 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject i
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeUnload(JNIEnv *env, jobject instance) {
-    engine->unload();
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeUnregisterVisualizer(JNIEnv *env,
+                                                                                                  jobject type) {
     env->DeleteGlobalRef(engineListener);
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIEnv *env, jobject type,
-                                                                                            jint sampleRate,
-                                                                                            jint framesPerBurst) {
-    oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
-    oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
-                                                                                                  jobject instance) {
-    engine->startRhythm();
-}
-
-JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
-                                                                                                 jobject instance) {
-    engine->stopRhythm();
+    engineListener = nullptr;
 }
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetRhythmSettings(JNIEnv *env,
-                                                                                       jobject type,
-                                                                                       jint newXNumberOfBeats,
-                                                                                       jint newYNumberOfBeats,
-                                                                                       jint newBPM) {
+                                                                                               jobject type,
+                                                                                               jint newXNumberOfBeats,
+                                                                                               jint newYNumberOfBeats,
+                                                                                               jint newBPM) {
     engine->setRhythmSettings(newXNumberOfBeats, newYNumberOfBeats, newBPM);
 }
 
 JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_sounds_SoundsFragment_nativeSetSoundAssets(JNIEnv *env,
+                                                                                          jobject type,
+                                                                                          jstring newLeftPadSound,
+                                                                                          jstring newRightPadSound) {
+    const char *nativeNewLeftPadSound = env->GetStringUTFChars(newLeftPadSound, nullptr);
+    const char *nativeNewRightPadSound = env->GetStringUTFChars(newRightPadSound, nullptr);
+
+    engine->setSoundAssets(nativeNewLeftPadSound, nativeNewRightPadSound);
+
+    env->ReleaseStringUTFChars(newLeftPadSound, nativeNewLeftPadSound);
+    env->ReleaseStringUTFChars(newRightPadSound, nativeNewRightPadSound);
+}
+
+JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PadView_nativeOnPadTouch(JNIEnv *env, jobject type,
-                                                                                    jint padPosition,
-                                                                                    jlong timeSinceBoot) {
+                                                                                            jint padPosition,
+                                                                                            jlong timeSinceBoot) {
     TapResultWithTimingAndPosition tapResultWithTimingAndPosition = engine->tap(padPosition, timeSinceBoot);
     if (engineListener != nullptr) {
         env->CallVoidMethod(engineListener, onTapResultMethod,

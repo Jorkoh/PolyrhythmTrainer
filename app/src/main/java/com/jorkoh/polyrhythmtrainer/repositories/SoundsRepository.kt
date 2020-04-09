@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.*
 
 interface SoundsRepository {
     fun getSounds(): Flow<List<Sound>>
-    fun getPadSoundId(position: PadPosition): Flow<Pair<PadPosition, Int>>
     fun changePadSoundId(newId: Int, position: PadPosition)
 }
 
@@ -25,21 +24,23 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
         const val RIGHT_PAD_DEFAULT_SOUND = 2
 
         val defaultSounds = listOf(
-            Sound(1, "Sound 1", "sound1.mp4", assignedToLeft = true, assignedToRight = false),
-            Sound(2, "Sound 2", "sound2.mp4", assignedToLeft = false, assignedToRight = true),
-            Sound(3, "Sound 3", "sound3.mp4", assignedToLeft = false, assignedToRight = false),
-            Sound(4, "Sound 4", "sound4.mp4", assignedToLeft = false, assignedToRight = false),
-            Sound(5, "Sound 5", "sound5.mp4", assignedToLeft = false, assignedToRight = false),
-            Sound(6, "Sound 6", "sound6.mp4", assignedToLeft = false, assignedToRight = false),
-            Sound(7, "Sound 7", "sound7.mp4", assignedToLeft = false, assignedToRight = false),
-            Sound(8, "Sound 8", "sound8.mp4", assignedToLeft = false, assignedToRight = false)
+            Sound(1, "Tom 1", "tom1.wav", assignedToLeft = true, assignedToRight = false),
+            Sound(2, "Tom 2", "tom2.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(3, "Shaker 1", "shaker1.wav", assignedToLeft = false, assignedToRight = true),
+            Sound(4, "Shaker 2", "shaker2.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(5, "Stick", "stick.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(6, "Rimshot", "rimshot.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(7, "Clap", "clap.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(8, "Can", "can.wav", assignedToLeft = false, assignedToRight = false),
+            Sound(9, "Bongo", "bongo.wav", assignedToLeft = false, assignedToRight = false)
         )
     }
 
+    val sounds = defaultSounds.toMutableList()
+
     override fun getSounds() =
         flow {
-            val sounds = defaultSounds.toMutableList()
-
+            // Observe the flows for both left and right pads
             flowOf(getPadSoundId(PadPosition.Left), getPadSoundId(PadPosition.Right))
                 .flattenMerge()
                 .collect { padPositionAndSoundId ->
@@ -56,7 +57,7 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
                 }
         }
 
-    override fun getPadSoundId(position: PadPosition) =
+    private fun getPadSoundId(position: PadPosition) =
         when (position) {
             PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID, LEFT_PAD_DEFAULT_SOUND).asFlow()
                 .transform { emit(Pair(PadPosition.Left, it)) }

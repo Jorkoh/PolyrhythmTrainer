@@ -111,6 +111,17 @@ void Engine::setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBe
     yNumberOfBeats = newYNumberOfBeats;
 }
 
+void Engine::setSoundAssets(const char *newLeftPadSoundFilename, const char *newRightPadSoundFilename) {
+    mAudioStream->stop(0);
+
+    leftPadSoundFilename = newLeftPadSoundFilename;
+    rightPadSoundFilename = newRightPadSoundFilename;
+    mMixer.clearTracks();
+    setupAudioSources();
+
+    mAudioStream->start(0);
+}
+
 TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     if (padPosition != 0 && padPosition != 1) {
         LOGW("Invalid pad position, ignoring tap event");
@@ -292,7 +303,6 @@ bool Engine::setupAudioSources() {
         return false;
     }
     rightPadSound = std::make_unique<Player>(rightPadSoundSource);
-
 
     // Add all the players to a mixer
     mMixer.addTrack(leftPadSound.get());

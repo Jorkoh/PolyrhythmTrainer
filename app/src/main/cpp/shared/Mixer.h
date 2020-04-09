@@ -50,6 +50,10 @@ public:
         mTracks[mNextFreeTrackIndex++] = renderer;
     }
 
+    void clearTracks(){
+        mNextFreeTrackIndex = 0;
+    }
+
     void setChannelCount(int32_t channelCount){ mChannelCount = channelCount; }
 
 private:
