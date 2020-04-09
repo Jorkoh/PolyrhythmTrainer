@@ -30,6 +30,7 @@ void Engine::requestLoad() {
 }
 
 void Engine::load() {
+    engineState = EngineState::Loading;
     if (!openStream()) {
         engineState = EngineState::FailedToLoad;
         return;

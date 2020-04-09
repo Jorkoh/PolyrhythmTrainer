@@ -51,6 +51,8 @@ public:
 
     void requestLoad();
 
+    void load();
+
     void startRhythm();
 
     void stopRhythm();
@@ -106,8 +108,6 @@ private:
     std::atomic<int64_t> currentFrame{0};
     // Used to sync rhythmPositionMS with eventTimeAsUptime of the taps
     std::atomic<int64_t> lastUpdateTime{0};
-
-    void load();
 
     TapResult getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMillis);
 

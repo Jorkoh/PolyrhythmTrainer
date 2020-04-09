@@ -6,8 +6,13 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
+
+    private val mainActivityViewModel: MainActivityViewModel by viewModel()
 
     init {
         System.loadLibrary("native-lib")
@@ -25,17 +30,32 @@ class MainActivity : AppCompatActivity() {
                 getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
             )
         }
+
+        mainActivityViewModel.sounds.observe(this, Observer { sounds ->
+            lifecycleScope.launchWhenResumed {
+                nativeSetSoundAssets(
+                    sounds.first { it.assignedToLeft }.resourceName,
+                    sounds.first { it.assignedToRight }.resourceName
+                )
+            }
+        })
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         // Load the native engine
         nativeLoad(assets)
+        mainActivityViewModel.sounds.value?.let { sounds ->
+            nativeSetSoundAssets(
+                sounds.first { it.assignedToLeft }.resourceName,
+                sounds.first { it.assignedToRight }.resourceName
+            )
+        }
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         // Unload the native engine
         nativeUnload()
@@ -44,4 +64,5 @@ class MainActivity : AppCompatActivity() {
     private external fun nativeLoad(assetManager: AssetManager)
     private external fun nativeUnload()
     private external fun nativeSetDefaultStreamValues(defaultSampleRate: Int, defaultFramesPerBurst: Int)
+    private external fun nativeSetSoundAssets(newLeftPadSound: String, newRightPadSound: String)
 }

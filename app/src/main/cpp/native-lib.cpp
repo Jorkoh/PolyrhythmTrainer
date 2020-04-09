@@ -39,7 +39,7 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject i
     }
     engine = std::make_unique<Engine>(*assetManager);
     // Load the engine
-    engine->requestLoad();
+    engine->load();
 }
 
 JNIEXPORT void JNICALL
@@ -94,7 +94,7 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSet
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_sounds_SoundsFragment_nativeSetSoundAssets(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetSoundAssets(JNIEnv *env,
                                                                                           jobject type,
                                                                                           jstring newLeftPadSound,
                                                                                           jstring newRightPadSound) {

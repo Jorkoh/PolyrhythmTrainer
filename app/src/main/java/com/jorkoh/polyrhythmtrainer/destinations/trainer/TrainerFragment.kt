@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -28,6 +27,7 @@ import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
 import kotlinx.android.synthetic.main.trainer_fragment.*
+import org.koin.android.viewmodel.ext.android.viewModel
 
 @ExperimentalStdlibApi
 class TrainerFragment : Fragment() {
@@ -42,7 +42,7 @@ class TrainerFragment : Fragment() {
     private var lastTapTime = 0L
     private var tapIntervals = mutableListOf<Long>()
 
-    private val trainerViewModel: TrainerViewModel by viewModels()
+    private val trainerViewModel: TrainerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -90,25 +90,14 @@ class SoundsFragment : Fragment() {
             (itemAnimator as? DefaultItemAnimator)?.supportsChangeAnimations = false
         }
 
-        soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { newSounds ->
-            // UI stuff
-            soundsAdapter.setNewSounds(newSounds)
+        soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { sounds ->
+            soundsAdapter.setNewSounds(sounds)
             sounds_recycler.doOnNextLayout {
                 startPostponedEnterTransition()
-            }
-
-            // Native engine stuff
-            lifecycleScope.launchWhenResumed {
-                nativeSetSoundAssets(
-                    newSounds.first { it.assignedToLeft }.resourceName,
-                    newSounds.first { it.assignedToRight }.resourceName
-                )
             }
         })
 
         ViewCompat.setTransitionName(sounds_left_pad, TRANSITION_NAME_LEFT_PAD)
         ViewCompat.setTransitionName(sounds_right_pad, TRANSITION_NAME_RIGHT_PAD)
     }
-
-    private external fun nativeSetSoundAssets(newLeftPadSound: String, newRightPadSound: String)
 }
