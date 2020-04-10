@@ -87,10 +87,10 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
     override fun changePadSoundId(newId: Int, position: PadPosition) {
         if (newId in defaultSounds.map { it.soundId }) {
             when (position) {
-                PadPosition.Left -> preferences.sharedPreferences.edit(commit = true) {
+                PadPosition.Left -> preferences.sharedPreferences.edit {
                     putInt(LEFT_PAD_SOUND_ID, newId)
                 }
-                PadPosition.Right -> preferences.sharedPreferences.edit(commit = true) {
+                PadPosition.Right -> preferences.sharedPreferences.edit {
                     putInt(RIGHT_PAD_SOUND_ID, newId)
                 }
             }
