@@ -32,13 +32,17 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        var leftPadSoundSet = false
+        var rightPadSoundSet = false
+
         mainActivityViewModel.leftPadSound.observe(this, Observer { sound ->
             lifecycleScope.launchWhenResumed {
                 nativeSetSoundAssets(
                     sound.resourceName,
                     PadPosition.Left.nativeValue,
-                    shouldMakeSound(PadPosition.Left)
+                    leftPadSoundSet
                 )
+                leftPadSoundSet = true
             }
         })
         mainActivityViewModel.rightPadSound.observe(this, Observer { sound ->
@@ -46,28 +50,11 @@ class MainActivity : AppCompatActivity() {
                 nativeSetSoundAssets(
                     sound.resourceName,
                     PadPosition.Right.nativeValue,
-                    shouldMakeSound(PadPosition.Right)
+                    rightPadSoundSet
                 )
-            }
-        })
-    }
-
-    private var leftPadSoundSet = false
-    private var rightPadSoundSet = false
-
-    private fun shouldMakeSound(padPosition: PadPosition): Boolean {
-        var result = false
-        when (padPosition) {
-            PadPosition.Left -> {
-                result = leftPadSoundSet
-                leftPadSoundSet = true
-            }
-            PadPosition.Right -> {
-                result = rightPadSoundSet
                 rightPadSoundSet = true
             }
-        }
-        return result
+        })
     }
 
     override fun onStart() {

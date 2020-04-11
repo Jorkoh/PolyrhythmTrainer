@@ -96,11 +96,20 @@ class SoundsFragment : Fragment() {
             }
         })
 
+        var leftPadSoundSet = false
+        var rightPadSoundSet = false
+
         soundsViewModel.leftPadSound.observe(viewLifecycleOwner, Observer {
-            sounds_left_pad.ripple()
+            if (leftPadSoundSet) {
+                sounds_left_pad.ripple()
+            }
+            leftPadSoundSet = true
         })
         soundsViewModel.rightPadSound.observe(viewLifecycleOwner, Observer {
-            sounds_right_pad.ripple()
+            if (rightPadSoundSet) {
+                sounds_right_pad.ripple()
+            }
+            rightPadSoundSet = true
         })
 
         ViewCompat.setTransitionName(sounds_left_pad, TRANSITION_NAME_LEFT_PAD)
