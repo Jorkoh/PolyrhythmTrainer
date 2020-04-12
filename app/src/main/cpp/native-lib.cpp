@@ -28,6 +28,11 @@ std::unique_ptr<Engine> engine;
 jobject engineListener;
 jmethodID onTapResultMethod;
 
+const char *nativeNewPadSoundLeft = nullptr;
+const char *nativeNewPadSoundRight = nullptr;
+jstring newPadSoundLeft;
+jstring newPadSoundRight;
+
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject instance,
                                                           jobject jAssetManager) {
@@ -45,6 +50,13 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeLoad(JNIEnv *env, jobject i
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeUnload(JNIEnv *env, jobject instance) {
     engine->unload();
+
+    if (nativeNewPadSoundLeft != nullptr) {
+        env->ReleaseStringUTFChars(newPadSoundLeft, nativeNewPadSoundLeft);
+    }
+    if (nativeNewPadSoundRight != nullptr) {
+        env->ReleaseStringUTFChars(newPadSoundRight, nativeNewPadSoundRight);
+    }
 }
 
 JNIEXPORT void JNICALL
@@ -99,11 +111,23 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetSoundAssets(JNIEnv *env,
                                                                     jstring newPadSound,
                                                                     jint padPosition,
                                                                     jboolean withAudioFeedback) {
-    const char *nativeNewPadSound = env->GetStringUTFChars(newPadSound, nullptr);
+    if (padPosition == 0) {
+        if (nativeNewPadSoundLeft != nullptr) {
+            env->ReleaseStringUTFChars(newPadSoundLeft, nativeNewPadSoundLeft);
+        }
+        nativeNewPadSoundLeft = env->GetStringUTFChars(newPadSound, nullptr);
+        newPadSoundLeft = newPadSound;
 
-    engine->setSoundAssets(nativeNewPadSound, (int32_t)padPosition, (bool)withAudioFeedback);
+        engine->setSoundAssets(nativeNewPadSoundLeft, (int32_t) padPosition, (bool) withAudioFeedback);
+    } else if (padPosition == 1) {
+        if (nativeNewPadSoundRight != nullptr) {
+            env->ReleaseStringUTFChars(newPadSoundRight, nativeNewPadSoundRight);
+        }
+        nativeNewPadSoundRight = env->GetStringUTFChars(newPadSound, nullptr);
+        newPadSoundRight = newPadSound;
 
-    env->ReleaseStringUTFChars(newPadSound, nativeNewPadSound);
+        engine->setSoundAssets(nativeNewPadSoundRight, (int32_t) padPosition, (bool) withAudioFeedback);
+    }
 }
 
 JNIEXPORT void JNICALL

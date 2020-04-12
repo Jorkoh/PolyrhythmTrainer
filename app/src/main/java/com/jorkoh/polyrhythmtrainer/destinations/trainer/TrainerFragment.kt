@@ -1,16 +1,23 @@
 package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.media.AudioDeviceCallback
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.Bundle
 import android.transition.Slide
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -39,6 +46,12 @@ class TrainerFragment : Fragment() {
         const val TRANSITION_NAME_RIGHT_PAD = "trainer_right_pad"
     }
 
+    private lateinit var audioManager: AudioManager
+
+    private val deviceListener = DeviceListener()
+    private var devicesInitialized = false
+
+    // Tap for BPM stuff
     private var lastTapTime = 0L
     private var tapIntervals = mutableListOf<Long>()
 
@@ -46,6 +59,8 @@ class TrainerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        audioManager = getSystemService(requireContext(), AudioManager::class.java) as AudioManager
 
         // Non-shared elements when we are navigating to the sounds screen
         exitTransition = transitionTogether {
@@ -72,6 +87,9 @@ class TrainerFragment : Fragment() {
         trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
             nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
         }
+
+        devicesInitialized = false
+        audioManager.registerAudioDeviceCallback(deviceListener, null)
     }
 
     override fun onPause() {
@@ -79,6 +97,8 @@ class TrainerFragment : Fragment() {
 
         nativeUnregisterVisualizer()
         trainer_polyrhythm_visualizer.stop()
+
+        audioManager.unregisterAudioDeviceCallback(deviceListener)
     }
 
     override fun onCreateView(
@@ -234,6 +254,21 @@ class TrainerFragment : Fragment() {
 
     private fun getCurrentNightMode(): Int {
         return resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+    }
+
+    inner class DeviceListener : AudioDeviceCallback() {
+
+        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
+            // Ignore first call after registering the listener
+            if (devicesInitialized) {
+                trainer_polyrhythm_visualizer.stop()
+            }
+            devicesInitialized = true
+        }
+
+        override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
+            trainer_polyrhythm_visualizer.stop()
+        }
     }
 
     private external fun nativeRegisterVisualizer(visualizer: PolyrhythmVisualizer)

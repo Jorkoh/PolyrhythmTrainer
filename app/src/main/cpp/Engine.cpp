@@ -22,13 +22,6 @@
 
 Engine::Engine(AAssetManager &assetManager) : mAssetManager(assetManager) {}
 
-void Engine::requestLoad() {
-    engineState = EngineState::Loading;
-    // async returns a future, we must store this future to avoid blocking. It's not sufficient
-    // to store this in a local variable as its destructor will block until Game::load completes.
-    mLoadingResult = std::async(&Engine::load, this);
-}
-
 void Engine::load() {
     engineState = EngineState::Loading;
     if (!openStream()) {
@@ -231,8 +224,9 @@ DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData
 }
 
 void Engine::onErrorAfterClose(AudioStream *oboeStream, Result error) {
-    LOGE("The audio stream was closed, please restart the game. Error: %s", convertToText(error));
-};
+    unload();
+    load();
+}
 
 /**
  * Get the result of a tap

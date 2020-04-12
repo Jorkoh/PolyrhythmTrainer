@@ -49,8 +49,6 @@ class Engine : public AudioStreamCallback {
 public:
     explicit Engine(AAssetManager &);
 
-    void requestLoad();
-
     void load();
 
     void startRhythm();

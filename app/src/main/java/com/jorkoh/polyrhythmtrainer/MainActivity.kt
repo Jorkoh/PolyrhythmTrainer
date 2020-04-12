@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
 
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
 
+    private lateinit var audioManager: AudioManager
+
     init {
         System.loadLibrary("native-lib")
     }
@@ -24,8 +26,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_activity)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
         // Set default stream values
-        (getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
+        audioManager.apply {
             nativeSetDefaultStreamValues(
                 getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt(),
                 getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER).toInt()
