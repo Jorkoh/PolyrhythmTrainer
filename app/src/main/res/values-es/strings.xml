@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Polyrhythm Trainer</string>
-    <string name="current_level">Nivel %1$d</string>
     <string name="bpm">%1$s BPM</string>
+    <string name="mode_metronome">Metrónomo</string>
+    <string name="mode_easy">Fácil</string>
+    <string name="mode_medium">Normal</string>
+    <string name="mode_hard">Difícil</string>
+    <string name="mode_impossible">Imposible</string>
 </resources>

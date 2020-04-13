@@ -4,8 +4,12 @@
     <string name="polyrhythm_default_x_beats" translatable="false">3</string>
     <string name="polyrhythm_default_y_beats" translatable="false">4</string>
     <string name="polyrhythm_separator" translatable="false">:</string>
-    <string name="increase_button_text" translatable="false">+</string>
-    <string name="decrease_button_text" translatable="false">-</string>
-    <string name="current_level" translatable="true">Level %1$d</string>
+    <string name="increase_beats_button_text" translatable="false">+</string>
+    <string name="decrease_beats_button_text" translatable="false">-</string>
     <string name="bpm" translatable="true">%1$s BPM</string>
+    <string name="mode_metronome" translatable="true">Metronome</string>
+    <string name="mode_easy" translatable="true">Easy</string>
+    <string name="mode_medium" translatable="true">Medium</string>
+    <string name="mode_hard" translatable="true">Hard</string>
+    <string name="mode_impossible" translatable="true">Impossible</string>
 </resources>

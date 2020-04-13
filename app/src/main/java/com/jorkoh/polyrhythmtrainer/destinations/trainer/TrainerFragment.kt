@@ -1,6 +1,5 @@
 package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.media.AudioDeviceCallback
@@ -8,11 +7,12 @@ import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Bundle
 import android.transition.Slide
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -172,8 +172,22 @@ class TrainerFragment : Fragment() {
             // TODO fix this being called too early when playing and rotating twice
             setPlayPauseReplayButtonIcon(newStatus)
         }
+
         // TODO temp until level system is implemented
-        trainer_current_level_text.text = getString(R.string.current_level, 1)
+        ArrayAdapter.createFromResource(requireContext(), R.array.modes, R.layout.trainer_mode_spinner_item)
+            .also { adapter ->
+                // Specify the layout to use when the list of choices appears
+                adapter.setDropDownViewResource(R.layout.trainer_mode_spinner_item)
+                // Apply the adapter to the spinner
+                trainer_mode_spinner.adapter = adapter
+            }
+        trainer_mode_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>) {            }
+
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                Toast.makeText(requireContext(), parent.getItemAtPosition(position) as String, Toast.LENGTH_LONG).show()
+            }
+        }
 
         trainerViewModel.getPolyrhythmSettings()
             .observe(viewLifecycleOwner, Observer { newSettings ->
