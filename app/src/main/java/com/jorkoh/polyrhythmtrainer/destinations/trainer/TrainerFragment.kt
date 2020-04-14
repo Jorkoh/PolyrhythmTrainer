@@ -181,10 +181,10 @@ class TrainerFragment : Fragment() {
                 // Apply the adapter to the spinner
                 trainer_mode_spinner.adapter = adapter
             }
-        trainer_mode_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>) {            }
+        trainer_mode_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>) {}
 
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 Toast.makeText(requireContext(), parent.getItemAtPosition(position) as String, Toast.LENGTH_LONG).show()
             }
         }
