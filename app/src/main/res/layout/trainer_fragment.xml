@@ -131,9 +131,9 @@
 
             <TextView
                 android:id="@+id/trainer_x_number_of_beats_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="@string/polyrhythm_default_x_beats"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display2"
                 android:textColor="@color/xRhythmColor"
@@ -192,9 +192,9 @@
 
             <TextView
                 android:id="@+id/trainer_y_number_of_beats_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:text="@string/polyrhythm_default_y_beats"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display2"
                 android:textColor="@color/yRhythmColor"
