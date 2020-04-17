@@ -61,9 +61,13 @@ public:
 
     void unload();
 
-    void setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM);
+    void setBpm(int32_t newBPM);
 
-    void setSoundAssets(const char* newPadSoundFilename,int32_t padPosition, bool withAudioFeedback);
+    void setXNumberOfBeats(int32_t newXNumberOfBeats);
+
+    void setYNumberOfBeats(int32_t newYNumberOfBeats);
+
+    void setSoundAssets(const char *newPadSoundFilename, int32_t padPosition, bool withAudioFeedback);
 
     TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
@@ -83,14 +87,15 @@ private:
     std::atomic<EngineState> engineState{EngineState::Loading};
 
     // Left pad sound asset (in assets folder)
-    const char* leftPadSoundFilename{"tom1.wav"};
+    const char *leftPadSoundFilename{"tom1.wav"};
     // Right pad sound asset (in assets folder)
-    const char* rightPadSoundFilename{"shaker1.wav"};
+    const char *rightPadSoundFilename{"shaker1.wav"};
 
     std::atomic<int64_t> rhythmLengthMs{3000};
     std::atomic<int32_t> windowCenterOffsetMs{120};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
+    std::atomic<int32_t> bpm{80};
 
     // The rhythm playing events for the example phase (PlayingRhythm)
     LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;

@@ -4,8 +4,6 @@ import androidx.core.content.edit
 import com.jorkoh.polyrhythmtrainer.destinations.PadPosition
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.Sound
 import com.tfcporciuncula.flow.FlowSharedPreferences
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
 interface SoundsRepository {
@@ -14,13 +12,11 @@ interface SoundsRepository {
     fun changePadSoundId(newId: Int, position: PadPosition)
 }
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferences) : SoundsRepository {
 
     companion object {
-        const val LEFT_PAD_SOUND_ID = "LEFT_PAD_SOUND_ID"
-        const val RIGHT_PAD_SOUND_ID = "RIGHT_PAD_SOUND_ID"
+        const val LEFT_PAD_SOUND_ID_KEY = "LEFT_PAD_SOUND_ID"
+        const val RIGHT_PAD_SOUND_ID_KEY = "RIGHT_PAD_SOUND_ID"
         const val LEFT_PAD_DEFAULT_SOUND = 1
         const val RIGHT_PAD_DEFAULT_SOUND = 2
 
@@ -62,13 +58,13 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
     //  its not clear if the assignedTo will be properly changed
     override fun getPadSound(position: PadPosition): Flow<Sound> =
         when (position) {
-            PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID, LEFT_PAD_DEFAULT_SOUND).asFlow()
+            PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID_KEY, LEFT_PAD_DEFAULT_SOUND).asFlow()
                 .transform { soundId ->
                     defaultSounds.first { it.soundId == soundId }.apply {
                         emit(Sound(soundId, displayName, resourceName, assignedToLeft = true, assignedToRight = false))
                     }
                 }
-            PadPosition.Right -> preferences.getInt(RIGHT_PAD_SOUND_ID, RIGHT_PAD_DEFAULT_SOUND).asFlow()
+            PadPosition.Right -> preferences.getInt(RIGHT_PAD_SOUND_ID_KEY, RIGHT_PAD_DEFAULT_SOUND).asFlow()
                 .transform { soundId ->
                     defaultSounds.first { it.soundId == soundId }.apply {
                         emit(Sound(soundId, displayName, resourceName, assignedToLeft = false, assignedToRight = true))
@@ -78,9 +74,9 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
 
     private fun getPadSoundId(position: PadPosition) =
         when (position) {
-            PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID, LEFT_PAD_DEFAULT_SOUND).asFlow()
+            PadPosition.Left -> preferences.getInt(LEFT_PAD_SOUND_ID_KEY, LEFT_PAD_DEFAULT_SOUND).asFlow()
                 .transform { emit(Pair(PadPosition.Left, it)) }
-            PadPosition.Right -> preferences.getInt(RIGHT_PAD_SOUND_ID, RIGHT_PAD_DEFAULT_SOUND).asFlow()
+            PadPosition.Right -> preferences.getInt(RIGHT_PAD_SOUND_ID_KEY, RIGHT_PAD_DEFAULT_SOUND).asFlow()
                 .transform { emit(Pair(PadPosition.Right, it)) }
         }
 
@@ -88,10 +84,10 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
         if (newId in defaultSounds.map { it.soundId }) {
             when (position) {
                 PadPosition.Left -> preferences.sharedPreferences.edit {
-                    putInt(LEFT_PAD_SOUND_ID, newId)
+                    putInt(LEFT_PAD_SOUND_ID_KEY, newId)
                 }
                 PadPosition.Right -> preferences.sharedPreferences.edit {
-                    putInt(RIGHT_PAD_SOUND_ID, newId)
+                    putInt(RIGHT_PAD_SOUND_ID_KEY, newId)
                 }
             }
         }

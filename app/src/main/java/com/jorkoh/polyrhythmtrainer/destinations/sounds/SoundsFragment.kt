@@ -96,6 +96,7 @@ class SoundsFragment : Fragment() {
             }
         })
 
+        // TODO try Transformations.distinctUntilChanged for this on the VM, maybe also for MainActivity
         var leftPadSoundSet = false
         var rightPadSoundSet = false
 

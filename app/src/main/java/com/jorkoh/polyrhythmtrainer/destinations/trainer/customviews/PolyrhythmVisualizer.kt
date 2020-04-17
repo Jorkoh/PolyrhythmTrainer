@@ -12,9 +12,11 @@ import android.view.animation.LinearInterpolator
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
-import com.jorkoh.polyrhythmtrainer.destinations.trainer.PolyrhythmSettings
-import com.jorkoh.polyrhythmtrainer.destinations.trainer.RhythmLine
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.EngineListener.TapResult
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 
 typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>
 
@@ -57,44 +59,48 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Function invoked on tap result
     private var actionOnTapResult: ((TapResult) -> Unit)? = null
 
-    var polyrhythmSettings = PolyrhythmSettings()
+    var bpm = DEFAULT_BPM
         set(value) {
-            var playerNeedsReset = false
-            if (field.BPM != value.BPM) {
-                polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                playerNeedsReset = true
+            if (field != value) {
+                polyrhythmLengthMS = yNumberOfBeats * 60000 / value
+                field = value
+                stop()
             }
-            if (field.xNumberOfBeats != value.xNumberOfBeats) {
-                xRhythmSubdivisions = calculateRhythmLineSubdivisons(value.xNumberOfBeats)
-                playerNeedsReset = true
-            }
-            if (field.yNumberOfBeats != value.yNumberOfBeats) {
-                yRhythmSubdivisions = calculateRhythmLineSubdivisons(value.yNumberOfBeats)
-                polyrhythmLengthMS = value.yNumberOfBeats * 60000 / value.BPM
-                playerNeedsReset = true
-            }
-            field = value
+        }
 
-            if (playerNeedsReset) {
-                currentStatus = Status.AFTER_PLAY
-                currentStatus = Status.BEFORE_PLAY
+    var xNumberOfBeats = DEFAULT_X_NUMBER_OF_BEATS
+        set(value) {
+            if (field != value) {
+                xRhythmSubdivisions = calculateRhythmLineSubdivisions(value)
+                field = value
+                stop()
+            }
+        }
+
+    var yNumberOfBeats = DEFAULT_Y_NUMBER_OF_BEATS
+        set(value) {
+            if (field != value) {
+                polyrhythmLengthMS = value * 60000 / bpm
+                yRhythmSubdivisions = calculateRhythmLineSubdivisions(value)
+                field = value
+                stop()
             }
         }
 
     // Recalculated when changing BPM or y number of beats
-    private var polyrhythmLengthMS = polyrhythmSettings.yNumberOfBeats * 60000 / polyrhythmSettings.BPM
+    private var polyrhythmLengthMS = yNumberOfBeats * 60000 / bpm
         set(value) {
             field = value
             animator.duration = value.toLong()
         }
 
     // Recalculated when changing BPM, causes redraw
-    private var xRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.xNumberOfBeats)
+    private var xRhythmSubdivisions = calculateRhythmLineSubdivisions(xNumberOfBeats)
         set(value) {
             field = value
             invalidate()
         }
-    private var yRhythmSubdivisions = calculateRhythmLineSubdivisons(polyrhythmSettings.yNumberOfBeats)
+    private var yRhythmSubdivisions = calculateRhythmLineSubdivisions(yNumberOfBeats)
         set(value) {
             field = value
             invalidate()
@@ -200,7 +206,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         progressPaint.strokeWidth = resources.displayMetrics.density * 5
     }
 
-    private fun calculateRhythmLineSubdivisons(numberOfBeats: Int) =
+    private fun calculateRhythmLineSubdivisions(numberOfBeats: Int) =
         List(numberOfBeats) { index -> index / numberOfBeats.toFloat() }
 
     override fun onDraw(canvas: Canvas) {

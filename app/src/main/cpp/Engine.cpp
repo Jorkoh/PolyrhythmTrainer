@@ -97,11 +97,21 @@ void Engine::scheduleNewEventsAndWindows() {
     }
 }
 
-void Engine::setRhythmSettings(int32_t newXNumberOfBeats, int32_t newYNumberOfBeats, int32_t newBPM) {
-    rhythmLengthMs = newYNumberOfBeats * 60000 / newBPM;
+void Engine::setBpm(int32_t newBpm){
+    rhythmLengthMs = yNumberOfBeats * 60000 / newBpm;
     // TODO the window relative size will depend on current level
     windowCenterOffsetMs = rhythmLengthMs * 0.04;
+    bpm = newBpm;
+}
+
+void Engine::setXNumberOfBeats(int32_t newXNumberOfBeats){
     xNumberOfBeats = newXNumberOfBeats;
+}
+
+void Engine::setYNumberOfBeats(int32_t newYNumberOfBeats){
+    rhythmLengthMs = newYNumberOfBeats * 60000 / bpm;
+    // TODO the window relative size will depend on current level
+    windowCenterOffsetMs = rhythmLengthMs * 0.04;
     yNumberOfBeats = newYNumberOfBeats;
 }
 

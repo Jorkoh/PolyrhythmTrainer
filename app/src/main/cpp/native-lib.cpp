@@ -58,13 +58,17 @@ Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetDefaultStreamValues(JNIE
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStartRhythm(JNIEnv *env,
                                                                                                           jobject instance) {
-    engine->startRhythm();
+    if (engine != nullptr) {
+        engine->startRhythm();
+    }
 }
 
 JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PolyrhythmVisualizer_nativeStopRhythm(JNIEnv *env,
                                                                                                          jobject instance) {
-    engine->stopRhythm();
+    if (engine != nullptr) {
+        engine->stopRhythm();
+    }
 }
 
 JNIEXPORT void JNICALL
@@ -85,12 +89,24 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeUnr
 }
 
 JNIEXPORT void JNICALL
-Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetRhythmSettings(JNIEnv *env,
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetBpm(JNIEnv *env,
+                                                                                    jobject type,
+                                                                                    jint newBpm) {
+    engine->setBpm(newBpm);
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetXNumberOfBeats(JNIEnv *env,
                                                                                                jobject type,
-                                                                                               jint newXNumberOfBeats,
-                                                                                               jint newYNumberOfBeats,
-                                                                                               jint newBPM) {
-    engine->setRhythmSettings(newXNumberOfBeats, newYNumberOfBeats, newBPM);
+                                                                                               jint newXNumberOfBeats) {
+    engine->setXNumberOfBeats(newXNumberOfBeats);
+}
+
+JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetYNumberOfBeats(JNIEnv *env,
+                                                                                               jobject type,
+                                                                                               jint newYNumberOfBeats) {
+    engine->setYNumberOfBeats(newYNumberOfBeats);
 }
 
 JNIEXPORT void JNICALL

@@ -33,6 +33,11 @@ import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.MIN_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import kotlinx.android.synthetic.main.trainer_fragment.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -84,9 +89,9 @@ class TrainerFragment : Fragment() {
         super.onResume()
 
         nativeRegisterVisualizer(trainer_polyrhythm_visualizer)
-        trainerViewModel.getPolyrhythmSettings().value?.let { settings ->
-            nativeSetRhythmSettings(settings.xNumberOfBeats, settings.yNumberOfBeats, settings.BPM)
-        }
+        nativeSetBpm(trainerViewModel.bpm.value ?: DEFAULT_BPM)
+        nativeSetXNumberOfBeats(trainerViewModel.xNumberOfBeats.value ?: DEFAULT_X_NUMBER_OF_BEATS)
+        nativeSetYNumberOfBeats(trainerViewModel.yNumberOfBeats.value ?: DEFAULT_Y_NUMBER_OF_BEATS)
 
         devicesInitialized = false
         audioManager.registerAudioDeviceCallback(deviceListener, null)
@@ -189,22 +194,30 @@ class TrainerFragment : Fragment() {
             }
         }
 
-        trainerViewModel.getPolyrhythmSettings()
-            .observe(viewLifecycleOwner, Observer { newSettings ->
-                trainer_x_number_of_beats_text.text = newSettings.xNumberOfBeats.toString()
-                trainer_y_number_of_beats_text.text = newSettings.yNumberOfBeats.toString()
-                trainer_bpm_tap_button.text =
-                    getString(R.string.bpm, newSettings.BPM.toString().padStart(3, ' '))
-                trainer_polyrhythm_visualizer.polyrhythmSettings = newSettings.copy()
+        trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
+            trainer_bpm_tap_button.text = getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
+            trainer_polyrhythm_visualizer.bpm = newBpm
+            trainer_bpm_bar.progress = newBpm - MIN_BPM
+            lifecycleScope.launchWhenResumed {
+                nativeSetBpm(newBpm)
+            }
+        })
 
-                lifecycleScope.launchWhenResumed {
-                    nativeSetRhythmSettings(
-                        newSettings.xNumberOfBeats,
-                        newSettings.yNumberOfBeats,
-                        newSettings.BPM
-                    )
-                }
-            })
+        trainerViewModel.xNumberOfBeats.observe(viewLifecycleOwner, Observer { newXNumberOfBeats ->
+            trainer_x_number_of_beats_text.text = newXNumberOfBeats.toString()
+            trainer_polyrhythm_visualizer.xNumberOfBeats = newXNumberOfBeats
+            lifecycleScope.launchWhenResumed {
+                nativeSetXNumberOfBeats(newXNumberOfBeats)
+            }
+        })
+
+        trainerViewModel.yNumberOfBeats.observe(viewLifecycleOwner, Observer { newYNumberOfBeats ->
+            trainer_y_number_of_beats_text.text = newYNumberOfBeats.toString()
+            trainer_polyrhythm_visualizer.yNumberOfBeats = newYNumberOfBeats
+            lifecycleScope.launchWhenResumed {
+                nativeSetYNumberOfBeats(newYNumberOfBeats)
+            }
+        })
 
         ViewCompat.setTransitionName(trainer_left_pad, TRANSITION_NAME_LEFT_PAD)
         ViewCompat.setTransitionName(trainer_right_pad, TRANSITION_NAME_RIGHT_PAD)
@@ -244,10 +257,7 @@ class TrainerFragment : Fragment() {
 
         // Calculate the actual BPM
         val newBPM = 60000 / tapIntervals.average().toInt()
-        if (trainerViewModel.changeBPM(newBPM)) {
-            // If its a valid BPM let's also change the BPM bar
-            trainer_bpm_bar.progress = newBPM - MIN_BPM
-        }
+        trainerViewModel.changeBPM(newBPM)
     }
 
     private fun changeThemePreference() {
@@ -287,5 +297,7 @@ class TrainerFragment : Fragment() {
 
     private external fun nativeRegisterVisualizer(visualizer: PolyrhythmVisualizer)
     private external fun nativeUnregisterVisualizer()
-    private external fun nativeSetRhythmSettings(newXNumberOfBeats: Int, newYNumberOfBeats: Int, newBPM: Int)
+    private external fun nativeSetBpm(newBpm: Int)
+    private external fun nativeSetXNumberOfBeats(newXNumberOfBeats: Int)
+    private external fun nativeSetYNumberOfBeats(newYNumberOfBeats: Int)
 }

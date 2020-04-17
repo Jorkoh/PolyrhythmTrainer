@@ -1,47 +1,20 @@
 package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.jorkoh.polyrhythmtrainer.destinations.mutate
+import androidx.lifecycle.asLiveData
+import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepository
+import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 
-class TrainerViewModel : ViewModel() {
-    private val polyrhythmSettings = MutableLiveData(PolyrhythmSettings())
+class TrainerViewModel(private val polyrhythmSettingsRepository: PolyrhythmSettingsRepository) : ViewModel() {
+    val bpm = polyrhythmSettingsRepository.getBPM().asLiveData()
+    val xNumberOfBeats = polyrhythmSettingsRepository.getNumberOfBeats(RhythmLine.X).asLiveData()
+    val yNumberOfBeats = polyrhythmSettingsRepository.getNumberOfBeats(RhythmLine.Y).asLiveData()
 
-    fun getPolyrhythmSettings(): LiveData<PolyrhythmSettings> = polyrhythmSettings
-
-    fun changeBPM(newBPM: Int): Boolean {
-        return if (newBPM.isValidBPM()) {
-            polyrhythmSettings.mutate {
-                value?.BPM = newBPM
-            }
-            true
-        } else {
-            false
-        }
+    fun changeBPM(newBpm: Int) {
+        polyrhythmSettingsRepository.changeBPM(newBpm)
     }
 
     fun changeNumberOfBeats(isIncrease: Boolean, line: RhythmLine) {
-        val increment = if (isIncrease) {
-            1
-        } else {
-            -1
-        }
-
-        val newNumberOfBeats = when (line) {
-            RhythmLine.X -> polyrhythmSettings.value?.xNumberOfBeats?.plus(increment)
-            RhythmLine.Y -> polyrhythmSettings.value?.yNumberOfBeats?.plus(increment)
-        }
-
-        if (newNumberOfBeats != null && newNumberOfBeats.isValidNumberOfBeats()) {
-            when (line) {
-                RhythmLine.X -> polyrhythmSettings.mutate {
-                    value?.xNumberOfBeats = newNumberOfBeats
-                }
-                RhythmLine.Y -> polyrhythmSettings.mutate {
-                    value?.yNumberOfBeats = newNumberOfBeats
-                }
-            }
-        }
+        polyrhythmSettingsRepository.changeNumberOfBeats(isIncrease, line)
     }
 }
