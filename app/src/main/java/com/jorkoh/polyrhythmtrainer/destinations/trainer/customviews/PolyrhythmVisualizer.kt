@@ -13,9 +13,9 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.EngineListener.TapResult
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_BPM
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 
 typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>

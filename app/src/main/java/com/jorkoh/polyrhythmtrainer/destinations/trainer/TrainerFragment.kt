@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -33,11 +32,12 @@ import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_BPM
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation.Companion.MIN_BPM
 import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MIN_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.modes
 import kotlinx.android.synthetic.main.trainer_fragment.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -55,6 +55,16 @@ class TrainerFragment : Fragment() {
 
     private val deviceListener = DeviceListener()
     private var devicesInitialized = false
+
+    private val spinnerListener = object : AdapterView.OnItemSelectedListener {
+        override fun onNothingSelected(parent: AdapterView<*>) {}
+
+        override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+            // TODO this is pretty horrible, need to create some kind of custom adapter so
+            //   this id param actually gives the id. The entire spinner API is pretty disgusting tbh
+            trainerViewModel.changeMode(position + 1)
+        }
+    }
 
     // Tap for BPM stuff
     private var lastTapTime = 0L
@@ -178,21 +188,12 @@ class TrainerFragment : Fragment() {
             setPlayPauseReplayButtonIcon(newStatus)
         }
 
-        // TODO temp until level system is implemented
         ArrayAdapter.createFromResource(requireContext(), R.array.modes, R.layout.trainer_mode_spinner_item)
             .also { adapter ->
-                // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(R.layout.trainer_mode_spinner_item)
-                // Apply the adapter to the spinner
                 trainer_mode_spinner.adapter = adapter
             }
-        trainer_mode_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                Toast.makeText(requireContext(), parent.getItemAtPosition(position) as String, Toast.LENGTH_LONG).show()
-            }
-        }
+        trainer_mode_spinner.onItemSelectedListener = spinnerListener
 
         trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
             trainer_bpm_tap_button.text = getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
@@ -217,6 +218,12 @@ class TrainerFragment : Fragment() {
             lifecycleScope.launchWhenResumed {
                 nativeSetYNumberOfBeats(newYNumberOfBeats)
             }
+        })
+
+        trainerViewModel.mode.observe(viewLifecycleOwner, Observer { newMode ->
+            trainer_mode_spinner.onItemSelectedListener = null
+            trainer_mode_spinner.setSelection(modes.indexOfFirst { it.modeId == newMode.modeId }, false)
+            trainer_mode_spinner.onItemSelectedListener = spinnerListener
         })
 
         ViewCompat.setTransitionName(trainer_left_pad, TRANSITION_NAME_LEFT_PAD)

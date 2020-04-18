@@ -89,24 +89,23 @@ class SoundsFragment : Fragment() {
             (itemAnimator as? DefaultItemAnimator)?.supportsChangeAnimations = false
         }
 
-        soundsViewModel.sounds.observe(viewLifecycleOwner, Observer { sounds ->
-            soundsAdapter.setNewSounds(sounds)
-            sounds_recycler.doOnNextLayout {
-                startPostponedEnterTransition()
-            }
-        })
+        soundsAdapter.sounds = soundsViewModel.sounds
+        sounds_recycler.doOnNextLayout {
+            startPostponedEnterTransition()
+        }
 
-        // TODO try Transformations.distinctUntilChanged for this on the VM, maybe also for MainActivity
         var leftPadSoundSet = false
         var rightPadSoundSet = false
 
-        soundsViewModel.leftPadSound.observe(viewLifecycleOwner, Observer {
+        soundsViewModel.leftPadSound.observe(viewLifecycleOwner, Observer { newLeftPadSound ->
+            soundsAdapter.leftPadSoundId = newLeftPadSound.soundId
             if (leftPadSoundSet) {
                 sounds_left_pad.ripple()
             }
             leftPadSoundSet = true
         })
-        soundsViewModel.rightPadSound.observe(viewLifecycleOwner, Observer {
+        soundsViewModel.rightPadSound.observe(viewLifecycleOwner, Observer { newRightPadSound ->
+            soundsAdapter.rightPadSoundId = newRightPadSound.soundId
             if (rightPadSoundSet) {
                 sounds_right_pad.ripple()
             }

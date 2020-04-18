@@ -7,4 +7,13 @@
     <string name="mode_medium">Normal</string>
     <string name="mode_hard">Difícil</string>
     <string name="mode_impossible">Imposible</string>
+    <string name="sound_name_tom_1">Tom 1</string>
+    <string name="sound_name_tom_2">Tom 2</string>
+    <string name="sound_name_shaker_1">Sacudidor 1</string>
+    <string name="sound_name_shaker_2">Sacudidor 2</string>
+    <string name="sound_name_stick">Palo</string>
+    <string name="sound_name_rimshot">Rimshot</string>
+    <string name="sound_name_clap">Palmada</string>
+    <string name="sound_name_can">Lata</string>
+    <string name="sound_name_bongo">Bongo</string>
 </resources>

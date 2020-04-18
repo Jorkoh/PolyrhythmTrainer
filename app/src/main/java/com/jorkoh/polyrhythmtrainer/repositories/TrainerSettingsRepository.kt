@@ -1,8 +1,8 @@
 package com.jorkoh.polyrhythmtrainer.repositories
 
-import androidx.core.content.edit
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 
 enum class RhythmLine(val nativeValue: Int) {
     X(1),
@@ -14,15 +14,22 @@ enum class RhythmLine(val nativeValue: Int) {
     }
 }
 
-interface PolyrhythmSettingsRepository {
+data class Mode(
+    val modeId: Int,
+    val isMetronome: Boolean
+)
+
+interface TrainerSettingsRepository {
     fun getBPM(): Flow<Int>
     fun getNumberOfBeats(rhythmLine: RhythmLine): Flow<Int>
+    fun getMode(): Flow<Mode>
     fun changeBPM(newBPM: Int)
     fun changeNumberOfBeats(isIncrease: Boolean, rhythmLine: RhythmLine)
+    fun changeMode(newModeId: Int)
 }
 
-class PolyrhythmSettingsRepositoryImplementation(private val preferences: FlowSharedPreferences) :
-    PolyrhythmSettingsRepository {
+class TrainerSettingsRepositoryImplementation(private val preferences: FlowSharedPreferences) :
+    TrainerSettingsRepository {
 
     companion object {
         const val BPM_KEY = "BPM"
@@ -36,15 +43,24 @@ class PolyrhythmSettingsRepositoryImplementation(private val preferences: FlowSh
         const val MAX_NUMBER_OF_BEATS = 14
         const val DEFAULT_X_NUMBER_OF_BEATS = 3
         const val DEFAULT_Y_NUMBER_OF_BEATS = 4
+
+        const val MODE_KEY = "MODE"
+        const val DEFAULT_MODE_ID = 1
+
+        // TODO this is a bit messy because it relies on the ids being the same as the ones on modes_array
+        val modes = listOf(
+            Mode(1, true),
+            Mode(2, false),
+            Mode(3, false),
+            Mode(4, false),
+            Mode(5, false)
+        )
     }
 
     private val bpmPref = preferences.getInt(BPM_KEY, DEFAULT_BPM)
     private val xNumberOfBeatsPref = preferences.getInt(X_NUMBER_OF_BEATS_KEY, DEFAULT_X_NUMBER_OF_BEATS)
     private val yNumberOfBeatsPref = preferences.getInt(Y_NUMBER_OF_BEATS_KEY, DEFAULT_Y_NUMBER_OF_BEATS)
-
-    private fun Int.isValidBPM() = this in MIN_BPM..MAX_BPM
-
-    private fun Int.isValidNumberOfBeats() = this in MIN_NUMBER_OF_BEATS..MAX_NUMBER_OF_BEATS
+    private val modeIdPref = preferences.getInt(MODE_KEY, DEFAULT_MODE_ID)
 
     override fun getBPM(): Flow<Int> = bpmPref.asFlow()
 
@@ -54,9 +70,12 @@ class PolyrhythmSettingsRepositoryImplementation(private val preferences: FlowSh
             RhythmLine.Y -> yNumberOfBeatsPref.asFlow()
         }
 
+    override fun getMode(): Flow<Mode> =
+        modeIdPref.asFlow().transform { modeId -> emit(modes.first { it.modeId == modeId }) }
+
     override fun changeBPM(newBPM: Int) {
         if (newBPM.isValidBPM()) {
-            preferences.getInt(BPM_KEY, DEFAULT_BPM).set(newBPM)
+            bpmPref.set(newBPM)
         }
     }
 
@@ -72,11 +91,23 @@ class PolyrhythmSettingsRepositoryImplementation(private val preferences: FlowSh
             RhythmLine.Y -> yNumberOfBeatsPref.get() + increment
         }
 
-        if(newNumberOfBeats.isValidNumberOfBeats()){
+        if (newNumberOfBeats.isValidNumberOfBeats()) {
             when (rhythmLine) {
                 RhythmLine.X -> xNumberOfBeatsPref.set(newNumberOfBeats)
                 RhythmLine.Y -> yNumberOfBeatsPref.set(newNumberOfBeats)
             }
         }
     }
+
+    override fun changeMode(newModeId: Int) {
+        if (newModeId.isValidModeId()) {
+            modeIdPref.set(newModeId)
+        }
+    }
+
+    private fun Int.isValidBPM() = this in MIN_BPM..MAX_BPM
+
+    private fun Int.isValidNumberOfBeats() = this in MIN_NUMBER_OF_BEATS..MAX_NUMBER_OF_BEATS
+
+    private fun Int.isValidModeId() = this in modes.map { it.modeId }
 }

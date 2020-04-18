@@ -7,7 +7,7 @@ import com.jorkoh.polyrhythmtrainer.repositories.SoundsRepository
 
 class SoundsViewModel(private val soundsRepository: SoundsRepository) : ViewModel() {
 
-    val sounds = soundsRepository.getSounds().asLiveData()
+    val sounds = soundsRepository.getSounds()
     val leftPadSound = soundsRepository.getPadSound(PadPosition.Left).asLiveData()
     val rightPadSound = soundsRepository.getPadSound(PadPosition.Right).asLiveData()
 

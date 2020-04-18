@@ -4,12 +4,25 @@
     <string name="polyrhythm_default_x_beats" translatable="false">3</string>
     <string name="polyrhythm_default_y_beats" translatable="false">4</string>
     <string name="polyrhythm_separator" translatable="false">:</string>
+
     <string name="increase_beats_button_text" translatable="false">+</string>
     <string name="decrease_beats_button_text" translatable="false">-</string>
+
     <string name="bpm" translatable="true">%1$s BPM</string>
+
     <string name="mode_metronome" translatable="true">Metronome</string>
     <string name="mode_easy" translatable="true">Easy</string>
     <string name="mode_medium" translatable="true">Medium</string>
     <string name="mode_hard" translatable="true">Hard</string>
     <string name="mode_impossible" translatable="true">Impossible</string>
+
+    <string name="sound_name_tom_1" translatable="true">Tom 1</string>
+    <string name="sound_name_tom_2" translatable="true">Tom 2</string>
+    <string name="sound_name_shaker_1" translatable="true">Shaker 1"</string>
+    <string name="sound_name_shaker_2" translatable="true">Shaker 2</string>
+    <string name="sound_name_stick" translatable="true">Stick</string>
+    <string name="sound_name_rimshot" translatable="true">Rimshot</string>
+    <string name="sound_name_clap" translatable="true">Clap</string>
+    <string name="sound_name_can" translatable="true">Can</string>
+    <string name="sound_name_bongo" translatable="true">Bongo</string>
 </resources>

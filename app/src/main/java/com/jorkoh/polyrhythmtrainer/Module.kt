@@ -3,8 +3,8 @@ package com.jorkoh.polyrhythmtrainer
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsViewModel
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.TrainerViewModel
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepository
-import com.jorkoh.polyrhythmtrainer.repositories.PolyrhythmSettingsRepositoryImplementation
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepository
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation
 import com.jorkoh.polyrhythmtrainer.repositories.SoundsRepository
 import com.jorkoh.polyrhythmtrainer.repositories.SoundsRepositoryImplementation
 import com.tfcporciuncula.flow.FlowSharedPreferences
@@ -17,7 +17,7 @@ val appModule = module {
     single { FlowSharedPreferences(PreferenceManager.getDefaultSharedPreferences(androidContext())) }
 
     single<SoundsRepository> { SoundsRepositoryImplementation(get()) }
-    single<PolyrhythmSettingsRepository> { PolyrhythmSettingsRepositoryImplementation(get()) }
+    single<TrainerSettingsRepository> { TrainerSettingsRepositoryImplementation(get()) }
 
     viewModel { SoundsViewModel(get()) }
     viewModel { TrainerViewModel(get()) }
