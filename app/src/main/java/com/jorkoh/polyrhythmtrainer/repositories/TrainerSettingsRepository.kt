@@ -1,5 +1,6 @@
 package com.jorkoh.polyrhythmtrainer.repositories
 
+import com.jorkoh.polyrhythmtrainer.R
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
@@ -16,12 +17,14 @@ enum class RhythmLine(val nativeValue: Int) {
 
 data class Mode(
     val modeId: Int,
+    val displayNameResource: Int,
     val isMetronome: Boolean
 )
 
 interface TrainerSettingsRepository {
     fun getBPM(): Flow<Int>
     fun getNumberOfBeats(rhythmLine: RhythmLine): Flow<Int>
+    fun getModes(): List<Mode>
     fun getMode(): Flow<Mode>
     fun changeBPM(newBPM: Int)
     fun changeNumberOfBeats(isIncrease: Boolean, rhythmLine: RhythmLine)
@@ -48,12 +51,12 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
         const val DEFAULT_MODE_ID = 1
 
         // TODO this is a bit messy because it relies on the ids being the same as the ones on modes_array
-        val modes = listOf(
-            Mode(1, true),
-            Mode(2, false),
-            Mode(3, false),
-            Mode(4, false),
-            Mode(5, false)
+        private val modes = listOf(
+            Mode(1, R.string.mode_metronome, true),
+            Mode(2, R.string.mode_easy, false),
+            Mode(3, R.string.mode_medium, false),
+            Mode(4, R.string.mode_hard, false),
+            Mode(5, R.string.mode_impossible, false)
         )
     }
 
@@ -69,6 +72,8 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
             RhythmLine.X -> xNumberOfBeatsPref.asFlow()
             RhythmLine.Y -> yNumberOfBeatsPref.asFlow()
         }
+
+    override fun getModes(): List<Mode> = modes
 
     override fun getMode(): Flow<Mode> =
         modeIdPref.asFlow().transform { modeId -> emit(modes.first { it.modeId == modeId }) }

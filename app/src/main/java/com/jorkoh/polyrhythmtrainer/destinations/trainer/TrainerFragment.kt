@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.BaseAdapter
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
@@ -37,8 +37,8 @@ import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplem
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MIN_BPM
-import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.modes
 import kotlinx.android.synthetic.main.trainer_fragment.*
+import kotlinx.android.synthetic.main.trainer_mode_spinner_item.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 @ExperimentalStdlibApi
@@ -51,26 +51,42 @@ class TrainerFragment : Fragment() {
         const val TRANSITION_NAME_RIGHT_PAD = "trainer_right_pad"
     }
 
+    private val trainerViewModel: TrainerViewModel by viewModel()
+
     private lateinit var audioManager: AudioManager
 
     private val deviceListener = DeviceListener()
     private var devicesInitialized = false
 
+    private val spinnerAdapter = object : BaseAdapter() {
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            val mode = trainerViewModel.modes[position]
+            val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
+
+            itemView.trainer_mode_spinner_item_text.text = resources.getText(mode.displayNameResource)
+
+            return itemView
+        }
+
+        override fun getItem(position: Int) = trainerViewModel.modes[position]
+
+        override fun getItemId(position: Int) = trainerViewModel.modes[position].modeId.toLong()
+
+        override fun getCount() = trainerViewModel.modes.size
+    }
+
     private val spinnerListener = object : AdapterView.OnItemSelectedListener {
         override fun onNothingSelected(parent: AdapterView<*>) {}
 
         override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-            // TODO this is pretty horrible, need to create some kind of custom adapter so
-            //   this id param actually gives the id. The entire spinner API is pretty disgusting tbh
-            trainerViewModel.changeMode(position + 1)
+            trainerViewModel.changeMode(id.toInt())
         }
     }
 
     // Tap for BPM stuff
     private var lastTapTime = 0L
     private var tapIntervals = mutableListOf<Long>()
-
-    private val trainerViewModel: TrainerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -188,11 +204,7 @@ class TrainerFragment : Fragment() {
             setPlayPauseReplayButtonIcon(newStatus)
         }
 
-        ArrayAdapter.createFromResource(requireContext(), R.array.modes, R.layout.trainer_mode_spinner_item)
-            .also { adapter ->
-                adapter.setDropDownViewResource(R.layout.trainer_mode_spinner_item)
-                trainer_mode_spinner.adapter = adapter
-            }
+        trainer_mode_spinner.adapter = spinnerAdapter
         trainer_mode_spinner.onItemSelectedListener = spinnerListener
 
         trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
@@ -222,7 +234,10 @@ class TrainerFragment : Fragment() {
 
         trainerViewModel.mode.observe(viewLifecycleOwner, Observer { newMode ->
             trainer_mode_spinner.onItemSelectedListener = null
-            trainer_mode_spinner.setSelection(modes.indexOfFirst { it.modeId == newMode.modeId }, false)
+            trainer_mode_spinner.setSelection(
+                trainerViewModel.modes.indexOfFirst { it.modeId == newMode.modeId },
+                false
+            )
             trainer_mode_spinner.onItemSelectedListener = spinnerListener
         })
 

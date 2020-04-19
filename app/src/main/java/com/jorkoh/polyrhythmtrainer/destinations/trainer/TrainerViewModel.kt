@@ -10,6 +10,7 @@ class TrainerViewModel(private val trainerSettingsRepository: TrainerSettingsRep
     val xNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.X).asLiveData()
     val yNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.Y).asLiveData()
     val mode = trainerSettingsRepository.getMode().asLiveData()
+    val modes = trainerSettingsRepository.getModes()
 
     fun changeBPM(newBpm: Int) {
         trainerSettingsRepository.changeBPM(newBpm)

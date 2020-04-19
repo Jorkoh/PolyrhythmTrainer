@@ -26,8 +26,7 @@ class SoundsRepositoryImplementation(private val preferences: FlowSharedPreferen
         const val LEFT_PAD_DEFAULT_SOUND = 1
         const val RIGHT_PAD_DEFAULT_SOUND = 2
 
-        //TODO this display names have to be string resources to support translation
-        val sounds = listOf(
+        private val sounds = listOf(
             Sound(1, R.string.sound_name_tom_1, "tom1.wav"),
             Sound(2, R.string.sound_name_tom_2, "tom2.wav"),
             Sound(3, R.string.sound_name_shaker_1, "shaker1.wav"),
