@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingHorizontal="8dp">
 
     <ImageView
-        android:id="@+id/trainer_mode_spinner_item_icon"
+        android:id="@+id/trainer_mode_spinner_dropdown_item_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_sound"
+        android:src="@drawable/ic_info"
         android:tint="?attr/colorOnBackground" />
 
     <TextView
-        android:id="@+id/trainer_mode_spinner_item_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/trainer_mode_spinner_dropdown_item_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start"
         android:paddingVertical="12dp"

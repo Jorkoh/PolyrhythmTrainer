@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.SeekBar
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -32,12 +33,14 @@ import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
+import com.jorkoh.polyrhythmtrainer.repositories.Mode
 import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MIN_BPM
 import kotlinx.android.synthetic.main.trainer_fragment.*
+import kotlinx.android.synthetic.main.trainer_mode_spinner_dropdown_item.view.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_item.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -60,8 +63,18 @@ class TrainerFragment : Fragment() {
 
     private val spinnerAdapter = object : BaseAdapter() {
 
+        override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            val mode = getItem(position)
+            val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_dropdown_item, parent, false)
+
+            itemView.trainer_mode_spinner_dropdown_item_text.text = resources.getText(mode.displayNameResource)
+
+            return itemView
+        }
+
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val mode = trainerViewModel.modes[position]
+            // Why aren't you using position here? https://stackoverflow.com/a/40764217
+            val mode = (parent as Spinner).selectedItem as Mode
             val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
 
             itemView.trainer_mode_spinner_item_text.text = resources.getText(mode.displayNameResource)
@@ -71,7 +84,7 @@ class TrainerFragment : Fragment() {
 
         override fun getItem(position: Int) = trainerViewModel.modes[position]
 
-        override fun getItemId(position: Int) = trainerViewModel.modes[position].modeId.toLong()
+        override fun getItemId(position: Int) = getItem(position).modeId.toLong()
 
         override fun getCount() = trainerViewModel.modes.size
     }
@@ -193,10 +206,10 @@ class TrainerFragment : Fragment() {
         // Style theme icon
         trainer_change_theme_button.icon = ContextCompat.getDrawable(
             requireContext(), when (getCurrentNightMode()) {
-                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
-                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
-                else -> R.drawable.ic_light_theme
-            }
+            Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
+            Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
+            else -> R.drawable.ic_light_theme
+        }
         )
 
         trainer_polyrhythm_visualizer.doOnStatusChange { newStatus ->
@@ -248,10 +261,10 @@ class TrainerFragment : Fragment() {
     private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         trainer_play_stop_button.icon = ContextCompat.getDrawable(
             requireContext(), when (newStatus) {
-                PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
-                PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
-                PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
-            }
+            PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
+            PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
+            PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
+        }
         )
     }
 

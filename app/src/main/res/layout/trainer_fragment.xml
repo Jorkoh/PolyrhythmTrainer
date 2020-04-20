@@ -90,6 +90,7 @@
         android:id="@+id/trainer_mode_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/custom_dropdown"
         app:layout_constraintBottom_toBottomOf="@id/trainer_number_of_beats_picker_layout"
         app:layout_constraintEnd_toStartOf="@id/trainer_number_of_beats_picker_layout"
         app:layout_constraintHorizontal_chainStyle="spread"
