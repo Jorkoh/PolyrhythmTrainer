@@ -18,6 +18,7 @@ enum class RhythmLine(val nativeValue: Int) {
 data class Mode(
     val modeId: Int,
     val displayNameResource: Int,
+    val iconResource: Int,
     val isMetronome: Boolean
 )
 
@@ -52,11 +53,11 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
 
         // TODO this is a bit messy because it relies on the ids being the same as the ones on modes_array
         private val modes = listOf(
-            Mode(1, R.string.mode_metronome, true),
-            Mode(2, R.string.mode_easy, false),
-            Mode(3, R.string.mode_medium, false),
-            Mode(4, R.string.mode_hard, false),
-            Mode(5, R.string.mode_impossible, false)
+            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, true),
+            Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, false),
+            Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, false),
+            Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, false),
+            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, false)
         )
     }
 

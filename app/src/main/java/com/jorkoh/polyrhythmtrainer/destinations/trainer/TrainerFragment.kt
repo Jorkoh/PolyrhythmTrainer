@@ -67,6 +67,7 @@ class TrainerFragment : Fragment() {
             val mode = getItem(position)
             val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_dropdown_item, parent, false)
 
+            itemView.trainer_mode_spinner_dropdown_item_icon.setImageResource(mode.iconResource)
             itemView.trainer_mode_spinner_dropdown_item_text.text = resources.getText(mode.displayNameResource)
 
             return itemView
