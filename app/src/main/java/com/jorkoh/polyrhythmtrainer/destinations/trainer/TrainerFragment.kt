@@ -65,10 +65,16 @@ class TrainerFragment : Fragment() {
 
         override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val mode = getItem(position)
-            val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_dropdown_item, parent, false)
+            val itemView = convertView
+                ?: layoutInflater.inflate(
+                    R.layout.trainer_mode_spinner_dropdown_item,
+                    parent,
+                    false
+                )
 
             itemView.trainer_mode_spinner_dropdown_item_icon.setImageResource(mode.iconResource)
-            itemView.trainer_mode_spinner_dropdown_item_text.text = resources.getText(mode.displayNameResource)
+            itemView.trainer_mode_spinner_dropdown_item_text.text =
+                resources.getText(mode.displayNameResource)
 
             return itemView
         }
@@ -76,9 +82,11 @@ class TrainerFragment : Fragment() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             // Why aren't you using position here? https://stackoverflow.com/a/40764217
             val mode = (parent as Spinner).selectedItem as Mode
-            val itemView = convertView ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
+            val itemView = convertView
+                ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
 
-            itemView.trainer_mode_spinner_item_text.text = resources.getText(mode.displayNameResource)
+            itemView.trainer_mode_spinner_item_text.text =
+                resources.getText(mode.displayNameResource)
 
             return itemView
         }
@@ -132,6 +140,9 @@ class TrainerFragment : Fragment() {
         nativeSetBpm(trainerViewModel.bpm.value ?: DEFAULT_BPM)
         nativeSetXNumberOfBeats(trainerViewModel.xNumberOfBeats.value ?: DEFAULT_X_NUMBER_OF_BEATS)
         nativeSetYNumberOfBeats(trainerViewModel.yNumberOfBeats.value ?: DEFAULT_Y_NUMBER_OF_BEATS)
+        with(trainerViewModel.mode.value ?: Mode()) {
+            nativeSetModeSettings(engineMeasures, playerMeasures, successWindow)
+        }
 
         devicesInitialized = false
         audioManager.registerAudioDeviceCallback(deviceListener, null)
@@ -207,10 +218,10 @@ class TrainerFragment : Fragment() {
         // Style theme icon
         trainer_change_theme_button.icon = ContextCompat.getDrawable(
             requireContext(), when (getCurrentNightMode()) {
-            Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
-            Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
-            else -> R.drawable.ic_light_theme
-        }
+                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
+                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
+                else -> R.drawable.ic_light_theme
+            }
         )
 
         trainer_polyrhythm_visualizer.doOnStatusChange { newStatus ->
@@ -222,7 +233,8 @@ class TrainerFragment : Fragment() {
         trainer_mode_spinner.onItemSelectedListener = spinnerListener
 
         trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
-            trainer_bpm_tap_button.text = getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
+            trainer_bpm_tap_button.text =
+                getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
             trainer_polyrhythm_visualizer.bpm = newBpm
             trainer_bpm_bar.progress = newBpm - MIN_BPM
             lifecycleScope.launchWhenResumed {
@@ -253,6 +265,14 @@ class TrainerFragment : Fragment() {
                 false
             )
             trainer_mode_spinner.onItemSelectedListener = spinnerListener
+            trainer_polyrhythm_visualizer.mode = newMode
+            lifecycleScope.launchWhenResumed {
+                nativeSetModeSettings(
+                    newMode.engineMeasures,
+                    newMode.playerMeasures,
+                    newMode.successWindow
+                )
+            }
         })
 
         ViewCompat.setTransitionName(trainer_left_pad, TRANSITION_NAME_LEFT_PAD)
@@ -262,10 +282,10 @@ class TrainerFragment : Fragment() {
     private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         trainer_play_stop_button.icon = ContextCompat.getDrawable(
             requireContext(), when (newStatus) {
-            PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
-            PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
-            PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
-        }
+                PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
+                PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
+                PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
+            }
         )
     }
 
@@ -336,4 +356,9 @@ class TrainerFragment : Fragment() {
     private external fun nativeSetBpm(newBpm: Int)
     private external fun nativeSetXNumberOfBeats(newXNumberOfBeats: Int)
     private external fun nativeSetYNumberOfBeats(newYNumberOfBeats: Int)
+    private external fun nativeSetModeSettings(
+        newEngineMeasures: Int,
+        newPlayerMeasures: Int,
+        successWindow: Float
+    )
 }

@@ -16,10 +16,13 @@ enum class RhythmLine(val nativeValue: Int) {
 }
 
 data class Mode(
-    val modeId: Int,
-    val displayNameResource: Int,
-    val iconResource: Int,
-    val isMetronome: Boolean
+    val modeId: Int = TrainerSettingsRepositoryImplementation.DEFAULT_MODE_ID,
+    val displayNameResource: Int = R.string.mode_metronome,
+    val iconResource: Int = R.drawable.ic_metronome,
+    val engineMeasures: Int = 100,
+    val playerMeasures: Int = 0,
+    val successWindow: Float = 0f,
+    val showBeatLines: Boolean = true
 )
 
 interface TrainerSettingsRepository {
@@ -51,13 +54,14 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
         const val MODE_KEY = "MODE"
         const val DEFAULT_MODE_ID = 1
 
-        // TODO this is a bit messy because it relies on the ids being the same as the ones on modes_array
+        // TODO metronome and impossible modes should be infinite, INFINITE is supported by the animator
+        //  but the native engine events and windows will need more work
         private val modes = listOf(
-            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, true),
-            Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, false),
-            Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, false),
-            Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, false),
-            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, false)
+            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, 100, 0, 0f, true),
+            Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, 2, 2, 0.05f, true),
+            Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, 2, 4, 0.04f, true),
+            Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, 2, 4, 0.03f, false),
+            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, 2, 100, 0.03f, false)
         )
     }
 
@@ -76,8 +80,7 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
 
     override fun getModes(): List<Mode> = modes
 
-    override fun getMode(): Flow<Mode> =
-        modeIdPref.asFlow().transform { modeId -> emit(modes.first { it.modeId == modeId }) }
+    override fun getMode(): Flow<Mode> = modeIdPref.asFlow().transform { modeId -> emit(modes.first { it.modeId == modeId }) }
 
     override fun changeBPM(newBPM: Int) {
         if (newBPM.isValidBPM()) {

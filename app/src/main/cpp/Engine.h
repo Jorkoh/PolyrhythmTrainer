@@ -67,6 +67,8 @@ public:
 
     void setYNumberOfBeats(int32_t newYNumberOfBeats);
 
+    void setModeSettings(int32_t newEngineMeasures, int32_t newPlayerMeasures, float newWindowCenterOffsetPercentage);
+
     void setSoundAssets(const char *newPadSoundFilename, int32_t padPosition, bool withAudioFeedback);
 
     TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
@@ -91,11 +93,14 @@ private:
     // Right pad sound asset (in assets folder)
     const char *rightPadSoundFilename{"shaker1.wav"};
 
-    std::atomic<int64_t> rhythmLengthMs{3000};
+    std::atomic<int32_t> rhythmLengthMs{3000};
     std::atomic<int32_t> windowCenterOffsetMs{120};
+    std::atomic<float> windowCenterOffsetPercentage{0.04f};
     std::atomic<int32_t> xNumberOfBeats{3};
     std::atomic<int32_t> yNumberOfBeats{4};
     std::atomic<int32_t> bpm{80};
+    std::atomic<int32_t> engineMeasures{-1};
+    std::atomic<int32_t> playerMeasures{0};
 
     // The rhythm playing events for the example phase (PlayingRhythm)
     LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;

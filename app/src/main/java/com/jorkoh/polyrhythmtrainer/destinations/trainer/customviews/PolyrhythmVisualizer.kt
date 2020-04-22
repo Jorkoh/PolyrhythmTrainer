@@ -13,10 +13,11 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnRepeat
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.EngineListener.TapResult
+import com.jorkoh.polyrhythmtrainer.repositories.Mode
+import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
-import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 
 typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>
 
@@ -87,6 +88,15 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             }
         }
 
+    var mode = Mode()
+        set(value) {
+            if (field != value) {
+                animator.repeatCount = (value.engineMeasures + value.playerMeasures) - 1
+                field = value
+                stop()
+            }
+        }
+
     // Recalculated when changing BPM or y number of beats
     private var polyrhythmLengthMS = yNumberOfBeats * 60000 / bpm
         set(value) {
@@ -137,20 +147,27 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Animation
     private var animationProgress = 0f
-    private var playerPhase = false
+    private var currentRepeat = 1
+    private var playerPhase = mode.engineMeasures == 0
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()
         addUpdateListener { valueAnimator ->
             interpolator = LinearInterpolator()
-            repeatCount = 1
+            repeatCount = (mode.engineMeasures + mode.playerMeasures) - 1
             animationProgress = valueAnimator.animatedFraction
             invalidate()
         }
         doOnRepeat {
-            playerPhase = true
+            currentRepeat += 1
+            // If it's not infinite engine measures (metronome) player phase is enabled when
+            // the number of repeats have surpassed the designated engine measures
+            if (mode.engineMeasures >= 0) {
+                playerPhase = currentRepeat > mode.engineMeasures
+            }
         }
         doOnEnd {
             animationProgress = 0f
+
             // TODO calling pause here sends signal to native to stop but the signal should come from native
             //  since it's the source of truth in timing matters and we need to wait the window for last event
             currentStatus = Status.AFTER_PLAY
@@ -215,8 +232,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         // Draw neutral lines, horizontal and end
         drawNeutralLines(canvas)
 
-        // If the user input is not currently being evaluated draw the rhythm
-        if (!playerPhase) {
+        // If the user input is not currently being evaluated or the mode dictates
+        // that the beat lines are always present draw the rhythm as a visual guide
+        if (!playerPhase || mode.showBeatLines) {
             // Draw x lines on the top
             drawXLines(canvas)
             // Draw y lines on the bottom
@@ -328,7 +346,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             (h - paddingBottom).toFloat()
         )
 
-        val errorWindowSize = 0.04f * w
+        val errorWindowSize = mode.successWindow * w
         rhythmRectangle.set(
             paddingLeft + horizontalInternalPadding + errorWindowSize,
             paddingTop.toFloat(),
@@ -373,6 +391,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Not directly used, called from status change
     private fun resetAnimation() {
         animationProgress = 0f
+        currentRepeat = 1
         playerInputTimings.clear()
         invalidate()
     }

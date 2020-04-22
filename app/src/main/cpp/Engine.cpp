@@ -85,37 +85,52 @@ void Engine::resetRhythmPositionEventsAndWindows() {
 }
 
 void Engine::scheduleNewEventsAndWindows() {
-    for (int index = 0; index < xNumberOfBeats; index++) {
-        int64_t xRhythmEvent = rhythmLengthMs * index / xNumberOfBeats;
-        xRhythmEvents.push(xRhythmEvent);
-        xRhythmWindows.push(xRhythmEvent + rhythmLengthMs);
-    }
-    for (int index = 0; index < yNumberOfBeats; index++) {
-        int64_t yRhythmEvent = rhythmLengthMs * index / yNumberOfBeats;
-        yRhythmEvents.push(yRhythmEvent);
-        yRhythmWindows.push(yRhythmEvent + rhythmLengthMs);
+    for (int i = 0; i < engineMeasures + playerMeasures; i++) {
+        int measureDelay = rhythmLengthMs * i;
+        for (int j = 0; j < xNumberOfBeats; j++) {
+            int64_t xRhythmEvent = rhythmLengthMs * j / xNumberOfBeats;
+            if (i < engineMeasures) {
+                xRhythmEvents.push(xRhythmEvent + measureDelay);
+            } else {
+                xRhythmWindows.push(xRhythmEvent + measureDelay);
+            }
+        }
+        for (int k = 0; k < yNumberOfBeats; k++) {
+            int64_t yRhythmEvent = rhythmLengthMs * k / yNumberOfBeats;
+            if (i < engineMeasures) {
+                yRhythmEvents.push(yRhythmEvent + measureDelay);
+            } else {
+                yRhythmWindows.push(yRhythmEvent + measureDelay);
+            }
+        }
     }
 }
 
-void Engine::setBpm(int32_t newBpm){
+void Engine::setBpm(int32_t newBpm) {
     rhythmLengthMs = yNumberOfBeats * 60000 / newBpm;
-    // TODO the window relative size will depend on current level
-    windowCenterOffsetMs = rhythmLengthMs * 0.04;
+    windowCenterOffsetMs = rhythmLengthMs * windowCenterOffsetPercentage;
     bpm = newBpm;
 }
 
-void Engine::setXNumberOfBeats(int32_t newXNumberOfBeats){
+void Engine::setXNumberOfBeats(int32_t newXNumberOfBeats) {
     xNumberOfBeats = newXNumberOfBeats;
 }
 
-void Engine::setYNumberOfBeats(int32_t newYNumberOfBeats){
+void Engine::setYNumberOfBeats(int32_t newYNumberOfBeats) {
     rhythmLengthMs = newYNumberOfBeats * 60000 / bpm;
-    // TODO the window relative size will depend on current level
-    windowCenterOffsetMs = rhythmLengthMs * 0.04;
+    windowCenterOffsetMs = rhythmLengthMs * windowCenterOffsetPercentage;
     yNumberOfBeats = newYNumberOfBeats;
 }
 
-void Engine::setSoundAssets(const char *newPadSoundFilename, int32_t padPosition, bool withAudioFeedback) {
+void Engine::setModeSettings(int32_t newEngineMeasures, int32_t newPlayerMeasures,
+                             float newWindowCenterOffsetPercentage) {
+    engineMeasures = newEngineMeasures;
+    playerMeasures = newPlayerMeasures;
+    windowCenterOffsetPercentage = newWindowCenterOffsetPercentage;
+}
+
+void Engine::setSoundAssets(const char *newPadSoundFilename, int32_t padPosition,
+                            bool withAudioFeedback) {
     mAudioStream->stop(0);
 
     if (padPosition == 0) {
@@ -185,7 +200,8 @@ TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTim
     }
 }
 
-DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
+DataCallbackResult
+Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
     // If our audio stream is expecting 16-bit samples we need to render our floats into a separate
     // buffer then convert them into 16-bit ints
     bool is16Bit = (oboeStream->getFormat() == AudioFormat::I16);
@@ -302,7 +318,8 @@ bool Engine::setupPadAudioSource(int32_t padPosition) {
     if (padPosition == 0) {
         // Create a data source and player for the left pad sound
         std::shared_ptr<AAssetDataSource> leftPadSoundSource{
-                AAssetDataSource::newFromCompressedAsset(mAssetManager, leftPadSoundFilename, targetProperties)
+                AAssetDataSource::newFromCompressedAsset(mAssetManager, leftPadSoundFilename,
+                                                         targetProperties)
         };
         if (leftPadSoundSource == nullptr) {
             LOGE("Could not load source data for left pad sound");
@@ -313,7 +330,8 @@ bool Engine::setupPadAudioSource(int32_t padPosition) {
     } else if (padPosition == 1) {
         // Create a data source and player for the left pad sound
         std::shared_ptr<AAssetDataSource> rightPadSoundSource{
-                AAssetDataSource::newFromCompressedAsset(mAssetManager, rightPadSoundFilename, targetProperties)
+                AAssetDataSource::newFromCompressedAsset(mAssetManager, rightPadSoundFilename,
+                                                         targetProperties)
         };
         if (rightPadSoundSource == nullptr) {
             LOGE("Could not load source data for right pad sound");

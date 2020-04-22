@@ -110,6 +110,15 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSet
 }
 
 JNIEXPORT void JNICALL
+Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeSetModeSettings(JNIEnv *env,
+                                                                                             jobject type,
+                                                                                             jint newEngineMeasures,
+                                                                                             jint newPlayerMeasures,
+                                                                                             jfloat newWindowCenterOffsetPercentage) {
+    engine->setModeSettings(newEngineMeasures, newPlayerMeasures, newWindowCenterOffsetPercentage);
+}
+
+JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_MainActivity_nativeSetSoundAssets(JNIEnv *env,
                                                                     jobject type,
                                                                     jstring newPadSound,
