@@ -78,7 +78,7 @@ Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_TrainerFragment_nativeReg
     // Register stuff for callbacks
     engineListener = env->NewGlobalRef(jVisualizer);
     jclass clazz = env->FindClass("com/jorkoh/polyrhythmtrainer/destinations/trainer/customviews/PolyrhythmVisualizer");
-    onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(IDI)V");
+    onTapResultMethod = env->GetMethodID(clazz, "onTapResult", "(IDII)V");
 }
 
 JNIEXPORT void JNICALL
@@ -135,12 +135,13 @@ JNIEXPORT void JNICALL
 Java_com_jorkoh_polyrhythmtrainer_destinations_trainer_customviews_PadView_nativeOnPadTouch(JNIEnv *env, jobject type,
                                                                                             jint padPosition,
                                                                                             jlong timeSinceBoot) {
-    TapResultWithTimingAndPosition tapResultWithTimingAndPosition = engine->tap(padPosition, timeSinceBoot);
+    TapResultWithTimingPositionAndMeasure tapResultWithTimingAndPosition = engine->tap(padPosition, timeSinceBoot);
     if (engineListener != nullptr) {
         env->CallVoidMethod(engineListener, onTapResultMethod,
                             static_cast<jint>(tapResultWithTimingAndPosition.tapResult),
                             static_cast<jdouble>(tapResultWithTimingAndPosition.timing),
-                            static_cast<jint >(tapResultWithTimingAndPosition.position));
+                            static_cast<jint>(tapResultWithTimingAndPosition.position),
+                            static_cast<jint>(tapResultWithTimingAndPosition.measure));
     }
 }
 

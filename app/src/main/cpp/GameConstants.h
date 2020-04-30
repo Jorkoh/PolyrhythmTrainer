@@ -19,7 +19,7 @@
 
 
 constexpr int kBufferSizeInBursts = 2; // Use 2 bursts as the buffer size (double buffer)
-constexpr int kMaxQueueItems = 16; // Must be power of 2
+constexpr int kMaxItems = 16; // Must be power of 2
 
 struct AudioProperties {
     int32_t channelCount;

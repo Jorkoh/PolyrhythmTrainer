@@ -34,12 +34,13 @@ enum class TapResult {
     Success
 };
 
-struct TapResultWithTimingAndPosition{
-    TapResultWithTimingAndPosition(TapResult tapResult, double timing, int position);
+struct TapResultWithTimingPositionAndMeasure{
+    TapResultWithTimingPositionAndMeasure(TapResult tapResult, double timing, int position, int measure);
 
     TapResult tapResult;
     double timing;
     int position;
+    int measure;
 };
 
 int64_t nowUptimeMillis();

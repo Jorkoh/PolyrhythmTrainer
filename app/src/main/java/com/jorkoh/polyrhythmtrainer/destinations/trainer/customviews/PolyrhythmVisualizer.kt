@@ -19,7 +19,7 @@ import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplem
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
 
-typealias TapResultWithTimingAndLine = Triple<TapResult, Double, RhythmLine>
+data class TapResultWithTimingLineAndMeasure(val tapResult: TapResult, val tapTiming: Double, val rhythmLine: RhythmLine, val measure: Int)
 
 class PolyrhythmVisualizer @JvmOverloads constructor(
     context: Context,
@@ -91,7 +91,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     var mode = Mode()
         set(value) {
             if (field != value) {
-                animator.repeatCount = (value.engineMeasures + value.playerMeasures) - 1
+                animator.repeatCount = calculateRepeatCount(value)
                 field = value
                 stop()
             }
@@ -117,7 +117,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // The tap timings of the current attempt as fractions of the total rhythm line
-    private var playerInputTimings = mutableListOf<TapResultWithTimingAndLine>()
+    private var playerInputTimings = mutableListOf<TapResultWithTimingLineAndMeasure>()
         set(value) {
             field = value
             invalidate()
@@ -153,7 +153,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         duration = polyrhythmLengthMS.toLong()
         addUpdateListener { valueAnimator ->
             interpolator = LinearInterpolator()
-            repeatCount = (mode.engineMeasures + mode.playerMeasures) - 1
+            repeatCount = calculateRepeatCount(mode)
             animationProgress = valueAnimator.animatedFraction
             invalidate()
         }
@@ -225,6 +225,13 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     private fun calculateRhythmLineSubdivisions(numberOfBeats: Int) =
         List(numberOfBeats) { index -> index / numberOfBeats.toFloat() }
+
+    private fun calculateRepeatCount(mode: Mode): Int =
+        if (mode.engineMeasures < 0 || mode.playerMeasures < 0) {
+            ValueAnimator.INFINITE
+        } else {
+            (mode.engineMeasures + mode.playerMeasures) - 1
+        }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -304,21 +311,21 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
     private fun drawPlayerInputTimingLines(canvas: Canvas) {
-        for (resultWithTimingAndLine in playerInputTimings) {
+        for (result in playerInputTimings.filter { it.measure == currentRepeat - mode.engineMeasures }) {
             canvas.drawLine(
-                (rhythmRectangle.left + rhythmRectangle.width() * resultWithTimingAndLine.second).toFloat(),
-                if (resultWithTimingAndLine.third == RhythmLine.X) {
+                (rhythmRectangle.left + rhythmRectangle.width() * result.tapTiming).toFloat(),
+                if (result.rhythmLine == RhythmLine.X) {
                     rhythmRectangle.centerY() - tapResultSeparationFromCenterStart
                 } else {
                     rhythmRectangle.centerY() + tapResultSeparationFromCenterStart
                 },
-                (rhythmRectangle.left + rhythmRectangle.width() * resultWithTimingAndLine.second).toFloat(),
-                if (resultWithTimingAndLine.third == RhythmLine.X) {
+                (rhythmRectangle.left + rhythmRectangle.width() * result.tapTiming).toFloat(),
+                if (result.rhythmLine == RhythmLine.X) {
                     rhythmRectangle.centerY() - tapResultSeparationFromCenterEnd
                 } else {
                     rhythmRectangle.centerY() + tapResultSeparationFromCenterEnd
                 },
-                when (resultWithTimingAndLine.first) {
+                when (result.tapResult) {
                     TapResult.Success -> successPaint
                     else -> errorPaint
                 }
@@ -405,14 +412,14 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         this.actionOnTapResult = action
     }
 
-    override fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int) {
+    override fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int, measure: Int) {
         val tapResult = TapResult.fromNativeValue(tapResultNative)
         val rhythmLine = RhythmLine.fromNativeValue(rhythmLineNative)
         // Call the listener if added
         actionOnTapResult?.invoke(tapResult)
         // Save the timing to be painted
         if (tapResult in TapResult.Early..TapResult.Success) {
-            playerInputTimings.add(TapResultWithTimingAndLine(tapResult, tapTiming, rhythmLine))
+            playerInputTimings.add(TapResultWithTimingLineAndMeasure(tapResult, tapTiming, rhythmLine, measure))
         }
     }
 

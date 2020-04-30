@@ -65,61 +65,40 @@ void Engine::stopRhythm() {
 }
 
 void Engine::resetRhythmPositionEventsAndWindows() {
-    // TODO clear this queues properly
-    int64_t holder;
-    while (xRhythmEvents.peek(holder)) {
-        xRhythmEvents.pop(holder);
-    }
-    while (xRhythmWindows.peek(holder)) {
-        xRhythmWindows.pop(holder);
-    }
-    while (yRhythmEvents.peek(holder)) {
-        yRhythmEvents.pop(holder);
-    }
-    while (yRhythmWindows.peek(holder)) {
-        yRhythmWindows.pop(holder);
-    }
+    currentEngineXMeasure = 1;
+    currentEngineYMeasure = 1;
+    currentPlayerXMeasure = 1;
+    currentPlayerYMeasure = 1;
+    nextXBeat = 0;
+    nextYBeat = 0;
     currentFrame = 0;
     rhythmPositionMs = 0;
     lastUpdateTime = 0;
 }
 
 void Engine::scheduleNewEventsAndWindows() {
-    for (int i = 0; i < engineMeasures + playerMeasures; i++) {
-        int measureDelay = rhythmLengthMs * i;
-        for (int j = 0; j < xNumberOfBeats; j++) {
-            int64_t xRhythmEvent = rhythmLengthMs * j / xNumberOfBeats;
-            if (i < engineMeasures) {
-                xRhythmEvents.push(xRhythmEvent + measureDelay);
-            } else {
-                xRhythmWindows.push(xRhythmEvent + measureDelay);
-            }
-        }
-        for (int k = 0; k < yNumberOfBeats; k++) {
-            int64_t yRhythmEvent = rhythmLengthMs * k / yNumberOfBeats;
-            if (i < engineMeasures) {
-                yRhythmEvents.push(yRhythmEvent + measureDelay);
-            } else {
-                yRhythmWindows.push(yRhythmEvent + measureDelay);
-            }
-        }
+    for (int i = 0; i < numberOfXBeats; i++) {
+        xBeats[i] = measureLengthMs * i / numberOfXBeats;
+    }
+    for (int i = 0; i < numberOfYBeats; i++) {
+        yBeats[i] = measureLengthMs * i / numberOfYBeats;
     }
 }
 
 void Engine::setBpm(int32_t newBpm) {
-    rhythmLengthMs = yNumberOfBeats * 60000 / newBpm;
-    windowCenterOffsetMs = rhythmLengthMs * windowCenterOffsetPercentage;
+    measureLengthMs = numberOfYBeats * 60000 / newBpm;
+    windowCenterOffsetMs = measureLengthMs * windowCenterOffsetPercentage;
     bpm = newBpm;
 }
 
 void Engine::setXNumberOfBeats(int32_t newXNumberOfBeats) {
-    xNumberOfBeats = newXNumberOfBeats;
+    numberOfXBeats = newXNumberOfBeats;
 }
 
 void Engine::setYNumberOfBeats(int32_t newYNumberOfBeats) {
-    rhythmLengthMs = newYNumberOfBeats * 60000 / bpm;
-    windowCenterOffsetMs = rhythmLengthMs * windowCenterOffsetPercentage;
-    yNumberOfBeats = newYNumberOfBeats;
+    measureLengthMs = newYNumberOfBeats * 60000 / bpm;
+    windowCenterOffsetMs = measureLengthMs * windowCenterOffsetPercentage;
+    numberOfYBeats = newYNumberOfBeats;
 }
 
 void Engine::setModeSettings(int32_t newEngineMeasures, int32_t newPlayerMeasures,
@@ -151,15 +130,15 @@ void Engine::setSoundAssets(const char *newPadSoundFilename, int32_t padPosition
     }
 }
 
-TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
+TapResultWithTimingPositionAndMeasure Engine::tap(int32_t padPosition, int64_t eventTimeAsUptime) {
     if (padPosition != 0 && padPosition != 1) {
         LOGW("Invalid pad position, ignoring tap event");
-        return {TapResult::Error, 0, padPosition};
+        return {TapResult::Error, 0, padPosition, 0};
     }
 
     if (engineState == EngineState::Loading || engineState == EngineState::FailedToLoad) {
         LOGW("Engine not started, ignoring tap event");
-        return {TapResult::Error, 0, padPosition};
+        return {TapResult::Error, 0, padPosition, 0};
     }
 
     // Enable the sound for the pad
@@ -171,37 +150,48 @@ TapResultWithTimingAndPosition Engine::tap(int32_t padPosition, int64_t eventTim
 
     // If we are not measuring the rhythm ignore the tap
     if (engineState != EngineState::MeasuringRhythm) {
-        return {TapResult::Ignored, 0, padPosition};
+        LOGW("Engine not in measuring state, ignoring tap event");
+        return {TapResult::Ignored, 0, padPosition, 0};
     }
     // Otherwise try to match it with the window
-    int64_t nextRhythmWindowTimeMs;
     if (padPosition == 0) {
-        if (yRhythmWindows.pop(nextRhythmWindowTimeMs)) {
+        if (currentPlayerYMeasure <= playerMeasures || playerMeasures < 0) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return {getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                    (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
-                    padPosition};
+            int64_t measureTimeInRhythmMs = tapTimeInRhythmMs - measureLengthMs * (engineMeasures + (currentPlayerYMeasure - 1));
+            TapResultWithTimingPositionAndMeasure result = {getTapResult(measureTimeInRhythmMs, yBeats[nextYBeat]),
+                                                            measureTimeInRhythmMs / (double) measureLengthMs, padPosition,
+                                                            currentPlayerYMeasure};
+            nextYBeat = (nextYBeat + 1) % numberOfYBeats;
+            if (nextYBeat == 0) {
+                currentPlayerYMeasure++;
+            }
+            return result;
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return {TapResult::Error, 0, padPosition};
+            return {TapResult::Error, 0, padPosition, 0};
         }
     } else {
-        if (xRhythmWindows.pop(nextRhythmWindowTimeMs)) {
+        if (currentPlayerXMeasure <= playerMeasures || playerMeasures < 0) {
             // Convert the tap time to a song position
             int64_t tapTimeInRhythmMs = rhythmPositionMs + (eventTimeAsUptime - lastUpdateTime);
-            return {getTapResult(tapTimeInRhythmMs, nextRhythmWindowTimeMs),
-                    (tapTimeInRhythmMs - rhythmLengthMs) / (double) rhythmLengthMs,
-                    padPosition};
+            int64_t measureTimeInRhythmMs = tapTimeInRhythmMs - measureLengthMs * (engineMeasures + (currentPlayerXMeasure - 1));
+            TapResultWithTimingPositionAndMeasure result = {getTapResult(measureTimeInRhythmMs, xBeats[nextXBeat]),
+                                                            measureTimeInRhythmMs / (double) measureLengthMs, padPosition,
+                                                            currentPlayerXMeasure};
+            nextXBeat = (nextXBeat + 1) % numberOfXBeats;
+            if (nextXBeat == 0) {
+                currentPlayerXMeasure++;
+            }
+            return result;
         } else {
             LOGW("No tap window to match, ignoring tap event");
-            return {TapResult::Error, 0, padPosition};
+            return {TapResult::Error, 0, padPosition, 0};
         }
     }
 }
 
-DataCallbackResult
-Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
+DataCallbackResult Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) {
     // If our audio stream is expecting 16-bit samples we need to render our floats into a separate
     // buffer then convert them into 16-bit ints
     bool is16Bit = (oboeStream->getFormat() == AudioFormat::I16);
@@ -209,25 +199,32 @@ Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames
 
     for (int i = 0; i < numFrames; ++i) {
         rhythmPositionMs = convertFramesToMillis(currentFrame, mAudioStream->getSampleRate());
+        measurePositionMs = rhythmPositionMs % measureLengthMs;
+        int measure = (rhythmPositionMs / measureLengthMs) + 1;
 
         // If the engine is actively playing the rhythm play the sounds as the events are reached
         if (engineState == EngineState::PlayingRhythm) {
-            // This declaration is compiled out of the loop anyway, it's here for clarity
-            int64_t nextClapEventMs;
             // Try to get the next rhythm event, if it's time or already past it play the sound
-            if (xRhythmEvents.peek(nextClapEventMs) && rhythmPositionMs >= nextClapEventMs) {
+            if (currentEngineXMeasure == measure && measurePositionMs >= xBeats[nextXBeat]) {
                 // Right hand plays the x rhythm line
                 rightPadSound->setPlaying(true);
-                xRhythmEvents.pop(nextClapEventMs);
+                nextXBeat = (nextXBeat + 1) % numberOfXBeats;
+                if (nextXBeat == 0) {
+                    currentEngineXMeasure++;
+                }
             }
-            if (yRhythmEvents.peek(nextClapEventMs) && rhythmPositionMs >= nextClapEventMs) {
+            if (currentEngineYMeasure == measure && measurePositionMs >= yBeats[nextYBeat]) {
                 // Left hand plays the y rhythm line
                 leftPadSound->setPlaying(true);
-                yRhythmEvents.pop(nextClapEventMs);
+                nextYBeat = (nextYBeat + 1) % numberOfYBeats;
+                if (nextYBeat == 0) {
+                    currentEngineYMeasure++;
+                }
             }
 
-            // All the beats have been played, time to measure the user performance
-            if (xRhythmEvents.size() == 0 && yRhythmEvents.size() == 0) {
+            // If it's not metronome mode (engineMeasures < 0) and all the beats
+            // have been played it's time to measure the user performance
+            if (engineMeasures >= 0 && currentEngineXMeasure > engineMeasures && currentEngineYMeasure > engineMeasures) {
                 engineState = EngineState::MeasuringRhythm;
             }
         }
@@ -237,11 +234,7 @@ Engine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames
     }
 
     if (is16Bit) {
-        oboe::convertFloatToPcm16(
-                outputBuffer,
-                static_cast<int16_t *>(audioData),
-                numFrames * oboeStream->getChannelCount()
-        );
+        oboe::convertFloatToPcm16(outputBuffer, static_cast<int16_t *>(audioData), numFrames * oboeStream->getChannelCount());
     }
 
     lastUpdateTime = nowUptimeMillis();
@@ -262,10 +255,6 @@ void Engine::onErrorAfterClose(AudioStream *oboeStream, Result error) {
  * @return TapResult can be Early, Late or Success
  */
 TapResult Engine::getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMillis) {
-    LOGD("Tap time %"
-                 PRId64
-                 ", tap window time: %"
-                 PRId64, tapTimeInMillis, tapWindowInMillis);
     if (tapTimeInMillis <= tapWindowInMillis + windowCenterOffsetMs) {
         if (tapTimeInMillis >= tapWindowInMillis - windowCenterOffsetMs) {
             return TapResult::Success;

@@ -26,7 +26,6 @@
 
 #include "audio/Player.h"
 #include "audio/AAssetDataSource.h"
-#include "utils/LockFreeQueue.h"
 #include "utils/UtilityFunctions.h"
 #include "GameConstants.h"
 
@@ -71,7 +70,7 @@ public:
 
     void setSoundAssets(const char *newPadSoundFilename, int32_t padPosition, bool withAudioFeedback);
 
-    TapResultWithTimingAndPosition tap(int32_t padPosition, int64_t eventTimeAsUptime);
+    TapResultWithTimingPositionAndMeasure tap(int32_t padPosition, int64_t eventTimeAsUptime);
 
     // Inherited from oboe::AudioStreamCallback
     DataCallbackResult onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
@@ -93,25 +92,30 @@ private:
     // Right pad sound asset (in assets folder)
     const char *rightPadSoundFilename{"shaker1.wav"};
 
-    std::atomic<int32_t> rhythmLengthMs{3000};
+    std::atomic<int32_t> measureLengthMs{3000};
     std::atomic<int32_t> windowCenterOffsetMs{120};
     std::atomic<float> windowCenterOffsetPercentage{0.04f};
-    std::atomic<int32_t> xNumberOfBeats{3};
-    std::atomic<int32_t> yNumberOfBeats{4};
+    std::atomic<int32_t> numberOfXBeats{3};
+    std::atomic<int32_t> numberOfYBeats{4};
     std::atomic<int32_t> bpm{80};
     std::atomic<int32_t> engineMeasures{-1};
     std::atomic<int32_t> playerMeasures{0};
 
+    std::atomic<int32_t> currentEngineXMeasure{1};
+    std::atomic<int32_t> currentEngineYMeasure{1};
+    std::atomic<int32_t> currentPlayerXMeasure{1};
+    std::atomic<int32_t> currentPlayerYMeasure{1};
+    std::atomic<int32_t> nextXBeat{0};
+    std::atomic<int32_t> nextYBeat{0};
+
     // The rhythm playing events for the example phase (PlayingRhythm)
-    LockFreeQueue<int64_t, kMaxQueueItems> xRhythmEvents;
-    LockFreeQueue<int64_t, kMaxQueueItems> yRhythmEvents;
+    int64_t xBeats[kMaxItems];
+    int64_t yBeats[kMaxItems];
 
-    // The rhythm windows for the user playing phase (MeasuringRhythm)
-    LockFreeQueue<int64_t, kMaxQueueItems> xRhythmWindows;
-    LockFreeQueue<int64_t, kMaxQueueItems> yRhythmWindows;
-
-    // Progress since the start of the rhythm, used to match events and windows
+    // Progress since the start of the rhythm
     std::atomic<int64_t> rhythmPositionMs{0};
+    // Progress since the start of the measure
+    std::atomic<int64_t> measurePositionMs{0};
     // Used to calculate rhythmPositionMs on onAudioReady
     std::atomic<int64_t> currentFrame{0};
     // Used to sync rhythmPositionMS with eventTimeAsUptime of the taps

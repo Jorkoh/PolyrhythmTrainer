@@ -2,7 +2,7 @@ package com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews
 
 interface EngineListener {
     // tapTiming is a fraction of the total rhythm length
-    fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int)
+    fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int, measure : Int)
 
     enum class TapResult(val nativeValue: Int) {
         Error(0),

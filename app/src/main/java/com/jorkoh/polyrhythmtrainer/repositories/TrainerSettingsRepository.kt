@@ -19,7 +19,7 @@ data class Mode(
     val modeId: Int = TrainerSettingsRepositoryImplementation.DEFAULT_MODE_ID,
     val displayNameResource: Int = R.string.mode_metronome,
     val iconResource: Int = R.drawable.ic_metronome,
-    val engineMeasures: Int = 100,
+    val engineMeasures: Int = -1,
     val playerMeasures: Int = 0,
     val successWindow: Float = 0f,
     val showBeatLines: Boolean = true
@@ -54,14 +54,13 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
         const val MODE_KEY = "MODE"
         const val DEFAULT_MODE_ID = 1
 
-        // TODO metronome and impossible modes should be infinite, INFINITE is supported by the animator
-        //  but the native engine events and windows will need more work
+        // TODO add number of mistakes before stopping play system to the modes
         private val modes = listOf(
-            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, 100, 0, 0f, true),
+            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, -1, 0, 0f, true),
             Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, 2, 2, 0.05f, true),
             Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, 2, 4, 0.04f, true),
             Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, 2, 4, 0.03f, false),
-            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, 2, 100, 0.03f, false)
+            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, 2, -1, 0.03f, false)
         )
     }
 
