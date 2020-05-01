@@ -6,8 +6,9 @@
     <color name="background">#1b1b1b</color>
     <color name="error">#E53935</color>
 
-    <color name="playColor">#43a047</color>
-    <color name="pauseColor">#E53935</color>
+    <color name="successColor">#43a047</color>
+    <color name="errorColor">#E53935</color>
+    <color name="progressColor">#E53935</color>
 
     <color name="xRhythmColor">#fdd835</color>
     <color name="xRhythmRippleColor">#fff176</color>

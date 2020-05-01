@@ -136,7 +136,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private val rhythmLinesSeparationFromCenter = resources.displayMetrics.density * 30
     private val tapResultSeparationFromCenterStart = rhythmLinesSeparationFromCenter / 4
     private val tapResultSeparationFromCenterEnd = tapResultSeparationFromCenterStart * 3
+    // Inner rectangle where the actual rhythm is displayed
     private val rhythmRectangle = RectF()
+    // Outer rectangle including error windows at the start and end of the measure
     private val rhythmWithErrorWindowsRectangle = RectF()
     private val xPaint = Paint()
     private val yPaint = Paint()
@@ -346,6 +348,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
+        // The outer rectangle uses all the available space
         rhythmWithErrorWindowsRectangle.set(
             paddingLeft + horizontalInternalPadding,
             paddingTop.toFloat(),
@@ -353,6 +356,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             (h - paddingBottom).toFloat()
         )
 
+        // The inner rectangle leaves error windows at the start and end
         val errorWindowSize = mode.successWindow * w
         rhythmRectangle.set(
             paddingLeft + horizontalInternalPadding + errorWindowSize,
