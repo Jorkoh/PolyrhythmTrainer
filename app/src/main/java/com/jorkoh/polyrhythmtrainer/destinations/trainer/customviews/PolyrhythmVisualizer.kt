@@ -91,8 +91,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     var mode = Mode()
         set(value) {
             if (field != value) {
-                animator.repeatCount = calculateRepeatCount(value)
                 field = value
+                resizeRhythmRectangle(width, height)
+                animator.repeatCount = calculateRepeatCount(value)
                 stop()
             }
         }
@@ -157,6 +158,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Outer rectangle including error windows at the start and end of the measure
     private val rhythmWithErrorWindowsRectangle = RectF()
+
+    // Paints
     private val xPaint = Paint()
     private val yPaint = Paint()
     private val neutralPaint = Paint()
@@ -166,7 +169,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Animation
     private var animationProgress = 0f
-    private var currentRepeat = 1
+    private var currentMeasure = 1
     private var playerPhase = mode.engineMeasures == 0
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()
@@ -177,18 +180,27 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             invalidate()
         }
         doOnRepeat {
-            currentRepeat += 1
+            // If the user is playing count missed beats of the previous measure as mistakes
+            if (playerPhase) {
+                addMissedBeatsAsMistakes()
+                // If the mistakes of the previous measure caused the failure of the attempt return early
+                if (currentStatus != Status.PLAYING) {
+                    return@doOnRepeat
+                }
+            }
+
+            currentMeasure += 1
+            // If it's not infinite engine measures (metronome) player phase is enabled when
+            // the number of repeats have surpassed the designated engine measures
+            if (mode.engineMeasures >= 0) {
+                playerPhase = currentMeasure > mode.engineMeasures
+            }
+        }
+        doOnEnd {
             // If the user is playing count missed beats by the end of the measure as mistakes
             if (playerPhase) {
                 addMissedBeatsAsMistakes()
             }
-            // If it's not infinite engine measures (metronome) player phase is enabled when
-            // the number of repeats have surpassed the designated engine measures
-            if (mode.engineMeasures >= 0 && currentStatus == Status.PLAYING) {
-                playerPhase = currentRepeat > mode.engineMeasures
-            }
-        }
-        doOnEnd {
             animationProgress = 0f
             currentStatus = Status.AFTER_PLAY
             invalidate()
@@ -261,7 +273,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Add to the mistake count the difference between the expected amount of beats and the amount of player inputs
     private fun addMissedBeatsAsMistakes() {
         mistakeCount += xNumberOfBeats + yNumberOfBeats - playerInputTimings.filter {
-            it.measure == currentRepeat - mode.engineMeasures
+            it.measure == currentMeasure - mode.engineMeasures
         }.size
     }
 
@@ -355,7 +367,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
     private fun drawPlayerInputTimingLines(canvas: Canvas) {
-        for (result in playerInputTimings.filter { it.measure == currentRepeat - mode.engineMeasures }) {
+        for (result in playerInputTimings.filter { it.measure == currentMeasure - mode.engineMeasures }) {
             canvas.drawLine(
                 (rhythmRectangle.left + rhythmRectangle.width() * result.tapTiming).toFloat(),
                 if (result.rhythmLine == RhythmLine.X) {
@@ -387,24 +399,31 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         )
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight)
 
+        resizeRhythmWithErrorWindowsRectangle(width, height)
+        resizeRhythmRectangle(width, height)
+    }
+
+    private fun resizeRhythmWithErrorWindowsRectangle(width: Int, height: Int){
         // The outer rectangle uses all the available space
         rhythmWithErrorWindowsRectangle.set(
             paddingLeft + horizontalInternalPadding,
             paddingTop.toFloat(),
-            w - (paddingRight + horizontalInternalPadding),
-            (h - paddingBottom).toFloat()
+            width - (paddingRight + horizontalInternalPadding),
+            (height - paddingBottom).toFloat()
         )
+    }
 
-        // The inner rectangle leaves error windows at the start and end
-        val errorWindowSize = mode.successWindow * w
+    // The inner rectangle leaves error windows at the start and end
+    private fun resizeRhythmRectangle(width: Int, height: Int) {
+        val errorWindowSize = mode.successWindow * width
         rhythmRectangle.set(
             paddingLeft + horizontalInternalPadding + errorWindowSize,
             paddingTop.toFloat(),
-            w - (paddingRight + horizontalInternalPadding + errorWindowSize),
-            (h - paddingBottom).toFloat()
+            width - (paddingRight + horizontalInternalPadding + errorWindowSize),
+            (height - paddingBottom).toFloat()
         )
     }
 
@@ -436,15 +455,15 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Not directly used, called from status change
     private fun stopRhythm() {
-        animator.cancel()
         playerPhase = false
+        animator.cancel()
         nativeStopRhythm()
     }
 
     // Not directly used, called from status change
     private fun resetAnimation() {
         animationProgress = 0f
-        currentRepeat = 1
+        currentMeasure = 1
         playerPhase = mode.engineMeasures == 0
         playerInputTimings.clear()
         mistakeCount = 0
