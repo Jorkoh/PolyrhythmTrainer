@@ -123,6 +123,21 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             invalidate()
         }
 
+    // The number of player mistakes on the current attempt
+    private var mistakeCount = 0
+        set(value) {
+            field = value
+            attemptResultSuccess = calculateAttemptResultSuccess(value, mode)
+        }
+
+    private var attemptResultSuccess = true
+        set(value) {
+            field = value
+            if (!value) {
+                currentStatus = Status.AFTER_PLAY
+            }
+        }
+
     // Styled attributes
     private var neutralColor = DEFAULT_NEUTRAL_COLOR
     private var successColor = DEFAULT_SUCCESS_COLOR
@@ -136,8 +151,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private val rhythmLinesSeparationFromCenter = resources.displayMetrics.density * 30
     private val tapResultSeparationFromCenterStart = rhythmLinesSeparationFromCenter / 4
     private val tapResultSeparationFromCenterEnd = tapResultSeparationFromCenterStart * 3
+
     // Inner rectangle where the actual rhythm is displayed
     private val rhythmRectangle = RectF()
+
     // Outer rectangle including error windows at the start and end of the measure
     private val rhythmWithErrorWindowsRectangle = RectF()
     private val xPaint = Paint()
@@ -161,17 +178,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
         doOnRepeat {
             currentRepeat += 1
+            // If the user is playing count missed beats by the end of the measure as mistakes
+            if (playerPhase) {
+                addMissedBeatsAsMistakes()
+            }
             // If it's not infinite engine measures (metronome) player phase is enabled when
             // the number of repeats have surpassed the designated engine measures
-            if (mode.engineMeasures >= 0) {
+            if (mode.engineMeasures >= 0 && currentStatus == Status.PLAYING) {
                 playerPhase = currentRepeat > mode.engineMeasures
             }
         }
         doOnEnd {
             animationProgress = 0f
-
-            // TODO calling pause here sends signal to native to stop but the signal should come from native
-            //  since it's the source of truth in timing matters and we need to wait the window for last event
             currentStatus = Status.AFTER_PLAY
             invalidate()
         }
@@ -235,6 +253,18 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             (mode.engineMeasures + mode.playerMeasures) - 1
         }
 
+    // The attempt is successful when the user has no mistakes or when the number of missed inputs
+    // is less than (xNumberOfBeats + yNumberOfBeats) / 2 in a mode that allows for mistakes
+    private fun calculateAttemptResultSuccess(mistakeCount: Int, mode: Mode) =
+        mistakeCount == 0 || (mode.allowSomeMistakes && mistakeCount < (xNumberOfBeats + yNumberOfBeats) / 2)
+
+    // Add to the mistake count the difference between the expected amount of beats and the amount of player inputs
+    private fun addMissedBeatsAsMistakes() {
+        mistakeCount += xNumberOfBeats + yNumberOfBeats - playerInputTimings.filter {
+            it.measure == currentRepeat - mode.engineMeasures
+        }.size
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -255,20 +285,32 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             drawPlayerInputTimingLines(canvas)
         }
 
-        // Draw the progress line
+        // If not reviewing the attempt draw the progress line
         if (currentStatus != Status.AFTER_PLAY) {
             drawAnimationProgress(canvas)
         }
     }
 
     private fun drawNeutralLines(canvas: Canvas) {
+        val paint = if (currentStatus != Status.AFTER_PLAY) {
+            // Unless in the review phase use the neutral paint
+            neutralPaint
+        } else {
+            // If it's the review phase color depending on the attempt result
+            if (attemptResultSuccess) {
+                successPaint
+            } else {
+                errorPaint
+            }
+        }
+
         // Start of beat
         canvas.drawLine(
             rhythmRectangle.left,
             rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter / 2,
             rhythmRectangle.left,
             rhythmRectangle.centerY() + rhythmLinesSeparationFromCenter / 2,
-            neutralPaint
+            paint
         )
         // Horizontal guide
         canvas.drawLine(
@@ -276,7 +318,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             rhythmWithErrorWindowsRectangle.centerY(),
             rhythmWithErrorWindowsRectangle.right,
             rhythmWithErrorWindowsRectangle.centerY(),
-            neutralPaint
+            paint
         )
         // End of beat
         canvas.drawLine(
@@ -284,7 +326,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             rhythmRectangle.top + (rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter) / 2,
             rhythmRectangle.right,
             rhythmRectangle.bottom - (rhythmRectangle.centerY() - rhythmLinesSeparationFromCenter) / 2,
-            neutralPaint
+            paint
         )
     }
 
@@ -403,7 +445,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private fun resetAnimation() {
         animationProgress = 0f
         currentRepeat = 1
+        playerPhase = mode.engineMeasures == 0
         playerInputTimings.clear()
+        mistakeCount = 0
         invalidate()
     }
 
@@ -424,6 +468,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         // Save the timing to be painted
         if (tapResult in TapResult.Early..TapResult.Success) {
             playerInputTimings.add(TapResultWithTimingLineAndMeasure(tapResult, tapTiming, rhythmLine, measure))
+            // Increase the mistake count if needed
+            if (tapResult != TapResult.Success) {
+                mistakeCount += 1
+            }
         }
     }
 
