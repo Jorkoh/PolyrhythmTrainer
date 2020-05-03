@@ -25,7 +25,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="8dp"
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
@@ -74,7 +74,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:layout_marginEnd="6dp"
+        android:layout_marginEnd="8dp"
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
@@ -253,7 +253,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:max="270"
             android:progress="50" />
@@ -265,7 +265,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="4dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/bpm"
             android:textColor="@color/yRhythmColor"
             android:textSize="16sp"
@@ -276,22 +276,16 @@
 
     </LinearLayout>
 
-    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-        android:id="@+id/trainer_polyrhythm_visualizer"
+    <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.TrainerView
+        android:id="@+id/trainer_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="2:1"
-        android:layout_margin="24dp"
-        app:errorColor="@color/errorColor"
+        app:layout_constraintDimensionRatio="2:1.2"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toTopOf="@id/trainer_guideline_above_pads"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/trainer_guideline_above_visualizer"
-        app:neutralColor="?attr/colorOnBackground"
-        app:progressColor="@color/progressColor"
-        app:successColor="@color/successColor"
-        app:xRhythmColor="@color/xRhythmColor"
-        app:yRhythmColor="@color/yRhythmColor" />
+        app:layout_constraintTop_toBottomOf="@id/trainer_guideline_above_visualizer" />
 
     <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PadView
         android:id="@+id/trainer_left_pad"

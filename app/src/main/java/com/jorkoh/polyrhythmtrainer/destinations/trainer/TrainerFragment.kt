@@ -42,6 +42,7 @@ import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplem
 import kotlinx.android.synthetic.main.trainer_fragment.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_dropdown_item.view.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_item.view.*
+import kotlinx.android.synthetic.main.trainer_view.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 @ExperimentalStdlibApi
@@ -136,7 +137,7 @@ class TrainerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        nativeRegisterVisualizer(trainer_polyrhythm_visualizer)
+        nativeRegisterVisualizer(trainer_view.trainer_polyrhythm_visualizer)
         nativeSetBpm(trainerViewModel.bpm.value ?: DEFAULT_BPM)
         nativeSetXNumberOfBeats(trainerViewModel.xNumberOfBeats.value ?: DEFAULT_X_NUMBER_OF_BEATS)
         nativeSetYNumberOfBeats(trainerViewModel.yNumberOfBeats.value ?: DEFAULT_Y_NUMBER_OF_BEATS)
@@ -152,7 +153,7 @@ class TrainerFragment : Fragment() {
         super.onPause()
 
         nativeUnregisterVisualizer()
-        trainer_polyrhythm_visualizer.stop()
+        trainer_view.stop()
 
         audioManager.unregisterAudioDeviceCallback(deviceListener)
     }
@@ -212,7 +213,7 @@ class TrainerFragment : Fragment() {
         }
         // Next state button
         trainer_play_stop_button.setOnClickListener {
-            trainer_polyrhythm_visualizer.advanceToNextState()
+            trainer_view.advanceToNextState()
         }
 
         // Style theme icon
@@ -224,7 +225,7 @@ class TrainerFragment : Fragment() {
             }
         )
 
-        trainer_polyrhythm_visualizer.doOnStatusChange { newStatus ->
+        trainer_view.doOnStatusChange { newStatus ->
             // TODO fix this being called too early when playing and rotating twice
             setPlayPauseReplayButtonIcon(newStatus)
         }
@@ -235,7 +236,7 @@ class TrainerFragment : Fragment() {
         trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
             trainer_bpm_tap_button.text =
                 getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
-            trainer_polyrhythm_visualizer.bpm = newBpm
+            trainer_view.bpm = newBpm
             trainer_bpm_bar.progress = newBpm - MIN_BPM
             lifecycleScope.launchWhenResumed {
                 nativeSetBpm(newBpm)
@@ -244,7 +245,7 @@ class TrainerFragment : Fragment() {
 
         trainerViewModel.xNumberOfBeats.observe(viewLifecycleOwner, Observer { newXNumberOfBeats ->
             trainer_x_number_of_beats_text.text = newXNumberOfBeats.toString()
-            trainer_polyrhythm_visualizer.xNumberOfBeats = newXNumberOfBeats
+            trainer_view.xNumberOfBeats = newXNumberOfBeats
             lifecycleScope.launchWhenResumed {
                 nativeSetXNumberOfBeats(newXNumberOfBeats)
             }
@@ -252,7 +253,7 @@ class TrainerFragment : Fragment() {
 
         trainerViewModel.yNumberOfBeats.observe(viewLifecycleOwner, Observer { newYNumberOfBeats ->
             trainer_y_number_of_beats_text.text = newYNumberOfBeats.toString()
-            trainer_polyrhythm_visualizer.yNumberOfBeats = newYNumberOfBeats
+            trainer_view.yNumberOfBeats = newYNumberOfBeats
             lifecycleScope.launchWhenResumed {
                 nativeSetYNumberOfBeats(newYNumberOfBeats)
             }
@@ -265,7 +266,7 @@ class TrainerFragment : Fragment() {
                 false
             )
             trainer_mode_spinner.onItemSelectedListener = spinnerListener
-            trainer_polyrhythm_visualizer.mode = newMode
+            trainer_view.mode = newMode
             lifecycleScope.launchWhenResumed {
                 nativeSetModeSettings(
                     newMode.engineMeasures,
@@ -341,13 +342,13 @@ class TrainerFragment : Fragment() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
             // Ignore first call after registering the listener
             if (devicesInitialized) {
-                trainer_polyrhythm_visualizer.stop()
+                trainer_view.stop()
             }
             devicesInitialized = true
         }
 
         override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
-            trainer_polyrhythm_visualizer.stop()
+            trainer_view.stop()
         }
     }
 

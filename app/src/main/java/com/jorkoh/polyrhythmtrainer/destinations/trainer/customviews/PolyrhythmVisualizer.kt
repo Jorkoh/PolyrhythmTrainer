@@ -43,6 +43,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         AFTER_PLAY
     }
 
+    var parentTrainer: TrainerView? = null
+
     private var actionOnStatusChange: ((Status) -> Unit)? = null
     private var currentStatus: Status = Status.BEFORE_PLAY
         set(value) {
@@ -53,7 +55,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
                     Status.PLAYING -> startRhythm()
                     Status.AFTER_PLAY -> stopRhythm()
                 }
-                actionOnStatusChange?.invoke(value)
+                parentTrainer?.onStatusChange(currentStatus)
             }
         }
 
@@ -127,8 +129,11 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // The number of player mistakes on the current attempt
     private var mistakeCount = 0
         set(value) {
-            field = value
-            attemptResultSuccess = calculateAttemptResultSuccess(value, mode)
+            if (field != value) {
+                field = value
+                parentTrainer?.onMistakeCountChange(field)
+                attemptResultSuccess = calculateAttemptResultSuccess(value, mode)
+            }
         }
 
     private var attemptResultSuccess = true
@@ -400,13 +405,15 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
-        super.onSizeChanged(width, height, oldWidth, oldHeight)
+        val adjustedHeight = (width * 0.5).toInt()
 
-        resizeRhythmWithErrorWindowsRectangle(width, height)
-        resizeRhythmRectangle(width, height)
+        super.onSizeChanged(width, adjustedHeight, oldWidth, oldHeight)
+
+        resizeRhythmWithErrorWindowsRectangle(width, adjustedHeight)
+        resizeRhythmRectangle(width, adjustedHeight)
     }
 
-    private fun resizeRhythmWithErrorWindowsRectangle(width: Int, height: Int){
+    private fun resizeRhythmWithErrorWindowsRectangle(width: Int, height: Int) {
         // The outer rectangle uses all the available space
         rhythmWithErrorWindowsRectangle.set(
             paddingLeft + horizontalInternalPadding,
