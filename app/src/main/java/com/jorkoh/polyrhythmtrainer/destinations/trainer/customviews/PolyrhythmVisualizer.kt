@@ -404,33 +404,35 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         )
     }
 
+    private fun getAdjustedHeight(width: Int) = (width * 0.5).toInt()
+
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
-        val adjustedHeight = (width * 0.5).toInt()
+        super.onSizeChanged(width, getAdjustedHeight(width), oldWidth, oldHeight)
 
-        super.onSizeChanged(width, adjustedHeight, oldWidth, oldHeight)
-
-        resizeRhythmWithErrorWindowsRectangle(width, adjustedHeight)
-        resizeRhythmRectangle(width, adjustedHeight)
+        resizeRhythmWithErrorWindowsRectangle(width, height)
+        resizeRhythmRectangle(width, height)
     }
 
+    // The outer rectangle uses all the available space
     private fun resizeRhythmWithErrorWindowsRectangle(width: Int, height: Int) {
-        // The outer rectangle uses all the available space
+        val adjustedHeight = getAdjustedHeight(width)
         rhythmWithErrorWindowsRectangle.set(
             paddingLeft + horizontalInternalPadding,
-            paddingTop.toFloat(),
+            paddingTop.toFloat() + (height - adjustedHeight) / 2,
             width - (paddingRight + horizontalInternalPadding),
-            (height - paddingBottom).toFloat()
+            height - (paddingBottom).toFloat() - (height - adjustedHeight) / 2
         )
     }
 
     // The inner rectangle leaves error windows at the start and end
     private fun resizeRhythmRectangle(width: Int, height: Int) {
+        val adjustedHeight = getAdjustedHeight(width)
         val errorWindowSize = mode.successWindow * width
         rhythmRectangle.set(
             paddingLeft + horizontalInternalPadding + errorWindowSize,
-            paddingTop.toFloat(),
+            paddingTop.toFloat() + (height - adjustedHeight) / 2,
             width - (paddingRight + horizontalInternalPadding + errorWindowSize),
-            (height - paddingBottom).toFloat()
+            height - (paddingBottom).toFloat() - (height - adjustedHeight) / 2
         )
     }
 

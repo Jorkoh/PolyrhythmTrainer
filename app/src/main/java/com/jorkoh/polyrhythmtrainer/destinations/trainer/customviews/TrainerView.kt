@@ -105,6 +105,5 @@ class TrainerView @JvmOverloads constructor(
                 mistakeView.clearColorFilter()
             }
         }
-        invalidate()
     }
 }
