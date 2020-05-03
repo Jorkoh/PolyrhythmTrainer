@@ -8,6 +8,7 @@
 
         <LinearLayout
             android:id="@+id/trainer_view_mistakes_layout"
+            android:transitionGroup="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="32dp"
