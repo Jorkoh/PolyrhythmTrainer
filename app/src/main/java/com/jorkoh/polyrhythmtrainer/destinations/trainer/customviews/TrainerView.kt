@@ -24,6 +24,19 @@ class TrainerView @JvmOverloads constructor(
         orientation = VERTICAL
         View.inflate(context, R.layout.trainer_view, this)
         trainer_view_polyrhythm_visualizer.parentTrainer = this
+
+        trainer_view_polyrhythm_visualizer.doOnStatusChange { currentStatus ->
+            actionOnStatusChange?.invoke(currentStatus)
+        }
+        trainer_view_polyrhythm_visualizer.doOnMistakeCountChange { mistakeCount ->
+            colorMistakeIcons(mistakeCount)
+        }
+        trainer_view_polyrhythm_visualizer.doOnCurrentMeasureChange { currentMeasure ->
+            colorMeasureViews(currentMeasure)
+        }
+        trainer_view_polyrhythm_visualizer.doOnExerciseEnd { success, lastMeasurePlayed ->
+            recolorLastMeasure(success, lastMeasurePlayed)
+        }
     }
 
     private var actionOnStatusChange: ((PolyrhythmVisualizer.Status) -> Unit)? = null
@@ -56,22 +69,7 @@ class TrainerView @JvmOverloads constructor(
             setupMeasureViews()
         }
 
-    private var mistakeCount = 0
-        set(value) {
-            if (field != value) {
-                field = value
-                colorMistakeIcons()
-            }
-        }
-
-    private var currentMeasure = 1
-        set(value) {
-            if (field != value) {
-                field = value
-                colorMeasureViews()
-            }
-        }
-
+    // Methods for the visualizer
     fun stop() {
         trainer_view_polyrhythm_visualizer.stop()
     }
@@ -80,20 +78,9 @@ class TrainerView @JvmOverloads constructor(
         trainer_view_polyrhythm_visualizer.advanceToNextState()
     }
 
+    // Listener passed to visualizer
     fun doOnStatusChange(action: (newStatus: PolyrhythmVisualizer.Status) -> Unit) {
         actionOnStatusChange = action
-    }
-
-    fun onStatusChange(currentStatus: PolyrhythmVisualizer.Status) {
-        actionOnStatusChange?.invoke(currentStatus)
-    }
-
-    fun onMistakeCountChange(newMistakeCount: Int) {
-        mistakeCount = newMistakeCount
-    }
-
-    fun onCurrentMeasureChange(newCurrentMeasure: Int) {
-        currentMeasure = newCurrentMeasure
     }
 
     private fun setupMistakeIcons() {
@@ -110,17 +97,17 @@ class TrainerView @JvmOverloads constructor(
         colorMistakeIcons()
     }
 
-    private fun colorMistakeIcons() {
+    private fun colorMistakeIcons(mistakeCount: Int = 0) {
         repeat(trainer_view_mistakes_layout.childCount) { index ->
-            val mistakeView = trainer_view_mistakes_layout.getChildAt(index) as ImageView
+            val mistakeImageView = trainer_view_mistakes_layout.getChildAt(index) as ImageView
             if (mistakeCount >= index + 1) {
-                mistakeView.alpha = 1f
-                mistakeView.setColorFilter(activeColor)
-                mistakeView.contentDescription = resources.getString(R.string.mistake_consumed)
+                mistakeImageView.alpha = 1f
+                mistakeImageView.setColorFilter(activeColor)
+                mistakeImageView.contentDescription = resources.getString(R.string.mistake_consumed)
             } else {
-                mistakeView.alpha = 0.3f
-                mistakeView.clearColorFilter()
-                mistakeView.contentDescription = resources.getString(R.string.mistake_available)
+                mistakeImageView.alpha = 0.3f
+                mistakeImageView.clearColorFilter()
+                mistakeImageView.contentDescription = resources.getString(R.string.mistake_available)
             }
         }
     }
@@ -152,17 +139,29 @@ class TrainerView @JvmOverloads constructor(
         colorMeasureViews()
     }
 
-    // TODO have last bar not stay red at end of exercise
-    private fun colorMeasureViews() {
+    // TODO simplify this logic (if possible)
+    private fun colorMeasureViews(currentMeasure: Int = 0) {
+        if (currentMeasure == 0) {
+            trainer_view_listen_icon.alpha = 0.3f
+            trainer_view_listen_icon.clearColorFilter()
+            trainer_view_user_icon.alpha = 0.3f
+            trainer_view_user_icon.clearColorFilter()
+        }
+
         // Color the listen measures
         if (mode.engineMeasures == -1) {
             // Metronome  mode
-            val infiniteListenView = trainer_view_listen_layout.getChildAt(0) as ImageView
-            infiniteListenView.alpha = 1f
-            infiniteListenView.setColorFilter(activeColor)
+            val infiniteListenImageView = trainer_view_listen_layout.getChildAt(0) as ImageView
+            if (currentMeasure > 0) {
+                infiniteListenImageView.alpha = 1f
+                infiniteListenImageView.setColorFilter(activeColor)
 
-            // Since it's metronome mode "enable" the listen icon
-            trainer_view_listen_icon.alpha = 1f
+                trainer_view_listen_icon.alpha = 1f
+                trainer_view_listen_icon.setColorFilter(activeColor)
+            } else {
+                infiniteListenImageView.alpha = 0.3f
+                infiniteListenImageView.setColorFilter(inactiveColor)
+            }
         } else {
             repeat(trainer_view_listen_layout.childCount) { index ->
                 val measureView = trainer_view_listen_layout.getChildAt(index) as View
@@ -172,9 +171,11 @@ class TrainerView @JvmOverloads constructor(
                         measureView.alpha = 1f
                         measureView.setBackgroundColor(activeColor)
 
-                        // If the measure in play is part of the listen measures "enable" the listen icon
+                        // If the measure in play is part of the listen measures "enable" the listen icon and "disable" the user icon
                         trainer_view_listen_icon.alpha = 1f
+                        trainer_view_listen_icon.setColorFilter(activeColor)
                         trainer_view_user_icon.alpha = 0.3f
+                        trainer_view_user_icon.clearColorFilter()
                     }
                     currentMeasure > index + 1 -> {
                         // Measures already played
@@ -192,14 +193,17 @@ class TrainerView @JvmOverloads constructor(
 
         // Color the player measures
         if (mode.playerMeasures == -1) {
+            // Impossible  mode
             val infiniteUserView = trainer_view_user_layout.getChildAt(0) as ImageView
             if (currentMeasure > mode.engineMeasures) {
                 infiniteUserView.alpha = 1f
                 infiniteUserView.setColorFilter(activeColor)
 
-                // If the measure in play is part of the user measures "enable" the user icon
+                // If the measure in play is part of the user measures "enable" the user icon and "complete" the listen icon
                 trainer_view_listen_icon.alpha = 1f
+                trainer_view_listen_icon.clearColorFilter()
                 trainer_view_user_icon.alpha = 1f
+                trainer_view_user_icon.setColorFilter(activeColor)
             } else {
                 infiniteUserView.alpha = 0.3f
                 infiniteUserView.clearColorFilter()
@@ -213,9 +217,11 @@ class TrainerView @JvmOverloads constructor(
                         measureView.alpha = 1f
                         measureView.setBackgroundColor(activeColor)
 
-                        // If the measure in play is part of the user measures "enable" the user icon
+                        // If the measure in play is part of the user measures "enable" the user icon and "complete" the listen icon
                         trainer_view_listen_icon.alpha = 1f
+                        trainer_view_listen_icon.clearColorFilter()
                         trainer_view_user_icon.alpha = 1f
+                        trainer_view_user_icon.setColorFilter(activeColor)
                     }
                     currentMeasure - mode.engineMeasures > index + 1 -> {
                         // Measures already played
@@ -228,6 +234,23 @@ class TrainerView @JvmOverloads constructor(
                         measureView.setBackgroundColor(inactiveColor)
                     }
                 }
+            }
+        }
+    }
+
+    // Depending on the result of the exercise the last measure will be considered complete or incomplete and colored accordingly
+    private fun recolorLastMeasure(success: Boolean, lastMeasurePlayed: Int) {
+        trainer_view_user_layout.getChildAt(lastMeasurePlayed - mode.engineMeasures - 1)?.let { measureView ->
+            if (success) {
+                measureView.alpha = 1f
+                measureView.setBackgroundColor(inactiveColor)
+                trainer_view_user_icon.alpha = 1f
+                trainer_view_user_icon.clearColorFilter()
+            } else {
+                measureView.alpha = 0.3f
+                measureView.setBackgroundColor(inactiveColor)
+                trainer_view_user_icon.alpha = 0.3f
+                trainer_view_user_icon.clearColorFilter()
             }
         }
     }

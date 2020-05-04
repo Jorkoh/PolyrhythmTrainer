@@ -45,6 +45,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     var parentTrainer: TrainerView? = null
 
+    // The current state of the visualizer
     private var actionOnStatusChange: ((Status) -> Unit)? = null
     private var currentStatus: Status = Status.BEFORE_PLAY
         set(value) {
@@ -55,12 +56,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
                     Status.PLAYING -> startRhythm()
                     Status.AFTER_PLAY -> stopRhythm()
                 }
-                parentTrainer?.onStatusChange(currentStatus)
+                actionOnStatusChange?.invoke(field)
             }
         }
-
-    // Function invoked on tap result
-    private var actionOnTapResult: ((TapResult) -> Unit)? = null
 
     var bpm = DEFAULT_BPM
         set(value) {
@@ -127,20 +125,33 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // The number of player mistakes on the current attempt
+    private var actionOnMistakeCountChange: ((Int) -> Unit)? = null
     private var mistakeCount = 0
         set(value) {
             if (field != value) {
                 field = value
-                parentTrainer?.onMistakeCountChange(field)
                 attemptResultSuccess = calculateAttemptResultSuccess(value, mode)
+                actionOnMistakeCountChange?.invoke(field)
             }
         }
 
+    // The current measure in play
+    private var actionOnCurrentMeasureChange: ((Int) -> Unit)? = null
+    private var currentMeasure = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                actionOnCurrentMeasureChange?.invoke(field)
+            }
+        }
+
+    private var actionOnExerciseEnd: ((Boolean, Int) -> Unit)? = null
     private var attemptResultSuccess = true
         set(value) {
             field = value
             if (!value) {
                 currentStatus = Status.AFTER_PLAY
+                actionOnExerciseEnd?.invoke(false, currentMeasure)
             }
         }
 
@@ -174,11 +185,6 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
 
     // Animation
     private var animationProgress = 0f
-    private var currentMeasure = 1
-        set(value) {
-            field = value
-            parentTrainer?.onCurrentMeasureChange(field)
-        }
     private var playerPhase = mode.engineMeasures == 0
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()
@@ -212,6 +218,9 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             }
             animationProgress = 0f
             currentStatus = Status.AFTER_PLAY
+            if (attemptResultSuccess) {
+                actionOnExerciseEnd?.invoke(true, currentMeasure)
+            }
             invalidate()
         }
     }
@@ -463,6 +472,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Not directly used, called from status change
     private fun startRhythm() {
         nativeStartRhythm()
+        currentMeasure = 1
         animator.start()
     }
 
@@ -476,27 +486,33 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Not directly used, called from status change
     private fun resetAnimation() {
         animationProgress = 0f
-        currentMeasure = 1
+        currentMeasure = 0
         playerPhase = mode.engineMeasures == 0
         playerInputTimings.clear()
         mistakeCount = 0
         invalidate()
     }
 
-    fun doOnStatusChange(action: (newStatus: Status) -> Unit) {
+    fun doOnStatusChange(action: (status: Status) -> Unit) {
         actionOnStatusChange = action
     }
 
-    // Setting tap listener
-    fun doOnTapResult(action: (result: TapResult) -> Unit) {
-        this.actionOnTapResult = action
+    fun doOnMistakeCountChange(action: (mistakeCount: Int) -> Unit) {
+        actionOnMistakeCountChange = action
     }
 
+    fun doOnCurrentMeasureChange(action: (currentMeasure: Int) -> Unit) {
+        actionOnCurrentMeasureChange = action
+    }
+
+    fun doOnExerciseEnd(action: (success: Boolean, lastPlayedMeasure: Int) -> Unit) {
+        actionOnExerciseEnd = action
+    }
+
+    // Called from JNI
     override fun onTapResult(tapResultNative: Int, tapTiming: Double, rhythmLineNative: Int, measure: Int) {
         val tapResult = TapResult.fromNativeValue(tapResultNative)
         val rhythmLine = RhythmLine.fromNativeValue(rhythmLineNative)
-        // Call the listener if added
-        actionOnTapResult?.invoke(tapResult)
         // Save the timing to be painted
         if (tapResult in TapResult.Early..TapResult.Success) {
             playerInputTimings.add(TapResultWithTimingLineAndMeasure(tapResult, tapTiming, rhythmLine, measure))
