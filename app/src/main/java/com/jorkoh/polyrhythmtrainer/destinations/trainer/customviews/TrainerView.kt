@@ -129,7 +129,13 @@ class TrainerView @JvmOverloads constructor(
         trainer_view_listen_layout.removeAllViews()
         if (mode.engineMeasures == -1) {
             View.inflate(context, R.layout.infinite_icon, trainer_view_listen_layout)
+
+            trainer_view_separator_view.visibility = View.INVISIBLE
+            trainer_view_user_icon.visibility = View.INVISIBLE
         } else {
+            trainer_view_separator_view.visibility = View.VISIBLE
+            trainer_view_user_icon.visibility = View.VISIBLE
+
             repeat(mode.engineMeasures) {
                 View.inflate(context, R.layout.measure_view, trainer_view_listen_layout)
             }
@@ -146,54 +152,80 @@ class TrainerView @JvmOverloads constructor(
         colorMeasureViews()
     }
 
+    // TODO have last bar not stay red at end of exercise
     private fun colorMeasureViews() {
+        // Color the listen measures
         if (mode.engineMeasures == -1) {
+            // Metronome  mode
             val infiniteListenView = trainer_view_listen_layout.getChildAt(0) as ImageView
             infiniteListenView.alpha = 1f
             infiniteListenView.setColorFilter(activeColor)
+
+            // Since it's metronome mode "enable" the listen icon
+            trainer_view_listen_icon.alpha = 1f
         } else {
             repeat(trainer_view_listen_layout.childCount) { index ->
                 val measureView = trainer_view_listen_layout.getChildAt(index) as View
                 when {
                     currentMeasure == index + 1 -> {
+                        // Measure in play
                         measureView.alpha = 1f
                         measureView.setBackgroundColor(activeColor)
+
+                        // If the measure in play is part of the listen measures "enable" the listen icon
+                        trainer_view_listen_icon.alpha = 1f
+                        trainer_view_user_icon.alpha = 0.3f
                     }
                     currentMeasure > index + 1 -> {
+                        // Measures already played
                         measureView.alpha = 1f
                         measureView.setBackgroundColor(inactiveColor)
                     }
                     else -> {
+                        // Measures not yet played
                         measureView.alpha = 0.3f
                         measureView.setBackgroundColor(inactiveColor)
                     }
                 }
             }
-            if (mode.playerMeasures == -1) {
-                val infiniteUserView = trainer_view_user_layout.getChildAt(0) as ImageView
-                if (currentMeasure > mode.engineMeasures) {
-                    infiniteUserView.alpha = 1f
-                    infiniteUserView.setColorFilter(activeColor)
-                } else {
-                    infiniteUserView.alpha = 0.3f
-                    infiniteUserView.clearColorFilter()
-                }
+        }
+
+        // Color the player measures
+        if (mode.playerMeasures == -1) {
+            val infiniteUserView = trainer_view_user_layout.getChildAt(0) as ImageView
+            if (currentMeasure > mode.engineMeasures) {
+                infiniteUserView.alpha = 1f
+                infiniteUserView.setColorFilter(activeColor)
+
+                // If the measure in play is part of the user measures "enable" the user icon
+                trainer_view_listen_icon.alpha = 1f
+                trainer_view_user_icon.alpha = 1f
             } else {
-                repeat(trainer_view_user_layout.childCount) { index ->
-                    val measureView = trainer_view_user_layout.getChildAt(index) as View
-                    when {
-                        currentMeasure - mode.engineMeasures == index + 1 -> {
-                            measureView.alpha = 1f
-                            measureView.setBackgroundColor(activeColor)
-                        }
-                        currentMeasure - mode.engineMeasures > index + 1 -> {
-                            measureView.alpha = 1f
-                            measureView.setBackgroundColor(inactiveColor)
-                        }
-                        else -> {
-                            measureView.alpha = 0.3f
-                            measureView.setBackgroundColor(inactiveColor)
-                        }
+                infiniteUserView.alpha = 0.3f
+                infiniteUserView.clearColorFilter()
+            }
+        } else {
+            repeat(trainer_view_user_layout.childCount) { index ->
+                val measureView = trainer_view_user_layout.getChildAt(index) as View
+                when {
+                    currentMeasure - mode.engineMeasures == index + 1 -> {
+                        // Measure in play
+                        measureView.alpha = 1f
+                        measureView.setBackgroundColor(activeColor)
+
+                        // If the measure in play is part of the user measures "enable" the user icon
+                        trainer_view_listen_icon.alpha = 1f
+                        trainer_view_user_icon.alpha = 1f
+                    }
+                    currentMeasure - mode.engineMeasures > index + 1 -> {
+                        // Measures already played
+                        measureView.alpha = 1f
+                        measureView.setBackgroundColor(inactiveColor)
+                    }
+                    else -> {
+                        // Measures not yet played
+                        measureView.alpha = 0.3f
+                        measureView.setBackgroundColor(inactiveColor)
                     }
                 }
             }
