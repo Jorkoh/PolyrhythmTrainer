@@ -16,6 +16,15 @@
     <string name="mode_hard" translatable="true">Hard</string>
     <string name="mode_impossible" translatable="true">Impossible</string>
 
+    <string name="listen_phase" translatable="true">listen phase</string>
+    <string name="user_phase" translatable="true">user phase</string>
+
+    <string name="infinite" translatable="true">infinite</string>
+
+    <string name="mistake" translatable="true">mistake</string>
+    <string name="mistake_available" translatable="true">mistake available</string>
+    <string name="mistake_consumed" translatable="true">mistake used</string>
+
     <string name="sound_name_tom_1" translatable="true">Tom 1</string>
     <string name="sound_name_tom_2" translatable="true">Tom 2</string>
     <string name="sound_name_shaker_1" translatable="true">Shaker 1"</string>

@@ -140,7 +140,7 @@ class TrainerFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        nativeRegisterVisualizer(trainer_view.trainer_polyrhythm_visualizer)
+        nativeRegisterVisualizer(trainer_view.trainer_view_polyrhythm_visualizer)
         nativeSetBpm(trainerViewModel.bpm.value ?: DEFAULT_BPM)
         nativeSetXNumberOfBeats(trainerViewModel.xNumberOfBeats.value ?: DEFAULT_X_NUMBER_OF_BEATS)
         nativeSetYNumberOfBeats(trainerViewModel.yNumberOfBeats.value ?: DEFAULT_Y_NUMBER_OF_BEATS)

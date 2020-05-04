@@ -6,20 +6,82 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/trainer_view_listen_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/listen_phase"
+            android:src="@drawable/ic_listen"
+            android:tint="?attr/colorOnBackground"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/trainer_view_listen_layout"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_height="wrap_content"
+            android:minHeight="6dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/trainer_view_listen_icon"
+            app:layout_constraintStart_toStartOf="@id/trainer_view_listen_icon"
+            app:layout_constraintTop_toBottomOf="@id/trainer_view_listen_icon" />
+
+        <View
+            android:id="@+id/trainer_view_separator_view"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:background="?attr/colorOnBackground"
+            app:layout_constraintStart_toEndOf="@id/trainer_view_listen_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/trainer_view_listen_layout"
+            app:layout_constraintEnd_toStartOf="@id/trainer_view_user_icon"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="16dp"/>
+
+        <ImageView
+            android:id="@+id/trainer_view_user_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@string/user_phase"
+            android:src="@drawable/ic_user"
+            android:tint="?attr/colorOnBackground"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/trainer_view_separator_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/trainer_view_user_layout"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_height="wrap_content"
+            android:minHeight="6dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/trainer_view_user_icon"
+            app:layout_constraintStart_toStartOf="@id/trainer_view_user_icon"
+            app:layout_constraintTop_toBottomOf="@id/trainer_view_user_icon" />
+
         <LinearLayout
             android:id="@+id/trainer_view_mistakes_layout"
-            android:transitionGroup="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="32dp"
             android:orientation="horizontal"
+            android:transitionGroup="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-        android:id="@+id/trainer_polyrhythm_visualizer"
+        android:id="@+id/trainer_view_polyrhythm_visualizer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:errorColor="@color/errorColor"

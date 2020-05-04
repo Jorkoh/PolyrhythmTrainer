@@ -175,6 +175,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     // Animation
     private var animationProgress = 0f
     private var currentMeasure = 1
+        set(value) {
+            field = value
+            parentTrainer?.onCurrentMeasureChange(field)
+        }
     private var playerPhase = mode.engineMeasures == 0
     private var animator = ValueAnimator.ofInt(0, 1).apply {
         duration = polyrhythmLengthMS.toLong()

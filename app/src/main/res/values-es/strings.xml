@@ -16,4 +16,10 @@
     <string name="sound_name_clap">Palmada</string>
     <string name="sound_name_can">Lata</string>
     <string name="sound_name_bongo">Bongo</string>
+    <string name="mistake">error</string>
+    <string name="mistake_available">error disponible</string>
+    <string name="mistake_consumed">error usado</string>
+    <string name="listen_phase">fase de escucha</string>
+    <string name="user_phase">fase de usuario</string>
+    <string name="infinite">infinito</string>
 </resources>
