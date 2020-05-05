@@ -18,6 +18,7 @@ import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MEASURES_TO_PASS_IMPOSSIBLE
 
 data class TapResultWithTimingLineAndMeasure(val tapResult: TapResult, val tapTiming: Double, val rhythmLine: RhythmLine, val measure: Int)
 
@@ -151,7 +152,12 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             field = value
             if (!value) {
                 currentStatus = Status.AFTER_PLAY
-                actionOnExerciseEnd?.invoke(false, currentMeasure)
+
+                // The exercise failed, unless it was impossible mode and he completed the needed measures
+                actionOnExerciseEnd?.invoke(
+                    mode.playerMeasures == -1 && currentMeasure - mode.engineMeasures >= MEASURES_TO_PASS_IMPOSSIBLE,
+                    currentMeasure
+                )
             }
         }
 

@@ -27,6 +27,7 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.jorkoh.polyrhythmtrainer.R
+import com.jorkoh.polyrhythmtrainer.db.Badge
 import com.jorkoh.polyrhythmtrainer.destinations.DebounceClickListener
 import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
 import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
@@ -46,6 +47,7 @@ import kotlinx.android.synthetic.main.trainer_mode_spinner_dropdown_item.view.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_item.view.*
 import kotlinx.android.synthetic.main.trainer_view.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.util.*
 
 @ExperimentalStdlibApi
 class TrainerFragment : Fragment() {
@@ -234,6 +236,12 @@ class TrainerFragment : Fragment() {
         trainer_view.doOnStatusChange { newStatus ->
             // TODO fix this being called too early when playing and rotating twice
             setPlayPauseReplayButtonIcon(newStatus)
+        }
+
+        trainer_view.doOnExerciseEnd { success, xNumberOfBeats, yNumberOfBeats, bpm, mode, lastPlayedMeasure ->
+            if (success) {
+                trainerViewModel.addBadge(Badge(0, xNumberOfBeats, yNumberOfBeats, bpm, mode.modeId, lastPlayedMeasure, Date()))
+            }
         }
 
         trainer_mode_spinner.adapter = spinnerAdapter

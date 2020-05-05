@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/trophiesFragment"
-        android:name="com.jorkoh.polyrhythmtrainer.destinations.trophies.TrophiesFragment"
+        android:name="com.jorkoh.polyrhythmtrainer.destinations.badges.BadgesFragment"
         android:label="TrophiesFragment" />
     <fragment
         android:id="@+id/soundsFragment"

@@ -55,12 +55,14 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
         const val MODE_KEY = "MODE"
         const val DEFAULT_MODE_ID = 1
 
+        const val MEASURES_TO_PASS_IMPOSSIBLE = 10
+
         private val modes = listOf(
             Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, -1, 0, 0f, allowSomeMistakes = false, showBeatLines = true),
             Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, 2, 2, 0.06f, allowSomeMistakes = true, showBeatLines = true),
             Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, 2, 4, 0.045f, allowSomeMistakes = true, showBeatLines = false),
             Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, 2, 4, 0.03f, allowSomeMistakes = false, showBeatLines = false),
-            Mode(5, R.string.mode_impossible, R.drawable.ic_trophy, 2, -1, 0.03f, allowSomeMistakes = false, showBeatLines = false)
+            Mode(5, R.string.mode_impossible, R.drawable.ic_fire, 2, -1, 0.03f, allowSomeMistakes = false, showBeatLines = false)
         )
     }
 

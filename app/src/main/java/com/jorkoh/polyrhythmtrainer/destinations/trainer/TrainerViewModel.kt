@@ -2,10 +2,17 @@ package com.jorkoh.polyrhythmtrainer.destinations.trainer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepository
+import androidx.lifecycle.viewModelScope
+import com.jorkoh.polyrhythmtrainer.db.Badge
+import com.jorkoh.polyrhythmtrainer.repositories.BadgesRepository
 import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepository
+import kotlinx.coroutines.launch
 
-class TrainerViewModel(private val trainerSettingsRepository: TrainerSettingsRepository) : ViewModel() {
+class TrainerViewModel(
+    private val trainerSettingsRepository: TrainerSettingsRepository,
+    private val badgesRepository: BadgesRepository
+) : ViewModel() {
     val bpm = trainerSettingsRepository.getBPM().asLiveData()
     val xNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.X).asLiveData()
     val yNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.Y).asLiveData()
@@ -20,7 +27,13 @@ class TrainerViewModel(private val trainerSettingsRepository: TrainerSettingsRep
         trainerSettingsRepository.changeNumberOfBeats(isIncrease, line)
     }
 
-    fun changeMode(newModeId: Int){
+    fun changeMode(newModeId: Int) {
         trainerSettingsRepository.changeMode(newModeId)
+    }
+
+    fun addBadge(badge: Badge) {
+        viewModelScope.launch {
+            badgesRepository.addBadge(badge)
+        }
     }
 }

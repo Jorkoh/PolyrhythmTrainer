@@ -35,11 +35,13 @@ class TrainerView @JvmOverloads constructor(
             colorMeasureViews(currentMeasure)
         }
         trainer_view_polyrhythm_visualizer.doOnExerciseEnd { success, lastMeasurePlayed ->
+            actionOnExerciseEnd?.invoke(success, xNumberOfBeats, yNumberOfBeats, bpm, mode, lastMeasurePlayed)
             recolorLastMeasure(success, lastMeasurePlayed)
         }
     }
 
     private var actionOnStatusChange: ((PolyrhythmVisualizer.Status) -> Unit)? = null
+    private var actionOnExerciseEnd: ((Boolean, Int, Int, Int, Mode, Int) -> Unit)? = null
 
     var bpm = TrainerSettingsRepositoryImplementation.DEFAULT_BPM
         set(value) {
@@ -78,9 +80,15 @@ class TrainerView @JvmOverloads constructor(
         trainer_view_polyrhythm_visualizer.advanceToNextState()
     }
 
-    // Listener passed to visualizer
+    // Listeners passed to visualizer
     fun doOnStatusChange(action: (newStatus: PolyrhythmVisualizer.Status) -> Unit) {
         actionOnStatusChange = action
+    }
+
+    fun doOnExerciseEnd(
+        action: (success: Boolean, xNumberOfBeats: Int, yNumberOfBeats: Int, bpm: Int, mode: Mode, lastPlayedMeasure: Int) -> Unit
+    ) {
+        actionOnExerciseEnd = action
     }
 
     private fun setupMistakeIcons() {
