@@ -241,16 +241,34 @@ class TrainerView @JvmOverloads constructor(
     // Depending on the result of the exercise the last measure will be considered complete or incomplete and colored accordingly
     private fun recolorLastMeasure(success: Boolean, lastMeasurePlayed: Int) {
         trainer_view_user_layout.getChildAt(lastMeasurePlayed - mode.engineMeasures - 1)?.let { measureView ->
-            if (success) {
-                measureView.alpha = 1f
-                measureView.setBackgroundColor(inactiveColor)
-                trainer_view_user_icon.alpha = 1f
-                trainer_view_user_icon.clearColorFilter()
-            } else {
-                measureView.alpha = 0.3f
-                measureView.setBackgroundColor(inactiveColor)
-                trainer_view_user_icon.alpha = 0.3f
-                trainer_view_user_icon.clearColorFilter()
+            when {
+                success -> {
+                    measureView.alpha = 1f
+                    measureView.setBackgroundColor(inactiveColor)
+
+                    trainer_view_user_icon.alpha = 1f
+                    trainer_view_user_icon.clearColorFilter()
+                }
+                lastMeasurePlayed == mode.engineMeasures -> {
+                    // If the last measure played was the last listen (the user failed before the actual start of the first bar)
+                    // color that measure as completed since the actual incomplete one would be the first bar
+                    measureView.alpha = 1f
+                    measureView.setBackgroundColor(inactiveColor)
+
+                    trainer_view_user_icon.alpha = 0.3f
+                    trainer_view_user_icon.clearColorFilter()
+                }
+                else -> {
+                    measureView.alpha = 0.3f
+                    if (mode.playerMeasures < 0) {
+                        (measureView as ImageView).clearColorFilter()
+                    } else {
+                        measureView.setBackgroundColor(inactiveColor)
+                    }
+
+                    trainer_view_user_icon.alpha = 0.3f
+                    trainer_view_user_icon.clearColorFilter()
+                }
             }
         }
     }
