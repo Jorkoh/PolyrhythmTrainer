@@ -127,8 +127,7 @@
                 android:minWidth="48dp"
                 android:padding="0dp"
                 android:text="@string/increase_beats_button_text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="?attr/colorOnBackground" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
             <TextView
                 android:id="@+id/trainer_x_number_of_beats_text"
@@ -152,8 +151,7 @@
                 android:minWidth="48dp"
                 android:padding="0dp"
                 android:text="@string/decrease_beats_button_text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="?attr/colorOnBackground" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
         </LinearLayout>
 
@@ -188,8 +186,7 @@
                 android:minWidth="48dp"
                 android:padding="0dp"
                 android:text="@string/increase_beats_button_text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="?attr/colorOnBackground" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
             <TextView
                 android:id="@+id/trainer_y_number_of_beats_text"
@@ -213,8 +210,7 @@
                 android:minWidth="48dp"
                 android:padding="0dp"
                 android:text="@string/decrease_beats_button_text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="?attr/colorOnBackground" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
         </LinearLayout>
 

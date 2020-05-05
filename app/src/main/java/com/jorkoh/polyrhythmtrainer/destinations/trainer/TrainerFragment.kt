@@ -38,7 +38,9 @@ import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_X_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_Y_NUMBER_OF_BEATS
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MAX_NUMBER_OF_BEATS
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MIN_BPM
+import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.MIN_NUMBER_OF_BEATS
 import kotlinx.android.synthetic.main.trainer_fragment.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_dropdown_item.view.*
 import kotlinx.android.synthetic.main.trainer_mode_spinner_item.view.*
@@ -221,7 +223,8 @@ class TrainerFragment : Fragment() {
 
         // Style theme icon
         trainer_change_theme_button.icon = ContextCompat.getDrawable(
-            requireContext(), when (getCurrentNightMode()) {
+            requireContext(),
+            when (getCurrentNightMode()) {
                 Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
                 Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
                 else -> R.drawable.ic_light_theme
@@ -237,8 +240,7 @@ class TrainerFragment : Fragment() {
         trainer_mode_spinner.onItemSelectedListener = spinnerListener
 
         trainerViewModel.bpm.observe(viewLifecycleOwner, Observer { newBpm ->
-            trainer_bpm_tap_button.text =
-                getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
+            trainer_bpm_tap_button.text = getString(R.string.bpm, newBpm.toString().padStart(3, ' '))
             trainer_view.bpm = newBpm
             trainer_bpm_bar.progress = newBpm - MIN_BPM
             lifecycleScope.launchWhenResumed {
@@ -248,6 +250,8 @@ class TrainerFragment : Fragment() {
 
         trainerViewModel.xNumberOfBeats.observe(viewLifecycleOwner, Observer { newXNumberOfBeats ->
             trainer_x_number_of_beats_text.text = newXNumberOfBeats.toString()
+            trainer_x_number_of_beats_decrease_button.isEnabled = newXNumberOfBeats > MIN_NUMBER_OF_BEATS
+            trainer_x_number_of_beats_increase_button.isEnabled = newXNumberOfBeats < MAX_NUMBER_OF_BEATS
             trainer_view.xNumberOfBeats = newXNumberOfBeats
             lifecycleScope.launchWhenResumed {
                 nativeSetXNumberOfBeats(newXNumberOfBeats)
@@ -256,6 +260,8 @@ class TrainerFragment : Fragment() {
 
         trainerViewModel.yNumberOfBeats.observe(viewLifecycleOwner, Observer { newYNumberOfBeats ->
             trainer_y_number_of_beats_text.text = newYNumberOfBeats.toString()
+            trainer_y_number_of_beats_decrease_button.isEnabled = newYNumberOfBeats > MIN_NUMBER_OF_BEATS
+            trainer_y_number_of_beats_increase_button.isEnabled = newYNumberOfBeats < MAX_NUMBER_OF_BEATS
             trainer_view.yNumberOfBeats = newYNumberOfBeats
             lifecycleScope.launchWhenResumed {
                 nativeSetYNumberOfBeats(newYNumberOfBeats)
@@ -285,7 +291,8 @@ class TrainerFragment : Fragment() {
 
     private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         trainer_play_stop_button.icon = ContextCompat.getDrawable(
-            requireContext(), when (newStatus) {
+            requireContext(),
+            when (newStatus) {
                 PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
                 PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
                 PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
@@ -360,9 +367,5 @@ class TrainerFragment : Fragment() {
     private external fun nativeSetBpm(newBpm: Int)
     private external fun nativeSetXNumberOfBeats(newXNumberOfBeats: Int)
     private external fun nativeSetYNumberOfBeats(newYNumberOfBeats: Int)
-    private external fun nativeSetModeSettings(
-        newEngineMeasures: Int,
-        newPlayerMeasures: Int,
-        successWindow: Float
-    )
+    private external fun nativeSetModeSettings(newEngineMeasures: Int, newPlayerMeasures: Int, successWindow: Float)
 }
