@@ -15,6 +15,7 @@ class BadgesRepositoryImplementation(private val badgesDao: BadgesDao) : BadgesR
     override fun getAllBadges(): Flow<List<Badge>> = badgesDao.getAllBadges()
 
     override suspend fun addBadge(badge: Badge) {
+        // TODO Only add the badge if it's a new one or and improvement over an old one (more measures, more bpm)
         badgesDao.insertBadge(badge)
     }
 

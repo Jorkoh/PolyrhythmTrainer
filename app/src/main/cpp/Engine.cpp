@@ -106,6 +106,7 @@ void Engine::setModeSettings(int32_t newEngineMeasures, int32_t newPlayerMeasure
     engineMeasures = newEngineMeasures;
     playerMeasures = newPlayerMeasures;
     windowCenterOffsetPercentage = newWindowCenterOffsetPercentage;
+    windowCenterOffsetMs = measureLengthMs * windowCenterOffsetPercentage;
 }
 
 void Engine::setSoundAssets(const char *newPadSoundFilename, int32_t padPosition,
@@ -255,6 +256,12 @@ void Engine::onErrorAfterClose(AudioStream *oboeStream, Result error) {
  * @return TapResult can be Early, Late or Success
  */
 TapResult Engine::getTapResult(int64_t tapTimeInMillis, int64_t tapWindowInMillis) {
+    LOGD("Tap time %"
+                 PRId64
+                 ", tap window time: %"
+                 PRId64
+                 ", window center offset: %"
+                 PRId32, tapTimeInMillis, tapWindowInMillis, windowCenterOffsetMs.load());
     if (tapTimeInMillis <= tapWindowInMillis + windowCenterOffsetMs) {
         if (tapTimeInMillis >= tapWindowInMillis - windowCenterOffsetMs) {
             return TapResult::Success;

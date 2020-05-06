@@ -13,6 +13,7 @@ class TrainerViewModel(
     private val trainerSettingsRepository: TrainerSettingsRepository,
     private val badgesRepository: BadgesRepository
 ) : ViewModel() {
+    // TODO listen for new badges, maybe update badge icon when there are new ones
     val bpm = trainerSettingsRepository.getBPM().asLiveData()
     val xNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.X).asLiveData()
     val yNumberOfBeats = trainerSettingsRepository.getNumberOfBeats(RhythmLine.Y).asLiveData()

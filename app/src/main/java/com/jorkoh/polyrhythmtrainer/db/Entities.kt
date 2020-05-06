@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
 
+//TODO add "seen" field to showcase badges earned since the badges screen was last open?
+// could also be used to color the badges icon on main screen when there are new badges?
 @Entity(tableName = "badges")
 data class Badge(
     @PrimaryKey(autoGenerate = true)
