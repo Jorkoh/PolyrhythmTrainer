@@ -32,9 +32,9 @@ class TrainerViewModel(
         trainerSettingsRepository.changeMode(newModeId)
     }
 
-    fun addBadge(badge: Badge) {
+    fun addBadgeIfNeeded(badge: Badge) {
         viewModelScope.launch {
-            badgesRepository.addBadge(badge)
+            badgesRepository.addBadgeIfNeeded(badge)
         }
     }
 }

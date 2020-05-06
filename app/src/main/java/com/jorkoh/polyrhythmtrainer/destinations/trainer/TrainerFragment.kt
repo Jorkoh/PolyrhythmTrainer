@@ -240,7 +240,9 @@ class TrainerFragment : Fragment() {
 
         trainer_view.doOnExerciseEnd { success, xNumberOfBeats, yNumberOfBeats, bpm, mode, lastPlayedMeasure ->
             if (success) {
-                trainerViewModel.addBadge(Badge(0, xNumberOfBeats, yNumberOfBeats, bpm, mode.modeId, lastPlayedMeasure, Date()))
+                trainerViewModel.addBadgeIfNeeded(
+                    Badge(0, xNumberOfBeats, yNumberOfBeats, bpm, mode.modeId, lastPlayedMeasure, Date())
+                )
             }
         }
 

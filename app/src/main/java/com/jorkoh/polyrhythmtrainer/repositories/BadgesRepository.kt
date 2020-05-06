@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface BadgesRepository {
     fun getAllBadges(): Flow<List<Badge>>
-    suspend fun addBadge(badge: Badge)
+    suspend fun addBadgeIfNeeded(badge: Badge)
     suspend fun resetBadges()
 }
 
@@ -14,12 +14,13 @@ class BadgesRepositoryImplementation(private val badgesDao: BadgesDao) : BadgesR
 
     override fun getAllBadges(): Flow<List<Badge>> = badgesDao.getAllBadges()
 
-    override suspend fun addBadge(badge: Badge) {
-        // TODO Only add the badge if it's a new one or and improvement over an old one (more measures, more bpm)
-        badgesDao.insertBadge(badge)
+    override suspend fun addBadgeIfNeeded(badge: Badge) {
+        badgesDao.insertBadgeIfNeeded(badge)
     }
 
     override suspend fun resetBadges() {
         badgesDao.deleteBadges()
     }
 }
+
+fun Badge.isBetterThan(otherBadge : Badge) = this.completedMeasures > otherBadge.completedMeasures || this.bpm > otherBadge.bpm
