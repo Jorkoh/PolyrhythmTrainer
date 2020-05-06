@@ -126,9 +126,8 @@ class TrainerFragment : Fragment() {
                 duration = 275
                 interpolator = FAST_OUT_SLOW_IN
                 mode = Slide.MODE_OUT
-                // Alpha value of programmatically added view is not preserved during exit transition causing sudden change of color.
-                // Not an easy fix and excluding them doesn't make a visible difference in real time so I won't waste 3 days on this.
-                excludeTarget(R.id.trainer_view_mistakes_layout, true)
+                // Alpha value of views is not preserved during exit transition causing sudden change of color. Not an easy fix
+                excludeTarget(R.id.trainer_view_top_layout, true)
             }
         }
 
@@ -234,7 +233,6 @@ class TrainerFragment : Fragment() {
         )
 
         trainer_view.doOnStatusChange { newStatus ->
-            // TODO fix this being called too early when playing and rotating twice
             setPlayPauseReplayButtonIcon(newStatus)
         }
 
