@@ -19,7 +19,7 @@ interface BadgesDao {
     fun updateBadge(badge: Badge)
 
     @Transaction
-    suspend fun insertBadgeIfNeeded(newBadge: Badge) {
+    suspend fun insertBadgeIfNewOrImproved(newBadge: Badge) {
         val previousBadge = getPreviousBadge(newBadge.xBeats, newBadge.yBeats, newBadge.modeId)
 
         if (previousBadge == null) {
