@@ -3,6 +3,7 @@ package com.jorkoh.polyrhythmtrainer
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.jorkoh.polyrhythmtrainer.db.AppDatabase
+import com.jorkoh.polyrhythmtrainer.destinations.badges.BadgesViewModel
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsViewModel
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.TrainerViewModel
 import com.jorkoh.polyrhythmtrainer.repositories.*
@@ -27,6 +28,7 @@ val appModule = module {
     single<TrainerSettingsRepository> { TrainerSettingsRepositoryImplementation(get()) }
 
     // ViewModels
+    viewModel { BadgesViewModel(get()) }
     viewModel { SoundsViewModel(get()) }
     viewModel { TrainerViewModel(get(), get()) }
     viewModel { MainActivityViewModel(get()) }
