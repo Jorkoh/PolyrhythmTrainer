@@ -10,6 +10,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 // TODO move this somewhere reasonable
 enum class PadPosition(val nativeValue: Int) {
@@ -66,8 +69,8 @@ operator fun TransitionSet.plusAssign(transition: Transition?) {
 }
 
 class DebounceClickListener(
-    private val debounceInterval: Long = DEBOUNCE_INTERVAL_DEFAULT,
-    private val methodToCall: (v: View) -> Unit
+        private val debounceInterval: Long = DEBOUNCE_INTERVAL_DEFAULT,
+        private val methodToCall: (v: View) -> Unit
 ) : View.OnClickListener {
 
     companion object {
@@ -82,4 +85,9 @@ class DebounceClickListener(
         lastClickTime = SystemClock.elapsedRealtime()
         methodToCall(v)
     }
+}
+
+fun Date.toSimpleString(): String {
+    val format = SimpleDateFormat.getDateInstance(DateFormat.SHORT)
+    return format.format(this)
 }

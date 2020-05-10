@@ -26,6 +26,14 @@ data class Mode(
     val showBeatLines: Boolean = true
 )
 
+enum class ModeIds(val id: Int) {
+    METRONOME(1),
+    EASY(2),
+    MEDIUM(3),
+    HARD(4),
+    IMPOSSIBLE(5),
+}
+
 interface TrainerSettingsRepository {
     fun getBPM(): Flow<Int>
     fun getNumberOfBeats(rhythmLine: RhythmLine): Flow<Int>
@@ -58,11 +66,56 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
         const val MEASURES_TO_PASS_IMPOSSIBLE = 10
 
         private val modes = listOf(
-            Mode(1, R.string.mode_metronome, R.drawable.ic_metronome, -1, 0, 0f, allowSomeMistakes = false, showBeatLines = true),
-            Mode(2, R.string.mode_easy, R.drawable.ic_accidental_flat, 2, 2, 0.06f, allowSomeMistakes = true, showBeatLines = true),
-            Mode(3, R.string.mode_medium, R.drawable.ic_accidental_natural, 2, 4, 0.045f, allowSomeMistakes = true, showBeatLines = false),
-            Mode(4, R.string.mode_hard, R.drawable.ic_accidental_sharp, 2, 4, 0.03f, allowSomeMistakes = false, showBeatLines = false),
-            Mode(5, R.string.mode_impossible, R.drawable.ic_fire, 2, -1, 0.03f, allowSomeMistakes = false, showBeatLines = false)
+            Mode(
+                ModeIds.METRONOME.id,
+                R.string.mode_metronome,
+                R.drawable.ic_metronome,
+                -1,
+                0,
+                0f,
+                allowSomeMistakes = false,
+                showBeatLines = true
+            ),
+            Mode(
+                ModeIds.EASY.id,
+                R.string.mode_easy,
+                R.drawable.ic_accidental_flat,
+                2,
+                2,
+                0.06f,
+                allowSomeMistakes = true,
+                showBeatLines = true
+            ),
+            Mode(
+                ModeIds.MEDIUM.id,
+                R.string.mode_medium,
+                R.drawable.ic_accidental_natural,
+                2,
+                4,
+                0.045f,
+                allowSomeMistakes = true,
+                showBeatLines = false
+            ),
+            Mode(
+                ModeIds.HARD.id,
+                R.string.mode_hard,
+                R.drawable.ic_accidental_sharp,
+                2,
+                4,
+                0.03f,
+                allowSomeMistakes = false,
+                showBeatLines = false
+            ),
+            Mode(
+                ModeIds.IMPOSSIBLE.id,
+                R.string.mode_impossible,
+                R.drawable.ic_fire,
+                2,
+                -1,
+                0.03f,
+                allowSomeMistakes = false,
+                showBeatLines = false
+            )
         )
     }
 

@@ -4,7 +4,7 @@
     <string name="bpm">%1$s BPM</string>
     <string name="mode_metronome">Metrónomo</string>
     <string name="mode_easy">Fácil</string>
-    <string name="mode_medium">Normal</string>
+    <string name="mode_medium">Intermedio</string>
     <string name="mode_hard">Difícil</string>
     <string name="mode_impossible">Imposible</string>
     <string name="sound_name_tom_1">Tom 1</string>
@@ -22,4 +22,12 @@
     <string name="listen_phase">fase de escucha</string>
     <string name="user_phase">fase de usuario</string>
     <string name="infinite">infinito</string>
+    <string name="badge_impossible">Imposible</string>
+    <string name="badge_impossible_description">Insignia imposible</string>
+    <string name="mode_impossible_description">Modo imposible</string>
+    <string name="mode_hard_description">Modo difícil</string>
+    <string name="mode_medium_description">Modo intermedio</string>
+    <string name="mode_easy_description">Modo fácil</string>
+    <string name="measures">x%1$d</string>
+    <string name="incomplete">Incompleto</string>
 </resources>

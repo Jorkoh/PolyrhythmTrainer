@@ -9,21 +9,30 @@
     <string name="decrease_beats_button_text" translatable="false">-</string>
 
     <string name="bpm" translatable="true">%1$s BPM</string>
+    <string name="measures" translatable="true">x%1$d</string>
 
     <string name="mode_metronome" translatable="true">Metronome</string>
     <string name="mode_easy" translatable="true">Easy</string>
+    <string name="mode_easy_description" translatable="true">Easy mode</string>
     <string name="mode_medium" translatable="true">Medium</string>
+    <string name="mode_medium_description" translatable="true">Medium mode</string>
     <string name="mode_hard" translatable="true">Hard</string>
+    <string name="mode_hard_description" translatable="true">Hard mode</string>
     <string name="mode_impossible" translatable="true">Impossible</string>
+    <string name="mode_impossible_description" translatable="true">Impossible mode</string>
 
     <string name="listen_phase" translatable="true">listen phase</string>
     <string name="user_phase" translatable="true">user phase</string>
 
     <string name="infinite" translatable="true">infinite</string>
+    <string name="incomplete" translatable="true">Incomplete</string>
 
     <string name="mistake" translatable="true">mistake</string>
     <string name="mistake_available" translatable="true">mistake available</string>
     <string name="mistake_consumed" translatable="true">mistake used</string>
+
+    <string name="badge_impossible" translatable="true">Impossible</string>
+    <string name="badge_impossible_description" translatable="true">Impossible mode badge</string>
 
     <string name="sound_name_tom_1" translatable="true">Tom 1</string>
     <string name="sound_name_tom_2" translatable="true">Tom 2</string>
