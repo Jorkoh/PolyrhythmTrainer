@@ -2,14 +2,11 @@ package com.jorkoh.polyrhythmtrainer.destinations
 
 import android.animation.TimeInterpolator
 import android.os.SystemClock
-import android.transition.Transition
-import android.transition.TransitionSet
 import android.view.View
 import androidx.core.view.animation.PathInterpolatorCompat
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.transition.Transition
+import androidx.transition.TransitionSet
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*

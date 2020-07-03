@@ -1,7 +1,6 @@
 package com.jorkoh.polyrhythmtrainer.destinations.sounds
 
 import android.os.Bundle
-import android.transition.*
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.*
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
 import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
@@ -47,15 +47,16 @@ class SoundsFragment : Fragment() {
         // Non-shared elements when we are backing from the sounds screen
         returnTransition = transitionTogether {
             this += Slide(Gravity.BOTTOM).apply {
-                duration = 170
+                duration = 260
+                interpolator = FAST_OUT_SLOW_IN
                 mode = Slide.MODE_OUT
             }
         }
 
         // Shared elements when we are entering the sounds screen
         sharedElementEnterTransition = transitionTogether {
-            duration = 148
-            startDelay = 88
+            duration = 180
+            startDelay = 90
             interpolator = FAST_OUT_SLOW_IN
             this += ChangeImageTransform()
             this += ChangeClipBounds()
@@ -65,7 +66,8 @@ class SoundsFragment : Fragment() {
 
         // Shared elements when we are backing from the sounds screen
         sharedElementReturnTransition = transitionTogether {
-            duration = 240
+            startDelay = 15
+            duration = 220
             interpolator = FAST_OUT_SLOW_IN
             this += ChangeImageTransform()
             this += ChangeClipBounds()

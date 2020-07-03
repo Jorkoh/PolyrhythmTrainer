@@ -6,7 +6,6 @@ import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Bundle
-import android.transition.Slide
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import androidx.transition.Slide
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.db.Badge
 import com.jorkoh.polyrhythmtrainer.destinations.DebounceClickListener
@@ -71,15 +71,15 @@ class TrainerFragment : Fragment() {
         override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val mode = getItem(position)
             val itemView = convertView
-                ?: layoutInflater.inflate(
-                    R.layout.trainer_mode_spinner_dropdown_item,
-                    parent,
-                    false
-                )
+                    ?: layoutInflater.inflate(
+                            R.layout.trainer_mode_spinner_dropdown_item,
+                            parent,
+                            false
+                    )
 
             itemView.trainer_mode_spinner_dropdown_item_icon.setImageResource(mode.iconResource)
             itemView.trainer_mode_spinner_dropdown_item_text.text =
-                resources.getText(mode.displayNameResource)
+                    resources.getText(mode.displayNameResource)
 
             return itemView
         }
@@ -88,10 +88,10 @@ class TrainerFragment : Fragment() {
             // Why aren't you using position here? https://stackoverflow.com/a/40764217
             val mode = (parent as Spinner).selectedItem as Mode
             val itemView = convertView
-                ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
+                    ?: layoutInflater.inflate(R.layout.trainer_mode_spinner_item, parent, false)
 
             itemView.trainer_mode_spinner_item_text.text =
-                resources.getText(mode.displayNameResource)
+                    resources.getText(mode.displayNameResource)
 
             return itemView
         }
@@ -120,21 +120,21 @@ class TrainerFragment : Fragment() {
 
         audioManager = getSystemService(requireContext(), AudioManager::class.java) as AudioManager
 
-        // Non-shared elements when we are navigating to the sounds screen
+        // Non-shared elements when we are navigating to another screen
         exitTransition = transitionTogether {
             this += Slide(Gravity.TOP).apply {
                 duration = 275
                 interpolator = FAST_OUT_SLOW_IN
                 mode = Slide.MODE_OUT
                 // Alpha value of views is not preserved during exit transition causing sudden change of color. Not an easy fix
-                excludeTarget(R.id.trainer_view_top_layout, true)
+                //  excludeTarget(R.id.trainer_view_top_layout, true)
             }
         }
 
-        // Non-shared elements when we are coming back from the sounds screen
+        // Non-shared elements when we are coming back from another screen
         reenterTransition = Slide(Gravity.TOP).apply {
-            startDelay = 48
-            duration = 216
+            startDelay = 50
+            duration = 215
             interpolator = FAST_OUT_SLOW_IN
             mode = Slide.MODE_IN
         }
@@ -165,9 +165,9 @@ class TrainerFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.trainer_fragment, container, false)
     }
@@ -181,11 +181,13 @@ class TrainerFragment : Fragment() {
         })
         trainer_sounds_button.setOnClickListener {
             findNavController().navigate(
-                TrainerFragmentDirections.actionTrainerFragmentToSoundsFragment(),
-                FragmentNavigatorExtras(
-                    trainer_left_pad to SoundsFragment.TRANSITION_NAME_LEFT_PAD,
-                    trainer_right_pad to SoundsFragment.TRANSITION_NAME_RIGHT_PAD
-                )
+                    R.id.action_trainerFragment_to_soundsFragment,
+                    null,
+                    null,
+                    FragmentNavigatorExtras(
+                            trainer_left_pad to SoundsFragment.TRANSITION_NAME_LEFT_PAD,
+                            trainer_right_pad to SoundsFragment.TRANSITION_NAME_RIGHT_PAD
+                    )
             )
         }
         trainer_trophies_button.setOnClickListener {
@@ -224,12 +226,12 @@ class TrainerFragment : Fragment() {
 
         // Style theme icon
         trainer_change_theme_button.icon = ContextCompat.getDrawable(
-            requireContext(),
-            when (getCurrentNightMode()) {
-                Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
-                Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
-                else -> R.drawable.ic_light_theme
-            }
+                requireContext(),
+                when (getCurrentNightMode()) {
+                    Configuration.UI_MODE_NIGHT_YES -> R.drawable.ic_light_theme
+                    Configuration.UI_MODE_NIGHT_NO -> R.drawable.ic_dark_theme
+                    else -> R.drawable.ic_light_theme
+                }
         )
 
         trainer_view.doOnStatusChange { newStatus ->
@@ -239,7 +241,7 @@ class TrainerFragment : Fragment() {
         trainer_view.doOnExerciseEnd { success, xNumberOfBeats, yNumberOfBeats, bpm, mode, lastPlayedMeasure ->
             if (success) {
                 trainerViewModel.addBadgeIfNeeded(
-                    Badge(0, xNumberOfBeats, yNumberOfBeats, bpm, mode.modeId, lastPlayedMeasure, Date())
+                        Badge(0, xNumberOfBeats, yNumberOfBeats, bpm, mode.modeId, lastPlayedMeasure, Date())
                 )
             }
         }
@@ -279,16 +281,16 @@ class TrainerFragment : Fragment() {
         trainerViewModel.mode.observe(viewLifecycleOwner, Observer { newMode ->
             trainer_mode_spinner.onItemSelectedListener = null
             trainer_mode_spinner.setSelection(
-                trainerViewModel.modes.indexOfFirst { it.modeId == newMode.modeId },
-                false
+                    trainerViewModel.modes.indexOfFirst { it.modeId == newMode.modeId },
+                    false
             )
             trainer_mode_spinner.onItemSelectedListener = spinnerListener
             trainer_view.mode = newMode
             lifecycleScope.launchWhenResumed {
                 nativeSetModeSettings(
-                    newMode.engineMeasures,
-                    newMode.playerMeasures,
-                    newMode.successWindow
+                        newMode.engineMeasures,
+                        newMode.playerMeasures,
+                        newMode.successWindow
                 )
             }
         })
@@ -299,12 +301,12 @@ class TrainerFragment : Fragment() {
 
     private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
         trainer_play_stop_button.icon = ContextCompat.getDrawable(
-            requireContext(),
-            when (newStatus) {
-                PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
-                PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
-                PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
-            }
+                requireContext(),
+                when (newStatus) {
+                    PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
+                    PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
+                    PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
+                }
         )
     }
 
@@ -337,7 +339,7 @@ class TrainerFragment : Fragment() {
 
     private fun changeThemePreference() {
         val sharedPreferences: SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
 
         val newThemePreference = when (getCurrentNightMode()) {
             Configuration.UI_MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
