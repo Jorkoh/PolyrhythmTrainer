@@ -1,12 +1,17 @@
 package com.jorkoh.polyrhythmtrainer.destinations
 
 import android.animation.TimeInterpolator
+import android.graphics.drawable.Drawable
 import android.os.SystemClock
 import android.view.View
+import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.transition.Transition
 import androidx.transition.TransitionSet
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -87,4 +92,15 @@ class DebounceClickListener(
 fun Date.toSimpleString(): String {
     val format = SimpleDateFormat.getDateInstance(DateFormat.SHORT)
     return format.format(this)
+}
+
+internal fun ImageView.applyLoopingAnimatedVectorDrawable(@DrawableRes avdResId: Int) {
+    val animated = AnimatedVectorDrawableCompat.create(context, avdResId)
+    animated?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+        override fun onAnimationEnd(drawable: Drawable?) {
+            this@applyLoopingAnimatedVectorDrawable.post { animated.start() }
+        }
+    })
+    this.setImageDrawable(animated)
+    animated?.start()
 }

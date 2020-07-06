@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Slide
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
+import com.jorkoh.polyrhythmtrainer.destinations.applyLoopingAnimatedVectorDrawable
 import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
 import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
 import kotlinx.android.synthetic.main.badges_fragment.*
@@ -24,8 +25,8 @@ class BadgesFragment : Fragment() {
     private val badgesViewModel: BadgesViewModel by viewModel()
 
     private val badgesAdapter = BadgeAdapter(
-        { Toast.makeText(requireContext(), "impossible trophy explanation", Toast.LENGTH_LONG).show() },
-        { Toast.makeText(requireContext(), "normal modes trophy explanation", Toast.LENGTH_LONG).show() }
+            { Toast.makeText(requireContext(), "impossible trophy explanation", Toast.LENGTH_LONG).show() },
+            { Toast.makeText(requireContext(), "normal modes trophy explanation", Toast.LENGTH_LONG).show() }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +65,14 @@ class BadgesFragment : Fragment() {
 
         badgesViewModel.badgesGroupedByPolyrhythm.observe(viewLifecycleOwner, Observer { newBadgeGroups ->
             badgesAdapter.badgeGroups = newBadgeGroups
+            if (newBadgeGroups.isEmpty()) {
+                badges_empty_animation.visibility = View.VISIBLE
+                badges_empty_text.visibility = View.VISIBLE
+                badges_empty_animation.applyLoopingAnimatedVectorDrawable(R.drawable.badges_empty_animation)
+            } else {
+                badges_empty_animation.visibility = View.INVISIBLE
+                badges_empty_text.visibility = View.INVISIBLE
+            }
             badges_recycler.doOnNextLayout {
                 startPostponedEnterTransition()
             }
