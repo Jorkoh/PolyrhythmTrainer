@@ -92,7 +92,7 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
                 R.drawable.ic_accidental_natural,
                 2,
                 4,
-                0.045f,
+                0.05f,
                 allowSomeMistakes = true,
                 showBeatLines = false
             ),
@@ -102,7 +102,7 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
                 R.drawable.ic_accidental_sharp,
                 2,
                 4,
-                0.03f,
+                0.04f,
                 allowSomeMistakes = false,
                 showBeatLines = false
             ),
@@ -112,7 +112,7 @@ class TrainerSettingsRepositoryImplementation(private val preferences: FlowShare
                 R.drawable.ic_fire,
                 2,
                 -1,
-                0.03f,
+                0.035f,
                 allowSomeMistakes = false,
                 showBeatLines = false
             )

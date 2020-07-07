@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.provider.Settings
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -64,7 +65,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     var bpm = DEFAULT_BPM
         set(value) {
             if (field != value) {
-                polyrhythmLengthMS = yNumberOfBeats * 60000 / value
+                polyrhythmLengthInMs = yNumberOfBeats * 60000 / value
                 field = value
                 stop()
             }
@@ -82,7 +83,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     var yNumberOfBeats = DEFAULT_Y_NUMBER_OF_BEATS
         set(value) {
             if (field != value) {
-                polyrhythmLengthMS = value * 60000 / bpm
+                polyrhythmLengthInMs = value * 60000 / bpm
                 yRhythmSubdivisions = calculateRhythmLineSubdivisions(value)
                 field = value
                 stop()
@@ -100,10 +101,10 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         }
 
     // Recalculated when changing BPM or y number of beats
-    private var polyrhythmLengthMS = yNumberOfBeats * 60000 / bpm
+    private var polyrhythmLengthInMs = yNumberOfBeats * 60000 / bpm
         set(value) {
             field = value
-            animator.duration = value.toLong()
+            animator.duration = calculateAnimatorDuration(value)
         }
 
     // Recalculated when changing BPM, causes redraw
@@ -193,7 +194,7 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
     private var animationProgress = 0f
     private var playerPhase = mode.engineMeasures == 0
     private var animator = ValueAnimator.ofInt(0, 1).apply {
-        duration = polyrhythmLengthMS.toLong()
+        duration = calculateAnimatorDuration(polyrhythmLengthInMs)
         addUpdateListener { valueAnimator ->
             interpolator = LinearInterpolator()
             repeatCount = calculateRepeatCount(mode)
@@ -277,6 +278,12 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
         progressPaint.color = progressColor
         progressPaint.isAntiAlias = true
         progressPaint.strokeWidth = resources.displayMetrics.density * 5
+    }
+
+    // Keep the animator speed constant independently of the user's animator duration setting
+    private fun calculateAnimatorDuration(lengthInMs: Int) : Long {
+        val animScale = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+        return (lengthInMs/animScale).toLong()
     }
 
     private fun calculateRhythmLineSubdivisions(numberOfBeats: Int) =
