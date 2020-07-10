@@ -21,6 +21,8 @@
     <string name="mode_impossible" translatable="true">Impossible</string>
     <string name="mode_impossible_description" translatable="true">Impossible mode</string>
 
+    <string name="start_stop_button_description" translatable="true">Start/stop exercise</string>
+
     <string name="listen_phase" translatable="true">listen phase</string>
     <string name="user_phase" translatable="true">user phase</string>
 
@@ -31,7 +33,8 @@
     <string name="mistake_available" translatable="true">mistake available</string>
     <string name="mistake_consumed" translatable="true">mistake used</string>
 
-    <string name="badge_empty" translatable="true">No badges yet...</string>
+    <string name="badge_empty" translatable="true">No badges yet…</string>
+    <string name="badge_empty_description" translatable="true">No badges yet…</string>
     <string name="badge_impossible" translatable="true">Impossible</string>
     <string name="badge_impossible_description" translatable="true">Impossible mode badge</string>
 

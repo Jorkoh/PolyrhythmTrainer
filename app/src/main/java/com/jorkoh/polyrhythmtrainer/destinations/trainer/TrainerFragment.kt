@@ -28,12 +28,9 @@ import androidx.preference.PreferenceManager
 import androidx.transition.Slide
 import com.jorkoh.polyrhythmtrainer.R
 import com.jorkoh.polyrhythmtrainer.db.Badge
-import com.jorkoh.polyrhythmtrainer.destinations.DebounceClickListener
-import com.jorkoh.polyrhythmtrainer.destinations.FAST_OUT_SLOW_IN
-import com.jorkoh.polyrhythmtrainer.destinations.plusAssign
+import com.jorkoh.polyrhythmtrainer.destinations.*
 import com.jorkoh.polyrhythmtrainer.destinations.sounds.SoundsFragment
 import com.jorkoh.polyrhythmtrainer.destinations.trainer.customviews.PolyrhythmVisualizer
-import com.jorkoh.polyrhythmtrainer.destinations.transitionTogether
 import com.jorkoh.polyrhythmtrainer.repositories.Mode
 import com.jorkoh.polyrhythmtrainer.repositories.RhythmLine
 import com.jorkoh.polyrhythmtrainer.repositories.TrainerSettingsRepositoryImplementation.Companion.DEFAULT_BPM
@@ -300,14 +297,11 @@ class TrainerFragment : Fragment() {
     }
 
     private fun setPlayPauseReplayButtonIcon(newStatus: PolyrhythmVisualizer.Status) {
-        trainer_play_stop_button.icon = ContextCompat.getDrawable(
-                requireContext(),
-                when (newStatus) {
-                    PolyrhythmVisualizer.Status.BEFORE_PLAY -> R.drawable.ic_play
-                    PolyrhythmVisualizer.Status.PLAYING -> R.drawable.ic_pause
-                    PolyrhythmVisualizer.Status.AFTER_PLAY -> R.drawable.ic_replay
-                }
-        )
+        when (newStatus) {
+            PolyrhythmVisualizer.Status.BEFORE_PLAY -> trainer_play_stop_button.applyLoopingAnimatedVectorDrawable(R.drawable.play_animation)
+            PolyrhythmVisualizer.Status.PLAYING -> trainer_play_stop_button.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_pause))
+            PolyrhythmVisualizer.Status.AFTER_PLAY -> trainer_play_stop_button.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_replay))
+        }
     }
 
     private fun calculateBPMFromTaps() {

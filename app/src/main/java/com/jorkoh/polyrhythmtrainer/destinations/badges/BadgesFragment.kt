@@ -68,7 +68,7 @@ class BadgesFragment : Fragment() {
             if (newBadgeGroups.isEmpty()) {
                 badges_empty_animation.visibility = View.VISIBLE
                 badges_empty_text.visibility = View.VISIBLE
-                badges_empty_animation.applyLoopingAnimatedVectorDrawable(R.drawable.badges_empty_animation)
+                badges_empty_animation.applyLoopingAnimatedVectorDrawable(R.drawable.empty_animation)
             } else {
                 badges_empty_animation.visibility = View.INVISIBLE
                 badges_empty_text.visibility = View.INVISIBLE

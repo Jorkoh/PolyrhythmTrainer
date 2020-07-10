@@ -19,13 +19,14 @@
         android:id="@+id/badges_empty_animation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/badges_empty_animation"
+        android:src="@drawable/empty_animation"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintVertical_bias="0.3"
+        android:contentDescription="@string/badge_empty_description" />
 
     <TextView
         android:id="@+id/badges_empty_text"

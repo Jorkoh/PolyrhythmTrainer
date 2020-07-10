@@ -216,23 +216,18 @@
 
     </LinearLayout>
 
-    <!-- TODO MAKE PLAY BUTTON MORE VISIBLE-->
-    <com.google.android.material.button.MaterialButton
+    <ImageView
         android:id="@+id/trainer_play_stop_button"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="76dp"
         android:layout_height="76dp"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        app:icon="@drawable/ic_play"
-        app:iconPadding="0dp"
-        app:iconSize="60dp"
+        android:padding="8dp"
+        android:src="@drawable/play_animation"
+        android:tint="?attr/colorOnBackground"
         app:layout_constraintBottom_toBottomOf="@id/trainer_number_of_beats_picker_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/trainer_number_of_beats_picker_layout"
-        app:layout_constraintTop_toTopOf="@id/trainer_number_of_beats_picker_layout" />
+        app:layout_constraintTop_toTopOf="@id/trainer_number_of_beats_picker_layout"
+        android:contentDescription="@string/start_stop_button_description" />
 
     <LinearLayout
         android:id="@+id/trainer_bpm_layout"
