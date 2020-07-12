@@ -225,7 +225,8 @@ class PolyrhythmVisualizer @JvmOverloads constructor(
             }
             animationProgress = 0f
             currentStatus = Status.AFTER_PLAY
-            if (attemptResultSuccess) {
+            // Successful if it didn't fail yet, it's past the listen phase and it's not metronome mode
+            if (attemptResultSuccess && currentMeasure > mode.engineMeasures && mode.engineMeasures > 0) {
                 actionOnExerciseEnd?.invoke(true, currentMeasure)
             }
             invalidate()
