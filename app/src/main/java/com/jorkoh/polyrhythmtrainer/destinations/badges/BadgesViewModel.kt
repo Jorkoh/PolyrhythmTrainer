@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.jorkoh.polyrhythmtrainer.db.Badge
 import com.jorkoh.polyrhythmtrainer.repositories.BadgesRepository
-import com.jorkoh.polyrhythmtrainer.repositories.ModeIds
 import kotlinx.coroutines.flow.transformLatest
 
 class BadgesViewModel(private val badgesRepository: BadgesRepository) : ViewModel() {
@@ -15,8 +14,8 @@ class BadgesViewModel(private val badgesRepository: BadgesRepository) : ViewMode
                 BadgesGroupedByPolyrhythm(
                     polyrhythm / 100,
                     polyrhythm % 100,
-                    badges,
-                    badges.any { it.modeId == ModeIds.IMPOSSIBLE.id })
+                    badges
+                )
             })
         }.asLiveData()
 }
@@ -24,6 +23,5 @@ class BadgesViewModel(private val badgesRepository: BadgesRepository) : ViewMode
 data class BadgesGroupedByPolyrhythm(
     val xBeats: Int,
     val yBeats: Int,
-    val badges: List<Badge>,
-    val hasImpossibleMode: Boolean
+    val badges: List<Badge>
 )

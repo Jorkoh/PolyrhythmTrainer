@@ -24,16 +24,6 @@ class BadgeAdapter(
             badge_row_x_number_of_beats_text.text = badgeGroup.xBeats.toString()
             badge_row_y_number_of_beats_text.text = badgeGroup.yBeats.toString()
 
-            badge_row_impossible_trophy.alpha = if (badgeGroup.hasImpossibleMode) {
-                1f
-            } else {
-                0.3f
-            }
-
-            badge_row_impossible_trophy.setOnClickListener {
-                impossibleTrophyPressed.invoke()
-            }
-
             val impossibleBadge = badgeGroup.badges.firstOrNull { it.modeId == ModeIds.IMPOSSIBLE.id }
             if (impossibleBadge != null) {
                 badge_row_impossible_mode_icon.alpha = 1f
