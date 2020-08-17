@@ -66,6 +66,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "org.koin:koin-android-viewmodel:$koin_version"
     implementation "androidx.transition:transition-ktx:1.4.0-alpha01"
+    implementation "com.android.billingclient:billing-ktx:$billing_version"
 
     implementation "com.github.tfcporciuncula.flow-preferences:flow-preferences:1.1.1"
 
@@ -73,7 +74,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:2.4"
     testImplementation "junit:junit:4.12"
     androidTestImplementation "androidx.test.ext:junit:1.1.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"

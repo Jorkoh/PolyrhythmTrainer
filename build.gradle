@@ -4,6 +4,7 @@ buildscript {
     ext.nav_version = "2.3.0"
     ext.koin_version = "2.1.5"
     ext.room_version = "2.2.5"
+    ext.billing_version = "3.0.0"
 
     repositories {
         google()
