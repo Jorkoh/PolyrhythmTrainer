@@ -46,6 +46,7 @@ android {
                 "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
                 "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"]
     }
+    ndkVersion '21.2.6472646'
 }
 
 androidExtensions {
@@ -74,7 +75,7 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:2.4"
+//    debugImplementation "com.squareup.leakcanary:leakcanary-android:2.4"
     testImplementation "junit:junit:4.12"
     androidTestImplementation "androidx.test.ext:junit:1.1.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
