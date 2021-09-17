@@ -33,3 +33,7 @@ Some technologies used to develop Polyrhythm Trainer:
 &nbsp; &nbsp;
   <img src="/readme-resources/screen_4.jpg" width="23%">
 </p>
+
+## Video demo
+
+https://user-images.githubusercontent.com/27740534/133852050-1b545feb-1189-49dc-82a2-3edc3c3b1d76.mp4
